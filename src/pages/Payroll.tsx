@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { isWeekend } from "@/hooks/usePolicySettings";
 import { format, eachDayOfInterval } from "date-fns";
-import { calculateCutoffTenure, calculateProrateFactor } from "@/lib/tenureCalculation";
+import { calculateCutoffTenure, calculateProrateFactor, calculateProrateFactorWithResign, getCutoffPeriodBounds } from "@/lib/tenureCalculation";
 import logo from "@/assets/logo.png";
 
 /** Parse "YYYY-MM-DD" as local date (avoids UTC-shift timezone bug) */
