@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { isWeekend } from "@/hooks/usePolicySettings";
 import { format, eachDayOfInterval } from "date-fns";
-import { calculateCutoffTenure, calculateProrateFactor } from "@/lib/tenureCalculation";
+import { calculateCutoffTenure, calculateProrateFactor, calculateProrateFactorWithResign, getCutoffPeriodBounds } from "@/lib/tenureCalculation";
 import logo from "@/assets/logo.png";
 
 /** Parse "YYYY-MM-DD" as local date (avoids UTC-shift timezone bug) */
@@ -684,8 +684,19 @@ const Payroll = () => {
         periodId = newPeriod.id;
       }
 
+      // Fetch cutoff day first to determine the active period bounds
+      const { data: cutoffSettingDataPre } = await supabase
+        .from("system_settings").select("value").eq("key", "attendance_allowance").maybeSingle();
+      const cutoffDayPre = (cutoffSettingDataPre?.value as any)?.cutoff_day || 21;
+      const { start: periodStartDate, end: periodEndDate } = getCutoffPeriodBounds(selectedMonth, selectedYear, cutoffDayPre);
+      const periodStartStr = format(periodStartDate, "yyyy-MM-dd");
+      const periodEndStr = format(periodEndDate, "yyyy-MM-dd");
+
+      // Active employees + Resigned employees whose resign_date falls within this cutoff period
       const { data: empsRaw } = await supabase
-        .from("profiles").select("id, full_name, basic_salary, ptkp_status, status, tunjangan_komunikasi, tunjangan_jabatan, tunjangan_operasional, bpjs_kesehatan_enabled, bpjs_ketenagakerjaan_enabled, join_date").eq("status", "Active");
+        .from("profiles")
+        .select("id, full_name, basic_salary, ptkp_status, status, tunjangan_komunikasi, tunjangan_jabatan, tunjangan_operasional, bpjs_kesehatan_enabled, bpjs_ketenagakerjaan_enabled, join_date, resign_date")
+        .or(`status.eq.Active,and(status.eq.Resigned,resign_date.gte.${periodStartStr},resign_date.lte.${periodEndStr})`);
 
       // Exclude admin users from payroll
       const { data: adminRoles } = await supabase
@@ -821,15 +832,14 @@ const Payroll = () => {
         loanDeductionMap.set(loan.user_id, existing);
       }
 
-      // Fetch cutoff day for prorate calculation
-      const { data: cutoffSettingData } = await supabase
-        .from("system_settings").select("value").eq("key", "attendance_allowance").maybeSingle();
-      const cutoffDay = (cutoffSettingData?.value as any)?.cutoff_day || 21;
+      // Cutoff already fetched above; reuse cutoffDayPre
+      const cutoffDay = cutoffDayPre;
 
       const payrollRecords = emps.map((emp: any) => {
-        // Calculate prorate factor for employees joining mid-period
+        // Calculate prorate factor for employees joining mid-period AND/OR resigning mid-period
         const joinDate = emp.join_date ? parseLocalDate(emp.join_date) : new Date(2000, 0, 1);
-        const prorateFactor = calculateProrateFactor(joinDate, selectedMonth, selectedYear, cutoffDay);
+        const resignDate = emp.resign_date ? parseLocalDate(emp.resign_date) : null;
+        const prorateFactor = calculateProrateFactorWithResign(joinDate, resignDate, selectedMonth, selectedYear, cutoffDay);
 
         const fullBasicSalary = Number(emp.basic_salary) || 0;
         const basicSalary = Math.round(fullBasicSalary * prorateFactor);
