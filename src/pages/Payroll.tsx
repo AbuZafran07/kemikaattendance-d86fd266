@@ -832,15 +832,14 @@ const Payroll = () => {
         loanDeductionMap.set(loan.user_id, existing);
       }
 
-      // Fetch cutoff day for prorate calculation
-      const { data: cutoffSettingData } = await supabase
-        .from("system_settings").select("value").eq("key", "attendance_allowance").maybeSingle();
-      const cutoffDay = (cutoffSettingData?.value as any)?.cutoff_day || 21;
+      // Cutoff already fetched above; reuse cutoffDayPre
+      const cutoffDay = cutoffDayPre;
 
       const payrollRecords = emps.map((emp: any) => {
-        // Calculate prorate factor for employees joining mid-period
+        // Calculate prorate factor for employees joining mid-period AND/OR resigning mid-period
         const joinDate = emp.join_date ? parseLocalDate(emp.join_date) : new Date(2000, 0, 1);
-        const prorateFactor = calculateProrateFactor(joinDate, selectedMonth, selectedYear, cutoffDay);
+        const resignDate = emp.resign_date ? parseLocalDate(emp.resign_date) : null;
+        const prorateFactor = calculateProrateFactorWithResign(joinDate, resignDate, selectedMonth, selectedYear, cutoffDay);
 
         const fullBasicSalary = Number(emp.basic_salary) || 0;
         const basicSalary = Math.round(fullBasicSalary * prorateFactor);
