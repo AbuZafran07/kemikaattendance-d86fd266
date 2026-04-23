@@ -684,8 +684,19 @@ const Payroll = () => {
         periodId = newPeriod.id;
       }
 
+      // Fetch cutoff day first to determine the active period bounds
+      const { data: cutoffSettingDataPre } = await supabase
+        .from("system_settings").select("value").eq("key", "attendance_allowance").maybeSingle();
+      const cutoffDayPre = (cutoffSettingDataPre?.value as any)?.cutoff_day || 21;
+      const { start: periodStartDate, end: periodEndDate } = getCutoffPeriodBounds(selectedMonth, selectedYear, cutoffDayPre);
+      const periodStartStr = format(periodStartDate, "yyyy-MM-dd");
+      const periodEndStr = format(periodEndDate, "yyyy-MM-dd");
+
+      // Active employees + Resigned employees whose resign_date falls within this cutoff period
       const { data: empsRaw } = await supabase
-        .from("profiles").select("id, full_name, basic_salary, ptkp_status, status, tunjangan_komunikasi, tunjangan_jabatan, tunjangan_operasional, bpjs_kesehatan_enabled, bpjs_ketenagakerjaan_enabled, join_date").eq("status", "Active");
+        .from("profiles")
+        .select("id, full_name, basic_salary, ptkp_status, status, tunjangan_komunikasi, tunjangan_jabatan, tunjangan_operasional, bpjs_kesehatan_enabled, bpjs_ketenagakerjaan_enabled, join_date, resign_date")
+        .or(`status.eq.Active,and(status.eq.Resigned,resign_date.gte.${periodStartStr},resign_date.lte.${periodEndStr})`);
 
       // Exclude admin users from payroll
       const { data: adminRoles } = await supabase
