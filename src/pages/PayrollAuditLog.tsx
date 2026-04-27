@@ -347,11 +347,10 @@ const PayrollAuditLog = () => {
 
             <DataTablePagination
               currentPage={page}
-              totalPages={Math.max(1, Math.ceil(filtered.length / pageSize))}
-              pageSize={pageSize}
               totalItems={filtered.length}
+              itemsPerPage={pageSize}
               onPageChange={setPage}
-              onPageSizeChange={(s) => {
+              onItemsPerPageChange={(s) => {
                 setPageSize(s);
                 setPage(1);
               }}
