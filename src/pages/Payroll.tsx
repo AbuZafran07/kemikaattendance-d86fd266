@@ -156,7 +156,10 @@ const Payroll = () => {
   const [payrollSearch, setPayrollSearch] = useState("");
   const [payrollPage, setPayrollPage] = useState(1);
   const payrollPerPage = 10;
+  const [showUnlockDialog, setShowUnlockDialog] = useState(false);
+  const [preGenerateSnapshot, setPreGenerateSnapshot] = useState<Map<string, any> | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
