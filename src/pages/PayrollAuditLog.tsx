@@ -325,8 +325,10 @@ const PayrollAuditLog = () => {
                         <TableCell className="text-sm">
                           {log.affected_name || <span className="text-muted-foreground italic">Semua</span>}
                         </TableCell>
-                        <TableCell className="max-w-xs truncate text-sm" title={log.reason}>
-                          {log.reason}
+                        <TableCell className="max-w-sm" title={log.reason}>
+                          <div className="rounded-md border-l-2 border-primary/60 bg-muted/40 px-2 py-1 text-xs leading-snug line-clamp-2 whitespace-pre-wrap">
+                            {log.reason}
+                          </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <Button
