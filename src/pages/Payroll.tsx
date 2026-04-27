@@ -1605,6 +1605,16 @@ const Payroll = () => {
                 <Lock className="h-3.5 w-3.5" /> Finalisasi
               </Button>
             )}
+            {period?.status === "finalized" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowUnlockDialog(true)}
+                className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Unlock className="h-3.5 w-3.5" /> Buka Kunci untuk Revisi
+              </Button>
+            )}
             {payrollData.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
