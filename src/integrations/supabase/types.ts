@@ -667,6 +667,48 @@ export type Database = {
           },
         ]
       }
+      payroll_audit_logs: {
+        Row: {
+          action_type: string
+          affected_user_id: string | null
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string
+          id: string
+          performed_by: string
+          period_id: string
+          period_month: number
+          period_year: number
+          reason: string
+        }
+        Insert: {
+          action_type: string
+          affected_user_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          id?: string
+          performed_by: string
+          period_id: string
+          period_month: number
+          period_year: number
+          reason: string
+        }
+        Update: {
+          action_type?: string
+          affected_user_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          id?: string
+          performed_by?: string
+          period_id?: string
+          period_month?: number
+          period_year?: number
+          reason?: string
+        }
+        Relationships: []
+      }
       payroll_overrides: {
         Row: {
           bonus_lainnya: number
