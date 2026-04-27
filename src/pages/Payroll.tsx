@@ -34,6 +34,10 @@ import { isWeekend } from "@/hooks/usePolicySettings";
 import { format, eachDayOfInterval } from "date-fns";
 import { calculateCutoffTenure, calculateProrateFactor, calculateProrateFactorWithResign, getCutoffPeriodBounds } from "@/lib/tenureCalculation";
 import logo from "@/assets/logo.png";
+import { UnlockPayrollDialog } from "@/components/UnlockPayrollDialog";
+import { logPayrollAction, snapshotPayrollRow } from "@/lib/payrollAuditLog";
+import { useAuth } from "@/contexts/AuthContext";
+import { Unlock } from "lucide-react";
 
 /** Parse "YYYY-MM-DD" as local date (avoids UTC-shift timezone bug) */
 const parseLocalDate = (s: string): Date => {
