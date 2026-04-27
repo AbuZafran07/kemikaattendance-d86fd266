@@ -2412,6 +2412,13 @@ const Payroll = () => {
           <PayrollOverrideHistory />
         </TabsContent>
       </Tabs>
+
+      <UnlockPayrollDialog
+        open={showUnlockDialog}
+        onOpenChange={setShowUnlockDialog}
+        onConfirm={handleUnlock}
+        periodLabel={period ? `${MONTHS[selectedMonth - 1].label} ${selectedYear}` : ""}
+      />
     </DashboardLayout>
   );
 };
