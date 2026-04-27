@@ -188,7 +188,7 @@ const PayrollAuditLog = () => {
                   <TableCell className="text-right font-medium">
                     {isNum ? formatRupiah(Number(c.after || 0)) : String(c.after ?? "-")}
                   </TableCell>
-                  <TableCell className={`text-right font-medium ${diff && diff > 0 ? "text-emerald-600" : diff && diff < 0 ? "text-destructive" : ""}`}>
+                  <TableCell className={`text-right font-medium ${diff && diff > 0 ? "text-primary" : diff && diff < 0 ? "text-destructive" : ""}`}>
                     {diff !== null ? (diff > 0 ? "+" : "") + formatRupiah(diff) : "-"}
                   </TableCell>
                 </TableRow>
@@ -235,7 +235,7 @@ const PayrollAuditLog = () => {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-2xl font-bold text-amber-600">
+              <p className="text-2xl font-bold text-foreground">
                 {logs.filter((l) => l.action_type === "regenerate").length}
               </p>
               <p className="text-xs text-muted-foreground">Generate Ulang</p>
@@ -243,7 +243,7 @@ const PayrollAuditLog = () => {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <p className="text-2xl font-bold text-emerald-700">
+              <p className="text-2xl font-bold text-primary">
                 {logs.filter((l) => l.action_type === "refinalize").length}
               </p>
               <p className="text-xs text-muted-foreground">Finalisasi Ulang</p>
