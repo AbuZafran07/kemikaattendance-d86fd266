@@ -34,6 +34,10 @@ import { isWeekend } from "@/hooks/usePolicySettings";
 import { format, eachDayOfInterval } from "date-fns";
 import { calculateCutoffTenure, calculateProrateFactor, calculateProrateFactorWithResign, getCutoffPeriodBounds } from "@/lib/tenureCalculation";
 import logo from "@/assets/logo.png";
+import { UnlockPayrollDialog } from "@/components/UnlockPayrollDialog";
+import { logPayrollAction, snapshotPayrollRow } from "@/lib/payrollAuditLog";
+import { useAuth } from "@/contexts/AuthContext";
+import { Unlock } from "lucide-react";
 
 /** Parse "YYYY-MM-DD" as local date (avoids UTC-shift timezone bug) */
 const parseLocalDate = (s: string): Date => {
@@ -152,7 +156,10 @@ const Payroll = () => {
   const [payrollSearch, setPayrollSearch] = useState("");
   const [payrollPage, setPayrollPage] = useState(1);
   const payrollPerPage = 10;
+  const [showUnlockDialog, setShowUnlockDialog] = useState(false);
+  const [preGenerateSnapshot, setPreGenerateSnapshot] = useState<Map<string, any> | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
@@ -976,6 +983,57 @@ const Payroll = () => {
         title: "Payroll Berhasil Di-generate",
         description: `${payrollRecords.length} karyawan dihitung untuk ${MONTHS[selectedMonth - 1].label} ${selectedYear}.`,
       });
+
+      // === AUDIT LOG: regenerate after unlock ===
+      if (preGenerateSnapshot && preGenerateSnapshot.size > 0 && user) {
+        try {
+          // Build map of new payroll rows by user_id
+          const newRowsByUser = new Map<string, any>();
+          payrollRecords.forEach((r: any) => newRowsByUser.set(r.user_id, r));
+
+          // Get the unlock reason from latest audit log
+          const { data: latestUnlock } = await supabase
+            .from("payroll_audit_logs" as any)
+            .select("reason")
+            .eq("period_id", periodId)
+            .eq("action_type", "unlock")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          const unlockReason = (latestUnlock as any)?.reason || "Generate ulang setelah unlock";
+
+          // Log per-employee diff (only those that changed)
+          const auditPromises: Promise<any>[] = [];
+          for (const [userId, beforeSnap] of preGenerateSnapshot.entries()) {
+            const newRow = newRowsByUser.get(userId);
+            if (!newRow) continue;
+            const afterSnap = snapshotPayrollRow(newRow);
+            // Skip if no changes
+            const changed = Object.keys(afterSnap).some(
+              (k) => (beforeSnap as any)[k] !== (afterSnap as any)[k]
+            );
+            if (!changed) continue;
+            auditPromises.push(
+              logPayrollAction({
+                period_id: periodId,
+                period_month: selectedMonth,
+                period_year: selectedYear,
+                action_type: "regenerate",
+                performed_by: user.id,
+                reason: unlockReason,
+                affected_user_id: userId,
+                before_data: beforeSnap,
+                after_data: afterSnap,
+              })
+            );
+          }
+          await Promise.all(auditPromises);
+          setPreGenerateSnapshot(null);
+        } catch (auditErr) {
+          console.error("Failed to log regenerate audit:", auditErr);
+        }
+      }
+
       fetchPayrollData();
     } catch (error: any) {
       console.error("Error generating payroll:", error);
@@ -985,10 +1043,79 @@ const Payroll = () => {
     }
   };
 
+  const handleUnlock = async (reason: string) => {
+    if (!period || !user) return;
+    try {
+      // Snapshot current payroll BEFORE unlocking
+      const { data: currentRows } = await supabase
+        .from("payroll")
+        .select("*")
+        .eq("period_id", period.id);
+
+      const snap = new Map<string, any>();
+      (currentRows || []).forEach((row: any) => {
+        snap.set(row.user_id, snapshotPayrollRow(row));
+      });
+      setPreGenerateSnapshot(snap);
+
+      // Unlock period (status -> draft)
+      const { error } = await supabase
+        .from("payroll_periods")
+        .update({ status: "draft" })
+        .eq("id", period.id);
+      if (error) throw error;
+
+      // Log unlock action
+      await logPayrollAction({
+        period_id: period.id,
+        period_month: selectedMonth,
+        period_year: selectedYear,
+        action_type: "unlock",
+        performed_by: user.id,
+        reason,
+        affected_user_id: null,
+        before_data: { status: "finalized", total_employees: snap.size },
+        after_data: { status: "draft" },
+      });
+
+      toast({
+        title: "Payroll Berhasil Dibuka",
+        description: "Periode kembali ke Draft. Lakukan revisi lalu Generate ulang & Finalisasi.",
+      });
+      fetchPayrollData();
+    } catch (error: any) {
+      console.error("Error unlocking payroll:", error);
+      toast({ title: "Gagal Membuka Kunci", description: error.message, variant: "destructive" });
+      throw error;
+    }
+  };
+
   const handleFinalize = async () => {
-    if (!period) return;
+    if (!period || !user) return;
     try {
       await supabase.from("payroll_periods").update({ status: "finalized" }).eq("id", period.id);
+
+      // If this period had been unlocked before, log as refinalize
+      const { data: unlockExists } = await supabase
+        .from("payroll_audit_logs" as any)
+        .select("id")
+        .eq("period_id", period.id)
+        .eq("action_type", "unlock")
+        .limit(1)
+        .maybeSingle();
+
+      if (unlockExists) {
+        await logPayrollAction({
+          period_id: period.id,
+          period_month: selectedMonth,
+          period_year: selectedYear,
+          action_type: "refinalize",
+          performed_by: user.id,
+          reason: "Finalisasi ulang setelah revisi",
+          affected_user_id: null,
+        });
+      }
+
       toast({ title: "Payroll Difinalisasi", description: "Payroll periode ini sudah dikunci." });
       fetchPayrollData();
     } catch (error: any) {
@@ -1476,6 +1603,16 @@ const Payroll = () => {
             {period?.status === "draft" && payrollData.length > 0 && (
               <Button variant="outline" size="sm" onClick={handleFinalize} className="gap-1.5">
                 <Lock className="h-3.5 w-3.5" /> Finalisasi
+              </Button>
+            )}
+            {period?.status === "finalized" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowUnlockDialog(true)}
+                className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Unlock className="h-3.5 w-3.5" /> Buka Kunci untuk Revisi
               </Button>
             )}
             {payrollData.length > 0 && (
@@ -2275,6 +2412,13 @@ const Payroll = () => {
           <PayrollOverrideHistory />
         </TabsContent>
       </Tabs>
+
+      <UnlockPayrollDialog
+        open={showUnlockDialog}
+        onOpenChange={setShowUnlockDialog}
+        onConfirm={handleUnlock}
+        periodLabel={period ? `${MONTHS[selectedMonth - 1].label} ${selectedYear}` : ""}
+      />
     </DashboardLayout>
   );
 };
