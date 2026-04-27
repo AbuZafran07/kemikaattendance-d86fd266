@@ -74,7 +74,8 @@ const navigationGroups = [
     label: "LAPORAN",
     items: [
       { name: "Laporan", href: "/dashboard/reports", icon: FileText },
-      { name: "Audit Log", href: "/dashboard/approval-audit-log", icon: ShieldCheck },
+      { name: "Audit Log Persetujuan", href: "/dashboard/approval-audit-log", icon: ShieldCheck },
+      { name: "Audit Log Payroll", href: "/dashboard/payroll-audit-log", icon: ShieldCheck },
       { name: "Notifikasi", href: "/dashboard/notifications", icon: Bell },
     ],
   },

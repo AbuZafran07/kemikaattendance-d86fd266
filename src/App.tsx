@@ -50,6 +50,7 @@ import TERManagement from "./pages/TERManagement";
 import BuktiPotong1721A1 from "./pages/BuktiPotong1721A1";
 import PPh21Report from "./pages/PPh21Report";
 import PayrollAnalytics from "./pages/PayrollAnalytics";
+import PayrollAuditLog from "./pages/PayrollAuditLog";
 import AnnouncementManagement from "./pages/AnnouncementManagement";
 import CompanyBankSettings from "./pages/CompanyBankSettings";
 import BPJSSettings from "./pages/BPJSSettings";
@@ -96,6 +97,7 @@ const App = () => <QueryClientProvider client={queryClient}>
             <Route path="/dashboard/bukti-potong" element={<ProtectedRoute requireAdmin><BuktiPotong1721A1 /></ProtectedRoute>} />
             <Route path="/dashboard/reports/pph21" element={<ProtectedRoute requireAdmin><PPh21Report /></ProtectedRoute>} />
             <Route path="/dashboard/payroll-analytics" element={<ProtectedRoute requireAdmin><PayrollAnalytics /></ProtectedRoute>} />
+            <Route path="/dashboard/payroll-audit-log" element={<ProtectedRoute requireAdmin><PayrollAuditLog /></ProtectedRoute>} />
             <Route path="/dashboard/announcements" element={<ProtectedRoute requireAdmin><AnnouncementManagement /></ProtectedRoute>} />
             <Route path="/dashboard/notifications" element={<ProtectedRoute requireAdmin><Notifications /></ProtectedRoute>} />
             <Route path="/employee" element={<ProtectedRoute><EmployeeView /></ProtectedRoute>} />
