@@ -128,9 +128,9 @@ const PayrollAuditLog = () => {
       case "unlock":
         return <Badge variant="destructive" className="gap-1"><Unlock className="h-3 w-3" />Buka Kunci</Badge>;
       case "regenerate":
-        return <Badge className="gap-1 bg-amber-600 hover:bg-amber-700"><RefreshCw className="h-3 w-3" />Generate Ulang</Badge>;
+        return <Badge variant="secondary" className="gap-1"><RefreshCw className="h-3 w-3" />Generate Ulang</Badge>;
       case "refinalize":
-        return <Badge className="gap-1 bg-emerald-700 hover:bg-emerald-800"><Lock className="h-3 w-3" />Finalisasi Ulang</Badge>;
+        return <Badge className="gap-1"><Lock className="h-3 w-3" />Finalisasi Ulang</Badge>;
       default:
         return <Badge variant="outline">{action}</Badge>;
     }
