@@ -31,6 +31,8 @@ import OvertimeSettings from "./pages/OvertimeSettings";
 import SpecialWorkHoursSettings from "./pages/SpecialWorkHoursSettings";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import KPI from "./pages/KPI";
+import EmployeeKPI from "./pages/EmployeeKPI";
 import EmployeeSelfService from "./pages/EmployeeSelfService";
 import EmployeeNotifications from "./pages/EmployeeNotifications";
 import RequestHistory from "./pages/RequestHistory";
@@ -124,6 +126,8 @@ const App = () => <QueryClientProvider client={queryClient}>
             <Route path="/dashboard/settings/department-jabatan" element={<ProtectedRoute requireAdmin><DepartmentJabatanSettings /></ProtectedRoute>} />
             <Route path="/dashboard/settings/holidays" element={<ProtectedRoute requireAdmin><HolidayEventSettings /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/dashboard/kpi" element={<ProtectedRoute requireAdmin><KPI /></ProtectedRoute>} />
+            <Route path="/employee/kpi" element={<ProtectedRoute><EmployeeKPI /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
