@@ -20,7 +20,8 @@ import {
   BarChart3,
   FileCheck,
   Megaphone,
-  ShieldCheck
+  ShieldCheck,
+  Target
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -68,6 +69,12 @@ const navigationGroups = [
       { name: "Tarif TER PPh21", href: "/dashboard/ter-management", icon: FileText },
       { name: "Bukti Potong 1721-A1", href: "/dashboard/bukti-potong", icon: FileCheck },
       { name: "Laporan PPh 21", href: "/dashboard/reports/pph21", icon: FileText },
+    ],
+  },
+  {
+    label: "KPI",
+    items: [
+      { name: "KPI Management", href: "/dashboard/kpi", icon: Target },
     ],
   },
   {
