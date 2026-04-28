@@ -386,6 +386,159 @@ export type Database = {
         }
         Relationships: []
       }
+      kpi_grade_settings: {
+        Row: {
+          bonus_percent: number
+          created_at: string
+          grade: string
+          id: string
+          min_score: number
+          updated_at: string
+        }
+        Insert: {
+          bonus_percent?: number
+          created_at?: string
+          grade: string
+          id?: string
+          min_score: number
+          updated_at?: string
+        }
+        Update: {
+          bonus_percent?: number
+          created_at?: string
+          grade?: string
+          id?: string
+          min_score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      kpi_indicators: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          custom_expr: string | null
+          custom_vars: Json | null
+          description: string | null
+          formula_type: string
+          id: string
+          name: string
+          sort_order: number | null
+          target: string
+          thresholds: Json | null
+          unit: string
+          updated_at: string
+          user_id: string | null
+          weight: number
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          custom_expr?: string | null
+          custom_vars?: Json | null
+          description?: string | null
+          formula_type?: string
+          id?: string
+          name: string
+          sort_order?: number | null
+          target?: string
+          thresholds?: Json | null
+          unit?: string
+          updated_at?: string
+          user_id?: string | null
+          weight?: number
+          year: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          custom_expr?: string | null
+          custom_vars?: Json | null
+          description?: string | null
+          formula_type?: string
+          id?: string
+          name?: string
+          sort_order?: number | null
+          target?: string
+          thresholds?: Json | null
+          unit?: string
+          updated_at?: string
+          user_id?: string | null
+          weight?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_indicators_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_indicators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_realizations: {
+        Row: {
+          created_at: string
+          custom_values: Json | null
+          id: string
+          indicator_id: string | null
+          month: number
+          notes: string | null
+          updated_at: string
+          user_id: string | null
+          value: number | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          custom_values?: Json | null
+          id?: string
+          indicator_id?: string | null
+          month: number
+          notes?: string | null
+          updated_at?: string
+          user_id?: string | null
+          value?: number | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          custom_values?: Json | null
+          id?: string
+          indicator_id?: string | null
+          month?: number
+          notes?: string | null
+          updated_at?: string
+          user_id?: string | null
+          value?: number | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_realizations_indicator_id_fkey"
+            columns: ["indicator_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_indicators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_realizations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leave_requests: {
         Row: {
           approval_notes: string | null
