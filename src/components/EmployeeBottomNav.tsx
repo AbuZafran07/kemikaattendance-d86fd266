@@ -1,4 +1,4 @@
-import { Home, Plane, Bell, User, LayoutGrid, Target } from "lucide-react";
+import { Home, Bell, User, LayoutGrid, Target } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useNotificationBadge } from "@/hooks/useNotificationBadge";
