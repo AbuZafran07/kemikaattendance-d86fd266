@@ -13,8 +13,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Target, Plus, Trash2, Save, TrendingUp, Users, Award, DollarSign,
-  Loader2, ChevronDown, ChevronUp,
+  Loader2, ChevronDown, ChevronUp, Info, HelpCircle, Settings2, BookOpen,
 } from "lucide-react";
+import {
+  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
+} from "@/components/ui/accordion";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
 
