@@ -93,6 +93,8 @@ const scoreColor = (s: number) => {
 };
 
 import { safeEval, validateCustomExpr } from "@/lib/kpiFormula";
+import { FormulaAutocompleteInput } from "@/components/FormulaAutocompleteInput";
+import { FormulaTemplateGallery } from "@/components/FormulaTemplateGallery";
 const computeIndicatorScore = (ind: Indicator, reals: Realization[]): { score: number; realized: number } => {
   const target = parseFloat(ind.target) || 0;
   const filled = reals.filter((r) => {
@@ -1012,22 +1014,28 @@ export default function KPIPage() {
 
                     {ind.formula_type === "custom" && (
                       <div className="md:col-span-2 border rounded-md p-3 space-y-3 bg-muted/30">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
                             <Label>Variabel Custom</Label>
                             <p className="text-xs text-muted-foreground">Alias dikunci & tidak berubah meski variabel dihapus, agar data historis & formula tetap konsisten.</p>
                           </div>
-                          <Button size="sm" variant="outline" onClick={() => {
-                            // Generate next stable alias by finding max existing v{n}
-                            const usedNums = ind.custom_vars
-                              .map((c) => /^v(\d+)$/.exec(c.alias)?.[1])
-                              .filter((s): s is string => !!s)
-                              .map((s) => parseInt(s, 10));
-                            const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 0;
-                            updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias: `v${nextNum}` }] });
-                          }}>
-                            <Plus className="h-3 w-3 mr-1" /> Tambah Variabel
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <FormulaTemplateGallery
+                              existingVars={ind.custom_vars}
+                              onApply={({ expr, vars }) => updateIndicator(idx, { custom_expr: expr, custom_vars: vars })}
+                            />
+                            <Button size="sm" variant="outline" onClick={() => {
+                              // Generate next stable alias by finding max existing v{n}
+                              const usedNums = ind.custom_vars
+                                .map((c) => /^v(\d+)$/.exec(c.alias)?.[1])
+                                .filter((s): s is string => !!s)
+                                .map((s) => parseInt(s, 10));
+                              const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 0;
+                              updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias: `v${nextNum}` }] });
+                            }}>
+                              <Plus className="h-3 w-3 mr-1" /> Tambah Variabel
+                            </Button>
+                          </div>
                         </div>
                         {ind.custom_vars.length === 0 && (
                           <p className="text-xs text-muted-foreground italic">Belum ada variabel. Tambahkan minimal 1 variabel untuk indikator ini.</p>
@@ -1064,10 +1072,11 @@ export default function KPIPage() {
                           return (
                             <div>
                               <Label>Ekspresi Formula</Label>
-                              <Input
-                                placeholder="e.g. (v0 / v1) * 100"
+                              <FormulaAutocompleteInput
+                                placeholder="e.g. CLAMP(PERCENT(v0, v1), 0, 100)"
                                 value={ind.custom_expr}
-                                onChange={(e) => updateIndicator(idx, { custom_expr: e.target.value })}
+                                onChange={(v) => updateIndicator(idx, { custom_expr: v })}
+                                vars={ind.custom_vars}
                                 className={exprError && ind.custom_expr ? "border-destructive focus-visible:ring-destructive" : ""}
                               />
                               <p className="text-xs text-muted-foreground mt-1">
@@ -1075,6 +1084,7 @@ export default function KPIPage() {
                                   ? ind.custom_vars.map((c) => `${c.alias}${c.label ? ` (${c.label})` : ""}`).join(", ")
                                   : "belum ada variabel"}
                               </p>
+                              <p className="text-[11px] text-muted-foreground italic">💡 Ketik nama fungsi atau alias variabel — saran muncul otomatis. Pakai <kbd className="px-1 border rounded">↑</kbd>/<kbd className="px-1 border rounded">↓</kbd> + <kbd className="px-1 border rounded">Enter</kbd>/<kbd className="px-1 border rounded">Tab</kbd> untuk memilih.</p>
                               <p className="text-xs text-muted-foreground">
                                 Operator: <code className="px-1 rounded bg-muted">+ − * / ( ) = &lt;&gt; &lt; &gt; &lt;= &gt;=</code> · Fungsi: <code className="px-1 rounded bg-muted">IF IFS SWITCH AND OR NOT MIN MAX SUM AVG MEDIAN ROUND CLAMP POWER SQRT MOD PERCENT BETWEEN</code> <span className="italic">(lihat panduan di atas untuk daftar lengkap)</span>
                               </p>
