@@ -1014,22 +1014,28 @@ export default function KPIPage() {
 
                     {ind.formula_type === "custom" && (
                       <div className="md:col-span-2 border rounded-md p-3 space-y-3 bg-muted/30">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
                             <Label>Variabel Custom</Label>
                             <p className="text-xs text-muted-foreground">Alias dikunci & tidak berubah meski variabel dihapus, agar data historis & formula tetap konsisten.</p>
                           </div>
-                          <Button size="sm" variant="outline" onClick={() => {
-                            // Generate next stable alias by finding max existing v{n}
-                            const usedNums = ind.custom_vars
-                              .map((c) => /^v(\d+)$/.exec(c.alias)?.[1])
-                              .filter((s): s is string => !!s)
-                              .map((s) => parseInt(s, 10));
-                            const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 0;
-                            updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias: `v${nextNum}` }] });
-                          }}>
-                            <Plus className="h-3 w-3 mr-1" /> Tambah Variabel
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <FormulaTemplateGallery
+                              existingVars={ind.custom_vars}
+                              onApply={({ expr, vars }) => updateIndicator(idx, { custom_expr: expr, custom_vars: vars })}
+                            />
+                            <Button size="sm" variant="outline" onClick={() => {
+                              // Generate next stable alias by finding max existing v{n}
+                              const usedNums = ind.custom_vars
+                                .map((c) => /^v(\d+)$/.exec(c.alias)?.[1])
+                                .filter((s): s is string => !!s)
+                                .map((s) => parseInt(s, 10));
+                              const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 0;
+                              updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias: `v${nextNum}` }] });
+                            }}>
+                              <Plus className="h-3 w-3 mr-1" /> Tambah Variabel
+                            </Button>
+                          </div>
                         </div>
                         {ind.custom_vars.length === 0 && (
                           <p className="text-xs text-muted-foreground italic">Belum ada variabel. Tambahkan minimal 1 variabel untuk indikator ini.</p>
