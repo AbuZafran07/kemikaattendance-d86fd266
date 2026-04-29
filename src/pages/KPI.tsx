@@ -92,20 +92,71 @@ const scoreColor = (s: number) => {
   return "bg-red-500";
 };
 
-// Safe expression eval — only digits, operators, parens, dot, spaces, vN tokens
+// Supported Excel-like functions (uppercase, case-insensitive in input)
+// MIN, MAX, ABS, ROUND, FLOOR, CEILING/CEIL, MOD, POWER/POW, SQRT, IF, AND, OR, NOT
+const FUNC_MAP: Record<string, string> = {
+  MIN: "Math.min",
+  MAX: "Math.max",
+  ABS: "Math.abs",
+  ROUND: "Math.round",
+  FLOOR: "Math.floor",
+  CEILING: "Math.ceil",
+  CEIL: "Math.ceil",
+  SQRT: "Math.sqrt",
+  POWER: "Math.pow",
+  POW: "Math.pow",
+};
+const ALLOWED_FUNCS = new Set(Object.keys(FUNC_MAP).concat(["MOD", "IF", "AND", "OR", "NOT"]));
+
+// Preprocess Excel-like expression -> safe JS expression
+const preprocessExpr = (expr: string): string => {
+  let s = expr;
+  // Excel comparisons: = -> ==, <> -> !=  (do <> first)
+  s = s.replace(/<>/g, "!=");
+  // Replace lone '=' (not ==, !=, <=, >=) with '=='
+  s = s.replace(/([^=!<>])=(?!=)/g, "$1==");
+  // Uppercase function names (only when followed by '(')
+  s = s.replace(/([A-Za-z_][A-Za-z0-9_]*)\s*\(/g, (_m, name) => {
+    const up = name.toUpperCase();
+    if (ALLOWED_FUNCS.has(up)) {
+      if (up === "MOD") return "__MOD__(";
+      if (up === "IF") return "__IF__(";
+      if (up === "AND") return "__AND__(";
+      if (up === "OR") return "__OR__(";
+      if (up === "NOT") return "__NOT__(";
+      return `${FUNC_MAP[up]}(`;
+    }
+    return `${name}(`; // leave as-is; will fail validation later
+  });
+  return s;
+};
+
+const EVAL_HELPERS = `
+  const __MOD__ = (a,b) => b === 0 ? 0 : a - Math.floor(a/b)*b;
+  const __IF__ = (cond, a, b) => cond ? a : b;
+  const __AND__ = (...xs) => xs.every(Boolean);
+  const __OR__ = (...xs) => xs.some(Boolean);
+  const __NOT__ = (x) => !x;
+`;
+
+// Safe expression eval with Excel-like function support
 const safeEval = (expr: string, vars: Record<string, number>): number => {
   if (!expr.trim()) return 0;
-  let replaced = expr;
+  let replaced = preprocessExpr(expr);
   Object.keys(vars)
     .sort((a, b) => b.length - a.length)
     .forEach((k) => {
-      replaced = replaced.replace(new RegExp(`\\b${k}\\b`, "g"), String(vars[k] ?? 0));
+      replaced = replaced.replace(new RegExp(`\\b${k}\\b`, "g"), `(${Number(vars[k] ?? 0)})`);
     });
-  if (!/^[0-9+\-*/().\s]+$/.test(replaced)) return 0;
+  // Allow: digits, + - * / ( ) . , spaces, comparison operators, Math.xxx, __XXX__ helpers
+  const allowed = replaced.replace(/Math\.(min|max|abs|round|floor|ceil|sqrt|pow)/g, "")
+                          .replace(/__(MOD|IF|AND|OR|NOT)__/g, "");
+  if (!/^[0-9+\-*/().,\s<>=!]+$/.test(allowed)) return 0;
   try {
     // eslint-disable-next-line no-new-func
-    const r = Function(`"use strict"; return (${replaced});`)();
-    return typeof r === "number" && isFinite(r) ? r : 0;
+    const r = Function(`"use strict"; ${EVAL_HELPERS} return (${replaced});`)();
+    const n = typeof r === "boolean" ? (r ? 1 : 0) : r;
+    return typeof n === "number" && isFinite(n) ? n : 0;
   } catch {
     return 0;
   }
