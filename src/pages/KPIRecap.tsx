@@ -130,7 +130,7 @@ export default function KPIRecap() {
   const [grades, setGrades] = useState<GradeSetting[]>([]);
   const [search, setSearch] = useState("");
   const [deptFilter, setDeptFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "with" | "without">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "with" | "without">("with");
 
   const loadAll = async () => {
     setLoading(true);
