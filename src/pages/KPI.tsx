@@ -1046,7 +1046,7 @@ export default function KPIPage() {
                                   : "belum ada variabel"}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Operator yang didukung: <code className="px-1 rounded bg-muted">+ - * / ( )</code>
+                                Operator: <code className="px-1 rounded bg-muted">+ − * / ( ) = &lt;&gt; &lt; &gt; &lt;= &gt;=</code> · Fungsi: <code className="px-1 rounded bg-muted">MIN MAX ABS ROUND FLOOR CEILING SQRT POWER MOD IF AND OR NOT</code>
                               </p>
                               {exprError && ind.custom_expr && (
                                 <p className="text-xs text-destructive mt-1 font-medium">⚠ {exprError}</p>
