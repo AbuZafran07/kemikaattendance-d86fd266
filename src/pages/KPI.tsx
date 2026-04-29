@@ -378,6 +378,19 @@ export default function KPIPage() {
       });
       return;
     }
+    // Validate every custom-formula indicator before saving
+    for (const ind of indicators) {
+      if (ind.formula_type !== "custom") continue;
+      const err = validateCustomExpr(ind.custom_expr, ind.custom_vars);
+      if (err) {
+        toast({
+          title: `Formula tidak valid: ${ind.name || "Indicator tanpa nama"}`,
+          description: err,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     setSaving(true);
     try {
       const payload = indicators.map((i, idx) => ({
