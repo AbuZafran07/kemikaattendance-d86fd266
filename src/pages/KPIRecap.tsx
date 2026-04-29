@@ -141,7 +141,7 @@ export default function KPIRecap() {
           supabase.from("kpi_indicators").select("*").eq("year", year),
           supabase.from("kpi_realizations").select("*").eq("year", year),
           supabase.from("kpi_grade_settings").select("*").order("min_score", { ascending: false }),
-          supabase.from("user_roles").select("user_id, role").in("role", ["admin", "super_admin"] as any),
+          supabase.from("user_roles").select("user_id, role").in("role", ["admin", "hr"] as any),
         ]);
       if (pe || ie || re || ge || rolesErr) throw pe || ie || re || ge || rolesErr;
       const adminIds = new Set((roles || []).map((r: any) => r.user_id));
