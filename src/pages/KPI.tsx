@@ -93,6 +93,8 @@ const scoreColor = (s: number) => {
 };
 
 import { safeEval, validateCustomExpr } from "@/lib/kpiFormula";
+import { FormulaAutocompleteInput } from "@/components/FormulaAutocompleteInput";
+import { FormulaTemplateGallery } from "@/components/FormulaTemplateGallery";
 const computeIndicatorScore = (ind: Indicator, reals: Realization[]): { score: number; realized: number } => {
   const target = parseFloat(ind.target) || 0;
   const filled = reals.filter((r) => {
