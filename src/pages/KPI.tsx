@@ -995,6 +995,8 @@ export default function KPIPage() {
                             );
                           })}
                         </div>
+                      ) : ind.custom_vars.length === 0 ? (
+                        <p className="text-sm text-muted-foreground italic">Belum ada variabel custom. Tambahkan variabel di tab Setup Indicator terlebih dahulu.</p>
                       ) : (
                         <div className="space-y-3">
                           {MONTHS.map((m, mi) => {
@@ -1007,7 +1009,10 @@ export default function KPIPage() {
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                   {ind.custom_vars.map((v) => (
                                     <div key={v.alias}>
-                                      <Label className="text-xs">{v.label || v.alias}</Label>
+                                      <Label className="text-xs">
+                                        {v.label || <span className="italic text-muted-foreground">(tanpa label)</span>}{" "}
+                                        <span className="font-mono text-muted-foreground">[{v.alias}]</span>
+                                      </Label>
                                       <Input
                                         type="number"
                                         defaultValue={cv[v.alias] ?? ""}
