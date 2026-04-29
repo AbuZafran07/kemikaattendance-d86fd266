@@ -971,16 +971,31 @@ export default function KPIPage() {
                             </div>
                           </div>
                         ))}
-                        <div>
-                          <Label>Ekspresi Formula</Label>
-                          <Input placeholder="e.g. (v0 / v1) * 100" value={ind.custom_expr}
-                            onChange={(e) => updateIndicator(idx, { custom_expr: e.target.value })} />
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Alias tersedia: {ind.custom_vars.length > 0
-                              ? ind.custom_vars.map((c) => `${c.alias}${c.label ? ` (${c.label})` : ""}`).join(", ")
-                              : "belum ada variabel"}
-                          </p>
-                        </div>
+                        {(() => {
+                          const exprError = validateCustomExpr(ind.custom_expr, ind.custom_vars);
+                          return (
+                            <div>
+                              <Label>Ekspresi Formula</Label>
+                              <Input
+                                placeholder="e.g. (v0 / v1) * 100"
+                                value={ind.custom_expr}
+                                onChange={(e) => updateIndicator(idx, { custom_expr: e.target.value })}
+                                className={exprError && ind.custom_expr ? "border-destructive focus-visible:ring-destructive" : ""}
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Alias tersedia: {ind.custom_vars.length > 0
+                                  ? ind.custom_vars.map((c) => `${c.alias}${c.label ? ` (${c.label})` : ""}`).join(", ")
+                                  : "belum ada variabel"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Operator yang didukung: <code className="px-1 rounded bg-muted">+ - * / ( )</code>
+                              </p>
+                              {exprError && ind.custom_expr && (
+                                <p className="text-xs text-destructive mt-1 font-medium">⚠ {exprError}</p>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </CardContent>
