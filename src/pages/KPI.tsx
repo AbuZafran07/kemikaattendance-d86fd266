@@ -870,32 +870,47 @@ export default function KPIPage() {
                     )}
 
                     {ind.formula_type === "custom" && (
-                      <div className="md:col-span-2 border rounded-md p-3 space-y-3">
+                      <div className="md:col-span-2 border rounded-md p-3 space-y-3 bg-muted/30">
                         <div className="flex items-center justify-between">
-                          <Label>Variabel</Label>
+                          <div>
+                            <Label>Variabel Custom</Label>
+                            <p className="text-xs text-muted-foreground">Alias dikunci & tidak berubah meski variabel dihapus, agar data historis & formula tetap konsisten.</p>
+                          </div>
                           <Button size="sm" variant="outline" onClick={() => {
-                            const alias = `v${ind.custom_vars.length}`;
-                            updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias }] });
+                            // Generate next stable alias by finding max existing v{n}
+                            const usedNums = ind.custom_vars
+                              .map((c) => /^v(\d+)$/.exec(c.alias)?.[1])
+                              .filter((s): s is string => !!s)
+                              .map((s) => parseInt(s, 10));
+                            const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 0;
+                            updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias: `v${nextNum}` }] });
                           }}>
                             <Plus className="h-3 w-3 mr-1" /> Tambah Variabel
                           </Button>
                         </div>
+                        {ind.custom_vars.length === 0 && (
+                          <p className="text-xs text-muted-foreground italic">Belum ada variabel. Tambahkan minimal 1 variabel untuk indikator ini.</p>
+                        )}
                         {ind.custom_vars.map((cv, ci) => (
-                          <div key={ci} className="grid grid-cols-12 gap-2 items-end">
-                            <div className="col-span-7">
-                              <Input placeholder="Label (e.g. Jumlah Lead)" value={cv.label}
+                          <div key={cv.alias} className="grid grid-cols-12 gap-2 items-end">
+                            <div className="col-span-2">
+                              <Label className="text-xs">Alias</Label>
+                              <Input value={cv.alias} disabled className="font-mono text-center bg-muted" />
+                            </div>
+                            <div className="col-span-9">
+                              <Label className="text-xs">Label Variabel</Label>
+                              <Input placeholder="contoh: Jumlah Lead Masuk" value={cv.label}
                                 onChange={(e) => {
                                   const next = [...ind.custom_vars];
                                   next[ci] = { ...cv, label: e.target.value };
                                   updateIndicator(idx, { custom_vars: next });
                                 }} />
                             </div>
-                            <div className="col-span-4">
-                              <Input value={cv.alias} disabled />
-                            </div>
                             <div className="col-span-1">
-                              <Button size="icon" variant="ghost" onClick={() => {
-                                const next = ind.custom_vars.filter((_, j) => j !== ci).map((c, k) => ({ ...c, alias: `v${k}` }));
+                              <Button size="icon" variant="ghost" title="Hapus variabel" onClick={() => {
+                                if (!confirm(`Hapus variabel ${cv.alias}? Data realisasi yang sudah diisi untuk variabel ini akan ikut terhapus.`)) return;
+                                // Keep aliases stable for remaining vars (no renumbering)
+                                const next = ind.custom_vars.filter((_, j) => j !== ci);
                                 updateIndicator(idx, { custom_vars: next });
                               }}>
                                 <Trash2 className="h-3 w-3 text-destructive" />
@@ -907,7 +922,11 @@ export default function KPIPage() {
                           <Label>Ekspresi Formula</Label>
                           <Input placeholder="e.g. (v0 / v1) * 100" value={ind.custom_expr}
                             onChange={(e) => updateIndicator(idx, { custom_expr: e.target.value })} />
-                          <p className="text-xs text-muted-foreground mt-1">Gunakan alias variabel: {ind.custom_vars.map((c) => c.alias).join(", ") || "v0, v1, ..."}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Alias tersedia: {ind.custom_vars.length > 0
+                              ? ind.custom_vars.map((c) => `${c.alias}${c.label ? ` (${c.label})` : ""}`).join(", ")
+                              : "belum ada variabel"}
+                          </p>
                         </div>
                       </div>
                     )}
