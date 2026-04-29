@@ -543,34 +543,6 @@ export default function EmployeeKPI() {
                 </CardContent>
               </Card>
 
-              <Card className="border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20">
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2 text-emerald-800 dark:text-emerald-300">
-                    <DollarSign className="w-5 h-5" />
-                    Estimasi Bonus KPI
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Gaji Pokok</span>
-                    <span className="font-medium">{formatRupiah(basicSalary)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Bonus KPI ({bonusPercent}%)</span>
-                    <span className="font-medium text-emerald-700">{formatRupiah(bonusAmount)}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between">
-                    <span className="font-semibold">Total Take-Home</span>
-                    <span className="font-bold text-emerald-700 text-lg">
-                      {formatRupiah(basicSalary + bonusAmount)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground pt-1">
-                    *Estimasi berdasarkan grade saat ini. Pencairan mengikuti kebijakan perusahaan.
-                  </p>
-                </CardContent>
-              </Card>
-
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Tabel Grade</CardTitle>
