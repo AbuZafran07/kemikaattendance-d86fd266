@@ -765,9 +765,16 @@ export default function KPIPage() {
                     <p>Target: 25 (artinya target conversion 25%)</p>
                     <p>Bila bulan tertentu v0=50, v1=200 → realisasi bulan itu = 25 → score 100%.</p>
                   </div>
-                  <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950 dark:border-amber-700 p-3 text-amber-800 dark:text-amber-200">
-                    <div className="font-semibold flex items-center gap-1"><Info className="h-4 w-4" /> Operator yang didukung</div>
-                    <p>Hanya <code>+ - * / ( )</code> dan angka. Tidak mendukung fungsi seperti <code>min()</code>, <code>if()</code>, dsb. Untuk logika kondisi, pakai tipe <b>Threshold</b>.</p>
+                  <div className="rounded-md border border-emerald-300 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-700 p-3 text-emerald-800 dark:text-emerald-200 space-y-1">
+                    <div className="font-semibold flex items-center gap-1"><Info className="h-4 w-4" /> Operator &amp; Fungsi yang didukung (mirip Excel)</div>
+                    <p><b>Operator:</b> <code>+ − * / ( )</code> dan pembanding <code>=</code>, <code>&lt;&gt;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></p>
+                    <p><b>Fungsi:</b> <code>MIN</code>, <code>MAX</code>, <code>ABS</code>, <code>ROUND</code>, <code>FLOOR</code>, <code>CEILING</code>, <code>SQRT</code>, <code>POWER</code>, <code>MOD</code>, <code>IF</code>, <code>AND</code>, <code>OR</code>, <code>NOT</code></p>
+                    <p><b>Contoh:</b></p>
+                    <ul className="list-disc list-inside ml-2 space-y-0.5">
+                      <li><code>IF(v0&lt;=25, 100, MAX(0, 100-(v0-25)*10))</code> — skor 100 bila tepat waktu, turun 10 poin per hari telat</li>
+                      <li><code>MIN(100, v0/v1*100)</code> — rasio % dengan batas atas 100</li>
+                      <li><code>ROUND(v0*0.7 + v1*0.3, 2)</code> — bobot rata-rata dibulatkan 2 desimal</li>
+                    </ul>
                   </div>
                 </AccordionContent>
               </AccordionItem>
