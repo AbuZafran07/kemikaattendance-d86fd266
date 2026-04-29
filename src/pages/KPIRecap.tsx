@@ -135,15 +135,23 @@ export default function KPIRecap() {
   const loadAll = async () => {
     setLoading(true);
     try {
-      const [{ data: profs, error: pe }, { data: inds, error: ie }, { data: rls, error: re }, { data: grd, error: ge }] =
+      const [{ data: profs, error: pe }, { data: inds, error: ie }, { data: rls, error: re }, { data: grd, error: ge }, { data: roles, error: rolesErr }] =
         await Promise.all([
           supabase.from("profiles").select("id, full_name, jabatan, departemen, status").order("full_name"),
           supabase.from("kpi_indicators").select("*").eq("year", year),
           supabase.from("kpi_realizations").select("*").eq("year", year),
           supabase.from("kpi_grade_settings").select("*").order("min_score", { ascending: false }),
+          supabase.from("user_roles").select("user_id, role").in("role", ["admin", "super_admin"] as any),
         ]);
-      if (pe || ie || re || ge) throw pe || ie || re || ge;
-      setProfiles((profs || []) as ProfileLite[]);
+      if (pe || ie || re || ge || rolesErr) throw pe || ie || re || ge || rolesErr;
+      const adminIds = new Set((roles || []).map((r: any) => r.user_id));
+      const filteredProfs = ((profs || []) as ProfileLite[]).filter(
+        (p) =>
+          p.status === "Active" &&
+          !["BOD", "Komisaris"].includes(p.departemen) &&
+          !adminIds.has(p.id),
+      );
+      setProfiles(filteredProfs);
       setIndicators(((inds || []) as any[]).map((i) => ({
         id: i.id, user_id: i.user_id, year: i.year, weight: Number(i.weight) || 0,
         target: String(i.target ?? "0"), formula_type: (i.formula_type || "ratio") as FormulaType,
