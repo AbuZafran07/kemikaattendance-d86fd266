@@ -1076,7 +1076,7 @@ export default function KPIPage() {
                                   : "belum ada variabel"}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Operator: <code className="px-1 rounded bg-muted">+ − * / ( ) = &lt;&gt; &lt; &gt; &lt;= &gt;=</code> · Fungsi: <code className="px-1 rounded bg-muted">MIN MAX ABS ROUND FLOOR CEILING SQRT POWER MOD IF AND OR NOT</code>
+                                Operator: <code className="px-1 rounded bg-muted">+ − * / ( ) = &lt;&gt; &lt; &gt; &lt;= &gt;=</code> · Fungsi: <code className="px-1 rounded bg-muted">IF IFS SWITCH AND OR NOT MIN MAX SUM AVG MEDIAN ROUND CLAMP POWER SQRT MOD PERCENT BETWEEN</code> <span className="italic">(lihat panduan di atas untuk daftar lengkap)</span>
                               </p>
                               {exprError && ind.custom_expr && (
                                 <p className="text-xs text-destructive mt-1 font-medium">⚠ {exprError}</p>
