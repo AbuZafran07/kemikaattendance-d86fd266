@@ -13,8 +13,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Target, Plus, Trash2, Save, TrendingUp, Users, Award, DollarSign,
-  Loader2, ChevronDown, ChevronUp,
+  Loader2, ChevronDown, ChevronUp, Info, HelpCircle, Settings2, BookOpen,
 } from "lucide-react";
+import {
+  Accordion, AccordionContent, AccordionItem, AccordionTrigger,
+} from "@/components/ui/accordion";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
 
@@ -584,6 +587,165 @@ export default function KPIPage() {
           </CardContent>
         </Card>
 
+        {/* PANDUAN PENGGUNAAN KPI */}
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              Panduan Cara Mengelola KPI
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="step1">
+                <AccordionTrigger className="text-sm font-semibold">
+                  1. Langkah-Langkah Pengaturan KPI
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground space-y-2">
+                  <p><b>a.</b> Pilih <b>Karyawan</b> dan <b>Tahun</b> di atas.</p>
+                  <p><b>b.</b> Buka tab <b>Setup Indicator</b> → klik <b>Tambah Indicator</b> untuk membuat KPI baru.</p>
+                  <p><b>c.</b> Isi <b>Nama, Deskripsi, Bobot (%), Target, Satuan,</b> dan pilih <b>Tipe Formula</b>.</p>
+                  <p><b>d.</b> Total bobot semua indicator <b>WAJIB = 100%</b> sebelum disimpan.</p>
+                  <p><b>e.</b> Klik <b>Simpan Semua</b>.</p>
+                  <p><b>f.</b> Buka tab <b>Input Realisasi</b> → input nilai pencapaian per bulan (Jan–Des).</p>
+                  <p><b>g.</b> Lihat hasil agregasi di tab <b>Progress &amp; Score</b> dan estimasi bonus di <b>Payroll Output</b>.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="step2">
+                <AccordionTrigger className="text-sm font-semibold">
+                  2. Penjelasan Tipe Formula
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground space-y-3">
+                  <div className="rounded-md border bg-background p-3">
+                    <div className="font-semibold text-foreground">Ratio / Average</div>
+                    <p>Score = (rata-rata realisasi 12 bulan ÷ target) × 100. Cocok untuk KPI persentase pencapaian rutin.</p>
+                  </div>
+                  <div className="rounded-md border bg-background p-3">
+                    <div className="font-semibold text-foreground">Akumulasi</div>
+                    <p>Score = (total realisasi seluruh bulan ÷ target tahunan) × 100. Cocok untuk target kumulatif (mis. total penjualan setahun).</p>
+                  </div>
+                  <div className="rounded-md border bg-background p-3">
+                    <div className="font-semibold text-foreground">Lower is Better</div>
+                    <p>Score = (target ÷ rata-rata realisasi) × 100. Cocok untuk KPI yang semakin kecil semakin baik (mis. defect rate, keterlambatan).</p>
+                  </div>
+                  <div className="rounded-md border bg-background p-3">
+                    <div className="font-semibold text-foreground">Threshold</div>
+                    <p>Skor ditentukan oleh aturan kondisi. Contoh: jika realisasi ≥ 95 → skor 100, jika ≥ 80 → skor 80, dst. Aturan dievaluasi dari atas ke bawah, urutan penting.</p>
+                  </div>
+                  <div className="rounded-md border bg-background p-3">
+                    <div className="font-semibold text-foreground">Custom Formula</div>
+                    <p>Anda bisa mendefinisikan rumus sendiri dengan variabel. Lihat panduan di bawah.</p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="step3">
+                <AccordionTrigger className="text-sm font-semibold">
+                  3. Cara Membuat Custom Formula
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground space-y-3">
+                  <p>Custom Formula dipakai bila perhitungan KPI butuh <b>lebih dari satu variabel input</b> per bulan (mis. konversi, efisiensi, dsb).</p>
+                  <ol className="list-decimal pl-5 space-y-1">
+                    <li>Pilih <b>Tipe Formula = Custom Formula</b>.</li>
+                    <li>Klik <b>Tambah Variabel</b>. Setiap variabel otomatis dapat alias <code className="px-1 rounded bg-muted">v0, v1, v2, ...</code></li>
+                    <li>Beri <b>Label</b> yang jelas, contoh: <i>v0 = Jumlah Lead Closing</i>, <i>v1 = Total Lead Masuk</i>.</li>
+                    <li>Tulis <b>Ekspresi Formula</b> menggunakan alias tersebut, contoh: <code className="px-1 rounded bg-muted">(v0 / v1) * 100</code>.</li>
+                    <li>Setelah disimpan, di tab <b>Input Realisasi</b> Anda akan diminta input semua variabel per bulan.</li>
+                    <li>Sistem menghitung formula tiap bulan, lalu rata-ratanya dibagi target × 100 = score.</li>
+                  </ol>
+                  <div className="rounded-md border bg-background p-3 space-y-2">
+                    <div className="font-semibold text-foreground">Contoh Lengkap — Conversion Rate</div>
+                    <p>Variabel: <code className="px-1 rounded bg-muted">v0</code> = Closing, <code className="px-1 rounded bg-muted">v1</code> = Lead Masuk</p>
+                    <p>Ekspresi: <code className="px-1 rounded bg-muted">(v0 / v1) * 100</code></p>
+                    <p>Target: 25 (artinya target conversion 25%)</p>
+                    <p>Bila bulan tertentu v0=50, v1=200 → realisasi bulan itu = 25 → score 100%.</p>
+                  </div>
+                  <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950 dark:border-amber-700 p-3 text-amber-800 dark:text-amber-200">
+                    <div className="font-semibold flex items-center gap-1"><Info className="h-4 w-4" /> Operator yang didukung</div>
+                    <p>Hanya <code>+ - * / ( )</code> dan angka. Tidak mendukung fungsi seperti <code>min()</code>, <code>if()</code>, dsb. Untuk logika kondisi, pakai tipe <b>Threshold</b>.</p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="step4">
+                <AccordionTrigger className="text-sm font-semibold">
+                  4. Bobot, Grade &amp; Bonus
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground space-y-2">
+                  <p><b>Bobot</b> menentukan kontribusi indicator ke score akhir. Total semua bobot harus 100%.</p>
+                  <p><b>Score Akhir</b> = Σ (score indicator × bobot ÷ 100).</p>
+                  <p><b>Grade</b> ditentukan dari ambang batas score di tab <b>Payroll Output</b> (A/B/C/D dengan % bonus masing-masing).</p>
+                  <p><b>Bonus</b> = Gaji Pokok × % bonus grade.</p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* DAFTAR KPI SEMUA KARYAWAN */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Daftar KPI Semua Karyawan — Tahun {year}
+            </CardTitle>
+            <Badge variant="outline">{recap.length} karyawan</Badge>
+          </CardHeader>
+          <CardContent>
+            {recap.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                Belum ada karyawan yang memiliki KPI di tahun {year}.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Karyawan</TableHead>
+                      <TableHead>Jabatan</TableHead>
+                      <TableHead className="text-right">Score Akhir</TableHead>
+                      <TableHead className="text-center">Grade</TableHead>
+                      <TableHead className="text-right">Estimasi Bonus</TableHead>
+                      <TableHead className="text-right">Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recap.map((row) => (
+                      <TableRow
+                        key={row.user.id}
+                        className={selectedUserId === row.user.id ? "bg-primary/5" : ""}
+                      >
+                        <TableCell className="font-medium">{row.user.full_name}</TableCell>
+                        <TableCell className="text-muted-foreground">{row.user.jabatan}</TableCell>
+                        <TableCell className="text-right">
+                          <Badge className={scoreColor(row.score) + " text-white"}>
+                            {row.score.toFixed(1)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center font-bold">{row.grade}</TableCell>
+                        <TableCell className="text-right">
+                          Rp {row.bonus.toLocaleString("id-ID")}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant={selectedUserId === row.user.id ? "default" : "outline"}
+                            onClick={() => setSelectedUserId(row.user.id)}
+                          >
+                            <Settings2 className="h-3 w-3 mr-1" />
+                            Kelola
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {!selectedUserId ? (
           <Card>
             <CardContent className="py-16 text-center text-muted-foreground">
@@ -606,6 +768,12 @@ export default function KPIPage() {
 
             {/* TAB 1: SETUP */}
             <TabsContent value="setup" className="space-y-4 mt-4">
+              <div className="flex gap-2 rounded-md border border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 p-3 text-sm text-blue-800 dark:text-blue-200">
+                <HelpCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <div>
+                  <b>Tips:</b> Buat 3–6 indicator. Total bobot wajib 100%. Pilih tipe formula sesuai sifat KPI (Ratio untuk %, Akumulasi untuk total tahunan, Lower untuk metrik kecil-lebih-baik, Threshold untuk skor diskrit, Custom untuk rumus banyak variabel).
+                </div>
+              </div>
               {indicators.length === 0 && (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">
                   Belum ada indicator. Klik "Tambah Indicator" untuk memulai.
