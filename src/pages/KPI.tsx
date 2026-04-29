@@ -171,19 +171,33 @@ const validateCustomExpr = (expr: string, vars: CustomVar[]): string | null => {
 
   const allowedAliases = new Set(vars.map((v) => v.alias));
 
-  // Tokenize identifiers (letters+digits starting with a letter or _).
-  const identifiers = trimmed.match(/[A-Za-z_][A-Za-z0-9_]*/g) || [];
-  const unknown = identifiers.filter((id) => !allowedAliases.has(id));
-  if (unknown.length > 0) {
-    return `Alias tidak dikenal: ${[...new Set(unknown)].join(", ")}. Hanya alias yang terdaftar yang boleh dipakai (${vars.map((v) => v.alias).join(", ") || "belum ada"}).`;
+  // Identifiers: an identifier followed by '(' is treated as a function call.
+  const identRegex = /([A-Za-z_][A-Za-z0-9_]*)(\s*\()?/g;
+  const unknownVars: string[] = [];
+  const unknownFuncs: string[] = [];
+  let m;
+  while ((m = identRegex.exec(trimmed)) !== null) {
+    const name = m[1];
+    const isCall = !!m[2];
+    if (isCall) {
+      if (!ALLOWED_FUNCS.has(name.toUpperCase())) unknownFuncs.push(name);
+    } else {
+      if (!allowedAliases.has(name)) unknownVars.push(name);
+    }
+  }
+  if (unknownFuncs.length > 0) {
+    return `Fungsi tidak didukung: ${[...new Set(unknownFuncs)].join(", ")}. Fungsi yang didukung: ${[...ALLOWED_FUNCS].join(", ")}.`;
+  }
+  if (unknownVars.length > 0) {
+    return `Alias tidak dikenal: ${[...new Set(unknownVars)].join(", ")}. Alias yang terdaftar: ${vars.map((v) => v.alias).join(", ") || "belum ada"}.`;
   }
 
-  // Strip identifiers, then verify remaining characters are only digits, operators, parens, dot, spaces.
+  // Strip identifiers, then verify remaining characters.
   const stripped = trimmed.replace(/[A-Za-z_][A-Za-z0-9_]*/g, "");
-  const invalidChars = stripped.match(/[^0-9+\-*/().\s]/g);
+  const invalidChars = stripped.match(/[^0-9+\-*/().,\s<>=!]/g);
   if (invalidChars && invalidChars.length > 0) {
     const uniq = [...new Set(invalidChars)].join(" ");
-    return `Karakter tidak didukung: "${uniq}". Hanya operator + - * / ( ) dan angka yang diperbolehkan.`;
+    return `Karakter tidak didukung: "${uniq}". Operator yang diperbolehkan: + - * / ( ) , < > <= >= = <> dan fungsi.`;
   }
 
   // Balanced parentheses
@@ -195,18 +209,11 @@ const validateCustomExpr = (expr: string, vars: CustomVar[]): string | null => {
   }
   if (depth !== 0) return "Tanda kurung tidak seimbang (kurang ')').";
 
-  // Try a dry-run evaluation with all vars = 1 to catch syntax errors like "v0 + + v1".
+  // Dry-run with all vars = 1
   try {
     const dummy: Record<string, number> = {};
     vars.forEach((v) => { dummy[v.alias] = 1; });
-    let replaced = trimmed;
-    Object.keys(dummy)
-      .sort((a, b) => b.length - a.length)
-      .forEach((k) => {
-        replaced = replaced.replace(new RegExp(`\\b${k}\\b`, "g"), "1");
-      });
-    // eslint-disable-next-line no-new-func
-    const r = Function(`"use strict"; return (${replaced});`)();
+    const r = safeEval(trimmed, dummy);
     if (typeof r !== "number" || !isFinite(r)) return "Ekspresi tidak menghasilkan angka yang valid.";
   } catch {
     return "Sintaks ekspresi tidak valid.";
