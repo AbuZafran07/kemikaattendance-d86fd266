@@ -55,19 +55,7 @@ interface GradeSetting {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
-const safeEval = (expr: string, vars: Record<string, number>): number => {
-  if (!expr || !expr.trim()) return 0;
-  let replaced = expr;
-  Object.keys(vars).sort((a, b) => b.length - a.length).forEach((k) => {
-    replaced = replaced.replace(new RegExp(`\\b${k}\\b`, "g"), String(vars[k] ?? 0));
-  });
-  if (!/^[0-9+\-*/().\s]+$/.test(replaced)) return 0;
-  try {
-    // eslint-disable-next-line no-new-func
-    const r = Function(`"use strict"; return (${replaced});`)();
-    return typeof r === "number" && isFinite(r) ? r : 0;
-  } catch { return 0; }
-};
+import { safeEval } from "@/lib/kpiFormula";
 
 const computeIndicatorScore = (ind: Indicator, reals: Realization[]): { score: number; realized: number } => {
   const target = parseFloat(ind.target) || 0;
