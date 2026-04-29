@@ -1072,10 +1072,11 @@ export default function KPIPage() {
                           return (
                             <div>
                               <Label>Ekspresi Formula</Label>
-                              <Input
-                                placeholder="e.g. (v0 / v1) * 100"
+                              <FormulaAutocompleteInput
+                                placeholder="e.g. CLAMP(PERCENT(v0, v1), 0, 100)"
                                 value={ind.custom_expr}
-                                onChange={(e) => updateIndicator(idx, { custom_expr: e.target.value })}
+                                onChange={(v) => updateIndicator(idx, { custom_expr: v })}
+                                vars={ind.custom_vars}
                                 className={exprError && ind.custom_expr ? "border-destructive focus-visible:ring-destructive" : ""}
                               />
                               <p className="text-xs text-muted-foreground mt-1">
