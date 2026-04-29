@@ -768,6 +768,12 @@ export default function KPIPage() {
 
             {/* TAB 1: SETUP */}
             <TabsContent value="setup" className="space-y-4 mt-4">
+              <div className="flex gap-2 rounded-md border border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 p-3 text-sm text-blue-800 dark:text-blue-200">
+                <HelpCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                <div>
+                  <b>Tips:</b> Buat 3–6 indicator. Total bobot wajib 100%. Pilih tipe formula sesuai sifat KPI (Ratio untuk %, Akumulasi untuk total tahunan, Lower untuk metrik kecil-lebih-baik, Threshold untuk skor diskrit, Custom untuk rumus banyak variabel).
+                </div>
+              </div>
               {indicators.length === 0 && (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">
                   Belum ada indicator. Klik "Tambah Indicator" untuk memulai.
