@@ -111,6 +111,59 @@ const safeEval = (expr: string, vars: Record<string, number>): number => {
   }
 };
 
+// Validate custom formula expression against declared variable aliases.
+// Returns null if valid, or a human-readable error message.
+const validateCustomExpr = (expr: string, vars: CustomVar[]): string | null => {
+  const trimmed = (expr || "").trim();
+  if (!trimmed) return "Ekspresi formula belum diisi.";
+  if (trimmed.length > 500) return "Ekspresi terlalu panjang (maks 500 karakter).";
+
+  const allowedAliases = new Set(vars.map((v) => v.alias));
+
+  // Tokenize identifiers (letters+digits starting with a letter or _).
+  const identifiers = trimmed.match(/[A-Za-z_][A-Za-z0-9_]*/g) || [];
+  const unknown = identifiers.filter((id) => !allowedAliases.has(id));
+  if (unknown.length > 0) {
+    return `Alias tidak dikenal: ${[...new Set(unknown)].join(", ")}. Hanya alias yang terdaftar yang boleh dipakai (${vars.map((v) => v.alias).join(", ") || "belum ada"}).`;
+  }
+
+  // Strip identifiers, then verify remaining characters are only digits, operators, parens, dot, spaces.
+  const stripped = trimmed.replace(/[A-Za-z_][A-Za-z0-9_]*/g, "");
+  const invalidChars = stripped.match(/[^0-9+\-*/().\s]/g);
+  if (invalidChars && invalidChars.length > 0) {
+    const uniq = [...new Set(invalidChars)].join(" ");
+    return `Karakter tidak didukung: "${uniq}". Hanya operator + - * / ( ) dan angka yang diperbolehkan.`;
+  }
+
+  // Balanced parentheses
+  let depth = 0;
+  for (const ch of trimmed) {
+    if (ch === "(") depth++;
+    else if (ch === ")") depth--;
+    if (depth < 0) return "Tanda kurung tidak seimbang (terlalu banyak ')').";
+  }
+  if (depth !== 0) return "Tanda kurung tidak seimbang (kurang ')').";
+
+  // Try a dry-run evaluation with all vars = 1 to catch syntax errors like "v0 + + v1".
+  try {
+    const dummy: Record<string, number> = {};
+    vars.forEach((v) => { dummy[v.alias] = 1; });
+    let replaced = trimmed;
+    Object.keys(dummy)
+      .sort((a, b) => b.length - a.length)
+      .forEach((k) => {
+        replaced = replaced.replace(new RegExp(`\\b${k}\\b`, "g"), "1");
+      });
+    // eslint-disable-next-line no-new-func
+    const r = Function(`"use strict"; return (${replaced});`)();
+    if (typeof r !== "number" || !isFinite(r)) return "Ekspresi tidak menghasilkan angka yang valid.";
+  } catch {
+    return "Sintaks ekspresi tidak valid.";
+  }
+
+  return null;
+};
+
 const computeIndicatorScore = (ind: Indicator, reals: Realization[]): { score: number; realized: number } => {
   const target = parseFloat(ind.target) || 0;
   const filled = reals.filter((r) => {
