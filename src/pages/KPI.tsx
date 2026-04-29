@@ -92,7 +92,7 @@ const scoreColor = (s: number) => {
   return "bg-red-500";
 };
 
-import { safeEval, validateCustomExpr, ALLOWED_FUNCS } from "@/lib/kpiFormula";
+import { safeEval, validateCustomExpr } from "@/lib/kpiFormula";
 const computeIndicatorScore = (ind: Indicator, reals: Realization[]): { score: number; realized: number } => {
   const target = parseFloat(ind.target) || 0;
   const filled = reals.filter((r) => {
