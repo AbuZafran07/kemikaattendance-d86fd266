@@ -21,7 +21,8 @@ import {
   FileCheck,
   Megaphone,
   ShieldCheck,
-  Target
+  Target,
+  Trophy,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -75,6 +76,7 @@ const navigationGroups = [
     label: "KPI",
     items: [
       { name: "KPI Management", href: "/dashboard/kpi", icon: Target },
+      { name: "Daftar KPI Karyawan", href: "/dashboard/kpi-recap", icon: Trophy },
     ],
   },
   {
