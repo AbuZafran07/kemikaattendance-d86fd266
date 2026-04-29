@@ -224,6 +224,115 @@ const computeIndicatorScore = (ind: Indicator, reals: Realization[]): { score: n
   return { score: Math.min(120, Math.max(0, score)), realized };
 };
 
+// Inline tester for custom formulas — admin enters sample values, sees result + score vs target.
+function FormulaTester({
+  expr,
+  vars,
+  target,
+  unit,
+  formulaLowerIsBetter,
+}: {
+  expr: string;
+  vars: CustomVar[];
+  target: number;
+  unit: string;
+  formulaLowerIsBetter?: boolean;
+}) {
+  const [samples, setSamples] = useState<Record<string, string>>({});
+  const error = validateCustomExpr(expr, vars);
+
+  // Drop sample keys for aliases that no longer exist
+  useEffect(() => {
+    const allowed = new Set(vars.map((v) => v.alias));
+    setSamples((prev) => {
+      const next: Record<string, string> = {};
+      Object.keys(prev).forEach((k) => { if (allowed.has(k)) next[k] = prev[k]; });
+      return next;
+    });
+  }, [vars]);
+
+  const numericVars = useMemo(() => {
+    const out: Record<string, number> = {};
+    vars.forEach((v) => {
+      const raw = samples[v.alias];
+      out[v.alias] = raw === undefined || raw === "" ? 0 : Number(raw) || 0;
+    });
+    return out;
+  }, [samples, vars]);
+
+  const allFilled = vars.length > 0 && vars.every((v) => samples[v.alias] !== undefined && samples[v.alias] !== "");
+  const result = !error && allFilled ? safeEval(expr, numericVars) : null;
+  const score = result !== null && target > 0
+    ? Math.min(120, Math.max(0, formulaLowerIsBetter ? (target / Math.max(result, 0.0001)) * 100 : (result / target) * 100))
+    : null;
+
+  return (
+    <div className="border border-dashed rounded-md p-3 bg-background space-y-3">
+      <div className="flex items-center gap-2">
+        <Settings2 className="h-4 w-4 text-primary" />
+        <span className="font-medium text-sm">Uji Formula</span>
+        <span className="text-xs text-muted-foreground">— masukkan contoh nilai untuk melihat hasil</span>
+      </div>
+      {vars.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic">Tambahkan variabel dahulu untuk mengetes formula.</p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {vars.map((v) => (
+              <div key={v.alias}>
+                <Label className="text-xs">
+                  {v.label || <span className="italic text-muted-foreground">(tanpa label)</span>}{" "}
+                  <span className="font-mono text-muted-foreground">[{v.alias}]</span>
+                </Label>
+                <Input
+                  type="number"
+                  step="any"
+                  placeholder="0"
+                  value={samples[v.alias] ?? ""}
+                  onChange={(e) => setSamples((p) => ({ ...p, [v.alias]: e.target.value }))}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" type="button" onClick={() => {
+              const filled: Record<string, string> = {};
+              vars.forEach((v) => { filled[v.alias] = "1"; });
+              setSamples(filled);
+            }}>Isi semua = 1</Button>
+            <Button size="sm" variant="ghost" type="button" onClick={() => setSamples({})}>Reset</Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t">
+            <div className="rounded-md bg-muted/50 p-2">
+              <div className="text-[10px] uppercase text-muted-foreground">Hasil Realisasi</div>
+              <div className="text-lg font-bold">
+                {error
+                  ? <span className="text-destructive text-sm">Formula tidak valid</span>
+                  : !allFilled
+                    ? <span className="text-muted-foreground text-sm">Isi semua variabel</span>
+                    : `${result?.toFixed(2)} ${unit || ""}`}
+              </div>
+            </div>
+            <div className="rounded-md bg-muted/50 p-2">
+              <div className="text-[10px] uppercase text-muted-foreground">Target</div>
+              <div className="text-lg font-bold">{target || 0} {unit || ""}</div>
+            </div>
+            <div className={`rounded-md p-2 ${score === null ? "bg-muted/50" : score >= 90 ? "bg-emerald-50 dark:bg-emerald-950/30" : score >= 75 ? "bg-blue-50 dark:bg-blue-950/30" : score >= 60 ? "bg-amber-50 dark:bg-amber-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
+              <div className="text-[10px] uppercase text-muted-foreground">Score (capped 120)</div>
+              <div className="text-lg font-bold">
+                {score === null ? <span className="text-muted-foreground text-sm">—</span> : `${score.toFixed(2)}`}
+              </div>
+            </div>
+          </div>
+          {error && allFilled && (
+            <p className="text-xs text-destructive">⚠ {error}</p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function KPIPage() {
   const { toast } = useToast();
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
