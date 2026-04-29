@@ -765,15 +765,45 @@ export default function KPIPage() {
                     <p>Target: 25 (artinya target conversion 25%)</p>
                     <p>Bila bulan tertentu v0=50, v1=200 → realisasi bulan itu = 25 → score 100%.</p>
                   </div>
-                  <div className="rounded-md border border-emerald-300 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-700 p-3 text-emerald-800 dark:text-emerald-200 space-y-1">
+                  <div className="rounded-md border border-emerald-300 bg-emerald-50 dark:bg-emerald-950 dark:border-emerald-700 p-3 text-emerald-800 dark:text-emerald-200 space-y-2">
                     <div className="font-semibold flex items-center gap-1"><Info className="h-4 w-4" /> Operator &amp; Fungsi yang didukung (mirip Excel)</div>
                     <p><b>Operator:</b> <code>+ − * / ( )</code> dan pembanding <code>=</code>, <code>&lt;&gt;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></p>
-                    <p><b>Fungsi:</b> <code>MIN</code>, <code>MAX</code>, <code>ABS</code>, <code>ROUND</code>, <code>FLOOR</code>, <code>CEILING</code>, <code>SQRT</code>, <code>POWER</code>, <code>MOD</code>, <code>IF</code>, <code>AND</code>, <code>OR</code>, <code>NOT</code></p>
-                    <p><b>Contoh:</b></p>
-                    <ul className="list-disc list-inside ml-2 space-y-0.5">
-                      <li><code>IF(v0&lt;=25, 100, MAX(0, 100-(v0-25)*10))</code> — skor 100 bila tepat waktu, turun 10 poin per hari telat</li>
-                      <li><code>MIN(100, v0/v1*100)</code> — rasio % dengan batas atas 100</li>
-                      <li><code>ROUND(v0*0.7 + v1*0.3, 2)</code> — bobot rata-rata dibulatkan 2 desimal</li>
+
+                    <div>
+                      <p className="font-semibold mt-1">📐 Matematika &amp; Pembulatan</p>
+                      <p className="text-xs"><code>ABS</code>, <code>SQRT</code>, <code>POWER(x,n)</code>, <code>EXP</code>, <code>LN</code>, <code>LOG10</code>, <code>LOG(x,base)</code>, <code>SIGN</code>, <code>MOD(a,b)</code>, <code>INT</code>, <code>TRUNC</code>, <code>ROUND(x,d)</code>, <code>ROUNDUP</code>, <code>ROUNDDOWN</code>, <code>FLOOR</code>, <code>CEILING</code>, <code>PI()</code></p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">📊 Statistik &amp; Agregasi</p>
+                      <p className="text-xs"><code>SUM</code>, <code>PRODUCT</code>, <code>AVERAGE</code>/<code>AVG</code>, <code>MEDIAN</code>, <code>MIN</code>, <code>MAX</code>, <code>COUNT</code>, <code>STDEV</code>, <code>VAR</code>, <code>PERCENT(a,b)</code></p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">🔀 Logika &amp; Kondisi</p>
+                      <p className="text-xs"><code>IF(cond,a,b)</code>, <code>IFS(c1,v1,c2,v2,...)</code>, <code>SWITCH(val,k1,v1,...,default)</code>, <code>CHOOSE(idx,v1,v2,...)</code>, <code>AND</code>, <code>OR</code>, <code>NOT</code>, <code>XOR</code>, <code>BETWEEN(x,a,b)</code>, <code>CLAMP(x,min,max)</code>, <code>ISBLANK</code>, <code>ISNUMBER</code></p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">📐 Trigonometri</p>
+                      <p className="text-xs"><code>SIN</code>, <code>COS</code>, <code>TAN</code>, <code>ASIN</code>, <code>ACOS</code>, <code>ATAN</code>, <code>DEGREES</code>, <code>RADIANS</code></p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">🎲 Acak (jarang dipakai untuk KPI)</p>
+                      <p className="text-xs"><code>RAND()</code>, <code>RANDBETWEEN(a,b)</code></p>
+                    </div>
+
+                    <p className="font-semibold mt-2">💡 Contoh praktis:</p>
+                    <ul className="list-disc list-inside ml-2 space-y-1 text-xs">
+                      <li><code>IF(v0&lt;=25, 100, MAX(0, 100-(v0-25)*10))</code> — Skor 100 bila tepat waktu, kurang 10 poin/hari telat</li>
+                      <li><code>CLAMP(v0/v1*100, 0, 100)</code> — Rasio % dibatasi 0–100</li>
+                      <li><code>IFS(v0&gt;=95,100, v0&gt;=85,90, v0&gt;=75,75, 1,50)</code> — Skor bertingkat (mirip nested IF)</li>
+                      <li><code>SWITCH(v0, 1,100, 2,80, 3,60, 0)</code> — Skor berdasarkan kategori</li>
+                      <li><code>ROUND(AVERAGE(v0,v1,v2)*0.8 + v3*0.2, 2)</code> — Rata-rata 3 nilai + bobot tambahan</li>
+                      <li><code>SUM(v0,v1,v2)/COUNT(v0,v1,v2)</code> — Rata-rata manual</li>
+                      <li><code>PERCENT(v0, v1)</code> — Sama dengan <code>v0/v1*100</code></li>
+                      <li><code>IF(AND(v0&gt;=80, v1&lt;=5), 100, 70)</code> — Bonus penuh bila 2 syarat terpenuhi</li>
                     </ul>
                   </div>
                 </AccordionContent>
@@ -1046,7 +1076,7 @@ export default function KPIPage() {
                                   : "belum ada variabel"}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Operator: <code className="px-1 rounded bg-muted">+ − * / ( ) = &lt;&gt; &lt; &gt; &lt;= &gt;=</code> · Fungsi: <code className="px-1 rounded bg-muted">MIN MAX ABS ROUND FLOOR CEILING SQRT POWER MOD IF AND OR NOT</code>
+                                Operator: <code className="px-1 rounded bg-muted">+ − * / ( ) = &lt;&gt; &lt; &gt; &lt;= &gt;=</code> · Fungsi: <code className="px-1 rounded bg-muted">IF IFS SWITCH AND OR NOT MIN MAX SUM AVG MEDIAN ROUND CLAMP POWER SQRT MOD PERCENT BETWEEN</code> <span className="italic">(lihat panduan di atas untuk daftar lengkap)</span>
                               </p>
                               {exprError && ind.custom_expr && (
                                 <p className="text-xs text-destructive mt-1 font-medium">⚠ {exprError}</p>
