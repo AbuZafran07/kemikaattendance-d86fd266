@@ -1118,6 +1118,12 @@ export default function KPIPage() {
                             </div>
                           );
                         })()}
+                        <FormulaTester
+                          expr={ind.custom_expr}
+                          vars={ind.custom_vars}
+                          target={parseFloat(ind.target) || 0}
+                          unit={ind.unit}
+                        />
                       </div>
                     )}
                   </CardContent>
