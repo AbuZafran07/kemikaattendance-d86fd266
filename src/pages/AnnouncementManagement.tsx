@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, ArrowLeft, Megaphone } from "lucide-react";
 import { format } from "date-fns";
+import DOMPurify from "dompurify";
 
 interface Announcement {
   id: string;
@@ -157,7 +158,7 @@ export default function AnnouncementManagement() {
                     <TableRow key={a.id}>
                       <TableCell>
                         <p className="font-medium text-sm">{a.title}</p>
-                        <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5" dangerouslySetInnerHTML={{ __html: a.content }} />
+                        <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(a.content) }} />
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">{typeBadge(a.type)}</TableCell>
                       <TableCell className="hidden sm:table-cell">
