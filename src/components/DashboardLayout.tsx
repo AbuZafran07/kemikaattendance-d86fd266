@@ -22,6 +22,7 @@ import {
   Megaphone,
   ShieldCheck,
   Target
+  Trophy,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
