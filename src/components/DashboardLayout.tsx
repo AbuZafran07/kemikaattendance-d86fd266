@@ -75,6 +75,7 @@ const navigationGroups = [
     label: "KPI",
     items: [
       { name: "KPI Management", href: "/dashboard/kpi", icon: Target },
+      { name: "Daftar KPI Karyawan", href: "/dashboard/kpi-recap", icon: Trophy },
     ],
   },
   {
