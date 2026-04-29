@@ -21,7 +21,7 @@ import {
   FileCheck,
   Megaphone,
   ShieldCheck,
-  Target
+  Target,
   Trophy,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
