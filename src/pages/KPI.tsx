@@ -1084,6 +1084,7 @@ export default function KPIPage() {
                                   ? ind.custom_vars.map((c) => `${c.alias}${c.label ? ` (${c.label})` : ""}`).join(", ")
                                   : "belum ada variabel"}
                               </p>
+                              <p className="text-[11px] text-muted-foreground italic">💡 Ketik nama fungsi atau alias variabel — saran muncul otomatis. Pakai <kbd className="px-1 border rounded">↑</kbd>/<kbd className="px-1 border rounded">↓</kbd> + <kbd className="px-1 border rounded">Enter</kbd>/<kbd className="px-1 border rounded">Tab</kbd> untuk memilih.</p>
                               <p className="text-xs text-muted-foreground">
                                 Operator: <code className="px-1 rounded bg-muted">+ − * / ( ) = &lt;&gt; &lt; &gt; &lt;= &gt;=</code> · Fungsi: <code className="px-1 rounded bg-muted">IF IFS SWITCH AND OR NOT MIN MAX SUM AVG MEDIAN ROUND CLAMP POWER SQRT MOD PERCENT BETWEEN</code> <span className="italic">(lihat panduan di atas untuk daftar lengkap)</span>
                               </p>
