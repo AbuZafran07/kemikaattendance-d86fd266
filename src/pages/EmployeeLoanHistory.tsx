@@ -211,6 +211,7 @@ const EmployeeLoanHistory = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-12">#</TableHead>
+                        <TableHead>Periode</TableHead>
                         <TableHead>Jumlah</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
@@ -219,12 +220,17 @@ const EmployeeLoanHistory = () => {
                       {installments.map(inst => (
                         <TableRow key={inst.id}>
                           <TableCell>{inst.installment_number}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{inst.period_label || "-"}</TableCell>
                           <TableCell>Rp {fmt(Number(inst.amount))}</TableCell>
                           <TableCell>
                             {inst.status === "paid" ? (
                               <span className="flex items-center gap-1 text-green-600 text-xs">
                                 <CheckCircle className="h-3 w-3" /> Lunas
                               </span>
+                            ) : inst.status === "scheduled" ? (
+                              <span className="text-xs text-blue-600">Terjadwal</span>
+                            ) : inst.status === "skipped" ? (
+                              <span className="text-xs text-muted-foreground">Skip</span>
                             ) : (
                               <span className="text-xs text-muted-foreground">Belum</span>
                             )}
