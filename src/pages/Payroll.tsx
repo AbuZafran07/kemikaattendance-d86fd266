@@ -152,7 +152,11 @@ const Payroll = () => {
     cutoffDay: number;
     profiles: { id: string; full_name: string; join_date: string; basic_salary: number }[];
   } | null>(null);
-  const [hasIdulFitriInPeriod, setHasIdulFitriInPeriod] = useState(false);
+  const [idulFitriAvailability, setIdulFitriAvailability] = useState({ month: selectedMonth, year: selectedYear, found: false });
+  const hasIdulFitriInPeriod =
+    idulFitriAvailability.month === selectedMonth &&
+    idulFitriAvailability.year === selectedYear &&
+    idulFitriAvailability.found;
   const [payrollSearch, setPayrollSearch] = useState("");
   const [payrollPage, setPayrollPage] = useState(1);
   const payrollPerPage = 10;
@@ -166,6 +170,9 @@ const Payroll = () => {
   useEffect(() => { fetchPayrollData(); loadOverridesFromDB(); checkIdulFitriInPeriod(); }, [selectedMonth, selectedYear]);
 
   const checkIdulFitriInPeriod = async () => {
+    const month = selectedMonth;
+    const year = selectedYear;
+    setIdulFitriAvailability({ month, year, found: false });
     try {
       const { data: settingsData } = await supabase
         .from("system_settings").select("value").eq("key", "overtime_policy").maybeSingle();
@@ -173,12 +180,12 @@ const Payroll = () => {
       const idulFitriKeywords = ["idul fitri", "lebaran", "eid al-fitr", "idulfitri"];
       const found = holidays.some((h) => {
         const d = parseLocalDate(h.date);
-        return d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear &&
+        return d.getMonth() + 1 === month && d.getFullYear() === year &&
           idulFitriKeywords.some((kw) => h.name.toLowerCase().includes(kw));
       });
-      setHasIdulFitriInPeriod(found);
+      setIdulFitriAvailability({ month, year, found });
     } catch {
-      setHasIdulFitriInPeriod(false);
+      setIdulFitriAvailability({ month, year, found: false });
     }
   };
 
