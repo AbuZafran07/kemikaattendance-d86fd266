@@ -32,6 +32,8 @@ interface Installment {
   amount: number;
   status: string;
   payment_date: string | null;
+  payroll_period_id: string | null;
+  period_label?: string | null;
 }
 
 const EmployeeLoanHistory = () => {
@@ -65,7 +67,24 @@ const EmployeeLoanHistory = () => {
       .select("*")
       .eq("loan_id", loan.id)
       .order("installment_number", { ascending: true });
-    setInstallments(data || []);
+    const insts = (data || []) as Installment[];
+
+    const periodIds = Array.from(new Set(insts.map(i => i.payroll_period_id).filter(Boolean) as string[]));
+    const periodMap = new Map<string, string>();
+    if (periodIds.length > 0) {
+      const { data: periods } = await supabase
+        .from("payroll_periods")
+        .select("id, month, year")
+        .in("id", periodIds);
+      const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+      (periods || []).forEach((p: any) => {
+        periodMap.set(p.id, `${monthNames[p.month - 1]} ${p.year}`);
+      });
+    }
+    setInstallments(insts.map(i => ({
+      ...i,
+      period_label: i.payroll_period_id ? (periodMap.get(i.payroll_period_id) || null) : null,
+    })));
     setLoadingInstallments(false);
   };
 
