@@ -44,6 +44,7 @@ interface Installment {
   status: string;
   notes: string | null;
   created_at: string;
+  period_label?: string | null;
 }
 
 const LoanManagement = () => {
@@ -170,7 +171,25 @@ const LoanManagement = () => {
       .select("*")
       .eq("loan_id", loan.id)
       .order("installment_number");
-    setInstallments(data || []);
+    const insts = (data || []) as Installment[];
+
+    // Fetch period labels (month/year) for installments tied to a payroll period
+    const periodIds = Array.from(new Set(insts.map(i => i.payroll_period_id).filter(Boolean) as string[]));
+    const periodMap = new Map<string, string>();
+    if (periodIds.length > 0) {
+      const { data: periods } = await supabase
+        .from("payroll_periods")
+        .select("id, month, year")
+        .in("id", periodIds);
+      const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+      (periods || []).forEach((p: any) => {
+        periodMap.set(p.id, `${monthNames[p.month - 1]} ${p.year}`);
+      });
+    }
+    setInstallments(insts.map(i => ({
+      ...i,
+      period_label: i.payroll_period_id ? (periodMap.get(i.payroll_period_id) || null) : null,
+    })));
     setInstallmentsLoading(false);
   };
 
@@ -199,6 +218,7 @@ const LoanManagement = () => {
   const instStatusBadge = (status: string) => {
     switch (status) {
       case "paid": return <Badge className="bg-green-500/10 text-green-600 border-green-200 text-[10px]"><CheckCircle2 className="h-3 w-3 mr-1" />Lunas</Badge>;
+      case "scheduled": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200 text-[10px]"><Clock className="h-3 w-3 mr-1" />Terjadwal</Badge>;
       case "pending": return <Badge variant="outline" className="text-[10px]"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
       case "skipped": return <Badge variant="secondary" className="text-[10px]">Skip</Badge>;
       default: return <Badge variant="secondary" className="text-[10px]">{status}</Badge>;
@@ -408,7 +428,7 @@ const LoanManagement = () => {
                         <div key={inst.id} className="flex items-center justify-between border border-border rounded-lg p-3">
                           <div>
                             <p className="text-sm font-medium">Cicilan #{inst.installment_number}</p>
-                            {inst.payment_date && <p className="text-xs text-muted-foreground">{format(new Date(inst.payment_date), "d MMM yyyy", { locale: idLocale })}</p>}
+                            {inst.period_label && <p className="text-xs text-muted-foreground">Periode {inst.period_label}</p>}
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-sm font-medium">{formatRupiah(inst.amount)}</span>
