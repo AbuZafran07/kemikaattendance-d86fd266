@@ -261,7 +261,7 @@ Deno.serve(async (req) => {
 
       if (!upstream.ok) {
         const text = await upstream.text().catch(() => "");
-        console.error("Budget Expense upstream error", upstream.status, text);
+        console.error(`Budget Expense upstream error status=${upstream.status} endpoint=${budgetEndpoint} body=${text}`);
         return new Response(
           JSON.stringify({
             success: false,
