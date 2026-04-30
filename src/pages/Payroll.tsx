@@ -2265,17 +2265,13 @@ const Payroll = () => {
                       </button>
                       {isExpanded && (
                         <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <Label className="text-xs">Pinjaman/Kasbon</Label>
-                              <Input type="number" value={ded.loan_deduction || ""} placeholder="0"
-                                onChange={(e) => updateDeduction(emp.id, "loan_deduction", e.target.value)} />
-                            </div>
-                            <div>
-                              <Label className="text-xs">Potongan Lain</Label>
-                              <Input type="number" value={ded.other_deduction || ""} placeholder="0"
-                                onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
-                            </div>
+                          <p className="text-[11px] text-muted-foreground italic">
+                            ℹ️ Potongan pinjaman/kasbon diambil otomatis dari modul Manajemen Pinjaman dan hanya tampil di tabel payroll.
+                          </p>
+                          <div>
+                            <Label className="text-xs">Potongan Lain</Label>
+                            <Input type="number" value={ded.other_deduction || ""} placeholder="0"
+                              onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
                           </div>
                           <div>
                             <Label className="text-xs">Catatan</Label>
