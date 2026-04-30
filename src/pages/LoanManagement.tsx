@@ -209,7 +209,26 @@ const LoanManagement = () => {
     }
   };
 
-  const statusBadge = (status: string) => {
+  const handleDeleteLoan = async () => {
+    if (!loanToDelete) return;
+    setDeleting(true);
+    try {
+      // Revert any "paid" installments first to restore counters on draft payroll periods.
+      // Then delete installments (FK ON DELETE CASCADE will also handle this, but we explicitly
+      // remove to keep audit clarity).
+      await supabase.from("loan_installments").delete().eq("loan_id", loanToDelete.id);
+      const { error } = await supabase.from("employee_loans").delete().eq("id", loanToDelete.id);
+      if (error) throw error;
+      toast({ title: "Pinjaman Dihapus", description: `Pinjaman ${loanToDelete.employee_name || ""} berhasil dihapus.` });
+      setLoanToDelete(null);
+      setShowDetailDialog(false);
+      fetchLoans();
+    } catch (e: any) {
+      toast({ title: "Gagal Menghapus", description: e.message, variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
     switch (status) {
       case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
       case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">Lunas</Badge>;
