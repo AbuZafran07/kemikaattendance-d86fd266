@@ -330,6 +330,49 @@ export default function EmployeeKPI() {
 
             {/* TAB 1: INPUT */}
             <TabsContent value="input" className="space-y-4 mt-4">
+              {/* Lampiran wajib per bulan */}
+              <Card className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Paperclip className="w-4 h-4 text-amber-600" />
+                    Lampiran Laporan Bulanan (Wajib)
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Upload laporan bulanan (PDF/Excel, max 10 MB) sebelum input realisasi KPI. Input akan dinonaktifkan jika lampiran belum tersedia.</span>
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <Accordion type="multiple" className="w-full">
+                    {MONTHS.map((m, idx) => {
+                      const month = idx + 1;
+                      const cnt = attachmentCounts[month] || 0;
+                      return (
+                        <AccordionItem key={month} value={`m-${month}`}>
+                          <AccordionTrigger className="py-2 text-sm hover:no-underline">
+                            <div className="flex items-center gap-2 flex-1 mr-2">
+                              <span className="font-medium">{m} {year}</span>
+                              <Badge variant={cnt > 0 ? "default" : "destructive"} className="text-[10px]">
+                                {cnt > 0 ? `${cnt} file` : "Belum ada"}
+                              </Badge>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <KPIMonthlyAttachments
+                              ownerUserId={userId}
+                              year={year}
+                              month={month}
+                              monthLabel={`${m} ${year}`}
+                              onCountChange={(c) => handleAttachmentCountChange(month, c)}
+                            />
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                </CardContent>
+              </Card>
+
               {indicators.map((ind) => {
                 const reals = realsByIndicator.get(ind.id) || [];
                 const filledCount = reals.filter((r) =>
