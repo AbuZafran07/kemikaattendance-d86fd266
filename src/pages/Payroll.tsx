@@ -806,7 +806,9 @@ const Payroll = () => {
             });
           }
 
-          // Merge ke incomeAdditions (Add behavior) sebelum perhitungan
+          // REPLACE behavior (idempotent): hasil sync Budget Expense untuk periode cut-off
+          // ini langsung menggantikan tunjangan_kesehatan, sehingga generate berulang
+          // tidak membuat nilai berlipat.
           if (medicalMap.size > 0) {
             setIncomeAdditions((prev) => {
               const next = new Map(prev);
@@ -816,29 +818,28 @@ const Payroll = () => {
                   thr: 0, insentif_kinerja: 0, bonus_lainnya: 0,
                   pengembalian_employee: 0, insentif_penjualan: 0, overtime_override: 0,
                 };
-                // Add: existing manual + medical reimbursement
-                cur.tunjangan_kesehatan = (cur.tunjangan_kesehatan || 0) + info.total;
+                // REPLACE: nilai sync = single source of truth untuk periode ini
+                cur.tunjangan_kesehatan = info.total;
                 next.set(uid, cur);
               }
               return next;
             });
 
             // Mirror ke local Map agar payrollRecords.map (yang baca incomeAdditions via getter)
-            // segera melihat nilai gabungan tanpa menunggu re-render.
+            // segera melihat nilai terbaru tanpa menunggu re-render.
             for (const [uid, info] of medicalMap.entries()) {
               const cur = incomeAdditions.get(uid) || {
                 tunjangan_kehadiran: 0, tunjangan_kesehatan: 0, bonus_tahunan: 0,
                 thr: 0, insentif_kinerja: 0, bonus_lainnya: 0,
                 pengembalian_employee: 0, insentif_penjualan: 0, overtime_override: 0,
               };
-              cur.tunjangan_kesehatan = (cur.tunjangan_kesehatan || 0) + info.total;
+              cur.tunjangan_kesehatan = info.total;
               incomeAdditions.set(uid, cur);
             }
 
-            // Persist akumulasi gabungan ke payroll_overrides (tunjangan_kesehatan)
+            // Persist nilai sync ke payroll_overrides (REPLACE, bukan accumulate)
             for (const [uid, info] of medicalMap.entries()) {
-              const merged = incomeAdditions.get(uid);
-              const newTk = merged?.tunjangan_kesehatan || info.total;
+              const newTk = info.total;
               const { data: existing } = await supabase
                 .from("payroll_overrides")
                 .select("id")
