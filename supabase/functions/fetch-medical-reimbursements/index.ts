@@ -220,12 +220,20 @@ Deno.serve(async (req) => {
       chunks.push(empPayload.slice(i, i + 500));
     }
 
+    type UpstreamClaim = {
+      claim_number?: string;
+      amount: number;
+      status: string;
+      approved_at?: string | null;
+      submitted_at?: string | null;
+    };
     type UpstreamItem = {
       email: string;
       full_name: string;
       matched_by: "email" | "full_name" | "none";
       total_amount: number;
       claim_count: number;
+      claims?: UpstreamClaim[];
     };
     const allResults: UpstreamItem[] = [];
 
