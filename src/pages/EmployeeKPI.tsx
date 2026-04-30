@@ -362,20 +362,27 @@ export default function EmployeeKPI() {
                             const r = reals.find((x) => x.month === month);
                             const val = r?.value;
                             const filled = val !== null && val !== undefined;
+                            const hasAtt = (attachmentCounts[month] || 0) > 0;
                             return (
-                              <div key={month} className="space-y-1">
-                                <Label className="text-xs">{m}</Label>
+                              <div key={`${month}-${attachmentCounts[month] || 0}`} className="space-y-1">
+                                <Label className="text-xs flex items-center gap-1">
+                                  {m}
+                                  {!hasAtt && <Paperclip className="w-3 h-3 text-destructive" />}
+                                </Label>
                                 <Input
                                   type="number"
                                   step="any"
                                   defaultValue={val ?? ""}
+                                  disabled={!hasAtt}
+                                  title={hasAtt ? "" : "Upload lampiran laporan bulan ini terlebih dahulu"}
                                   className={filled ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30" : ""}
-                                  onBlur={(e) => {
+                                  onBlur={async (e) => {
                                     const raw = e.target.value;
                                     const num = raw === "" ? null : Number(raw);
                                     const prev = val ?? null;
                                     if (num === prev) return;
-                                    upsertRealization(ind.id, month, { value: num });
+                                    const ok = await upsertRealization(ind.id, month, { value: num });
+                                    if (!ok) e.target.value = prev === null ? "" : String(prev);
                                   }}
                                 />
                               </div>
@@ -389,9 +396,13 @@ export default function EmployeeKPI() {
                               const month = idx + 1;
                               const r = reals.find((x) => x.month === month);
                               const cv = r?.custom_values || {};
+                              const hasAtt = (attachmentCounts[month] || 0) > 0;
                               return (
-                                <div key={month} className="border rounded-md p-2">
-                                  <p className="text-xs font-medium mb-2">{m}</p>
+                                <div key={`${month}-${attachmentCounts[month] || 0}`} className="border rounded-md p-2">
+                                  <p className="text-xs font-medium mb-2 flex items-center gap-1">
+                                    {m}
+                                    {!hasAtt && <Paperclip className="w-3 h-3 text-destructive" />}
+                                  </p>
                                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                                     {ind.custom_vars.map((v) => {
                                       const cur = cv[v.alias];
@@ -403,13 +414,16 @@ export default function EmployeeKPI() {
                                             type="number"
                                             step="any"
                                             defaultValue={cur ?? ""}
+                                            disabled={!hasAtt}
+                                            title={hasAtt ? "" : "Upload lampiran laporan bulan ini terlebih dahulu"}
                                             className={filled ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30" : ""}
-                                            onBlur={(e) => {
+                                            onBlur={async (e) => {
                                               const raw = e.target.value;
                                               const next = { ...(cv || {}) };
                                               if (raw === "") delete next[v.alias];
                                               else next[v.alias] = Number(raw);
-                                              upsertRealization(ind.id, month, { custom_values: next });
+                                              const ok = await upsertRealization(ind.id, month, { custom_values: next });
+                                              if (!ok) e.target.value = cur === undefined || cur === null ? "" : String(cur);
                                             }}
                                           />
                                         </div>
