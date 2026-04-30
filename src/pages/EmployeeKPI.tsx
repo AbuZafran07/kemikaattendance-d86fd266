@@ -145,10 +145,11 @@ export default function EmployeeKPI() {
     if (!userId) return;
     setLoading(true);
     try {
-      const [indRes, realRes, gradeRes] = await Promise.all([
+      const [indRes, realRes, gradeRes, attRes] = await Promise.all([
         supabase.from("kpi_indicators").select("*").eq("user_id", userId).eq("year", year).order("sort_order", { ascending: true }),
         supabase.from("kpi_realizations").select("*").eq("user_id", userId).eq("year", year),
         supabase.from("kpi_grade_settings").select("*").order("min_score", { ascending: false }),
+        supabase.from("kpi_monthly_attachments").select("month").eq("user_id", userId).eq("year", year),
       ]);
       setIndicators((indRes.data || []) as unknown as Indicator[]);
       setRealizations(((realRes.data || []) as unknown as Realization[]).map((r) => ({
@@ -156,6 +157,11 @@ export default function EmployeeKPI() {
         custom_values: (r.custom_values || {}) as Record<string, number>,
       })));
       setGrades((gradeRes.data || []) as GradeSetting[]);
+      const counts: Record<number, number> = {};
+      ((attRes.data || []) as { month: number }[]).forEach((row) => {
+        counts[row.month] = (counts[row.month] || 0) + 1;
+      });
+      setAttachmentCounts(counts);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Gagal memuat data";
       toast({ title: "Error", description: msg, variant: "destructive" });
