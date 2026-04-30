@@ -1147,9 +1147,7 @@ const Payroll = () => {
 
       // Schedule loan installments for this period (NOT yet paid).
       // They will be marked "paid" and decrement loan counters only when payroll is finalized.
-      for (const [userId, loanDed] of loanDeductionMap.entries()) {
-        const manualOverride = deductionOverrides.get(userId)?.loan_deduction || 0;
-        if (manualOverride > 0) continue; // Skip auto-schedule if manual override used
+      for (const [, loanDed] of loanDeductionMap.entries()) {
 
         for (const { id: loanId, amount } of loanDed.loanIds) {
           // Find next pending installment
