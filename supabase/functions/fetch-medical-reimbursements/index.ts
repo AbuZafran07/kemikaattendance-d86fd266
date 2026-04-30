@@ -175,7 +175,10 @@ Deno.serve(async (req) => {
 
     const budgetEndpoint = getBudgetExpenseEndpoint(budgetUrl);
     if (!budgetEndpoint) {
-      console.error("BUDGET_EXPENSE_URL is not a valid URL");
+      const cleanedDebug = normalizeBudgetExpenseEndpointCandidate(budgetUrl);
+      console.error(
+        `BUDGET_EXPENSE_URL is not a valid URL. raw_length=${budgetUrl.length} starts="${budgetUrl.slice(0, 12)}" cleaned="${cleanedDebug}"`,
+      );
       return new Response(
         JSON.stringify({
           success: false,
