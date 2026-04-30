@@ -428,7 +428,7 @@ const LoanManagement = () => {
                         <div key={inst.id} className="flex items-center justify-between border border-border rounded-lg p-3">
                           <div>
                             <p className="text-sm font-medium">Cicilan #{inst.installment_number}</p>
-                            {inst.payment_date && <p className="text-xs text-muted-foreground">{format(new Date(inst.payment_date), "d MMM yyyy", { locale: idLocale })}</p>}
+                            {inst.period_label && <p className="text-xs text-muted-foreground">Periode {inst.period_label}</p>}
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-sm font-medium">{formatRupiah(inst.amount)}</span>
