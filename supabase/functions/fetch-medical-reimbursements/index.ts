@@ -40,10 +40,10 @@ function getBudgetExpenseEndpoint(rawUrl: string): string | null {
 
   const candidates = [cleaned];
   if (!/^https?:\/\//i.test(cleaned)) {
-    candidates.push(`https://${cleaned}`);
     if (/^[a-z0-9]{20}$/i.test(cleaned)) {
       candidates.push(`https://${cleaned}.supabase.co`);
     }
+    candidates.push(`https://${cleaned}`);
   }
 
   for (const candidate of candidates) {
