@@ -535,8 +535,13 @@ const Payroll = () => {
     const emps = (empsRaw || []).filter(e => !adminIds.has(e.id));
     setEmployees(emps);
 
-    // Merge existing DB overrides with employee list (fill missing with defaults)
-    const overrides = new Map<string, DeductionOverride>(deductionOverrides);
+    // Merge existing DB overrides with employee list (fill missing with defaults).
+    // Always reset loan_deduction to 0 — pinjaman dihitung otomatis dari modul Manajemen Pinjaman,
+    // tidak boleh di-override manual dari dialog ini agar tidak double-count.
+    const overrides = new Map<string, DeductionOverride>();
+    deductionOverrides.forEach((v, k) => {
+      overrides.set(k, { ...v, loan_deduction: 0 });
+    });
     for (const emp of emps || []) {
       if (!overrides.has(emp.id)) {
         overrides.set(emp.id, { loan_deduction: 0, other_deduction: 0, deduction_notes: "" });
