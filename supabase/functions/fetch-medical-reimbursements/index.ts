@@ -30,15 +30,24 @@ interface AggregatedItem {
   source_name?: string;
 }
 
-function getBudgetExpenseEndpoint(rawUrl: string): string | null {
-  const cleaned = rawUrl
+function normalizeBudgetExpenseEndpointCandidate(value: string): string {
+  const urlMatch = value.match(/https?:\/\/[^\s"'`<>]+/i)?.[0];
+  const supabaseHostMatch = value.match(/[a-z0-9-]+\.supabase\.co(?:\/[^\s"'`<>]*)?/i)?.[0];
+  const projectRefMatch = value.match(/\b[a-z0-9]{20}\b/i)?.[0];
+
+  return (urlMatch || supabaseHostMatch || projectRefMatch || value)
     .trim()
-    .replace(/^BUDGET_EXPENSE_URL\s*=\s*/i, "")
-    .replace(/^["'`]+|["'`]+$/g, "")
+    .replace(/^BUDGET_EXPENSE_URL\s*[:=]\s*/i, "")
+    .replace(/^export\s+/i, "")
+    .replace(/^["'`]+|["'`,;]+$/g, "")
     .trim()
     .replace(/\/+$/g, "");
+}
 
-  const candidates = [cleaned];
+function getBudgetExpenseEndpoint(rawUrl: string): string | null {
+  const cleaned = normalizeBudgetExpenseEndpointCandidate(rawUrl);
+
+  const candidates = cleaned ? [cleaned] : [];
   if (!/^https?:\/\//i.test(cleaned)) {
     if (/^[a-z0-9]{20}$/i.test(cleaned)) {
       candidates.push(`https://${cleaned}.supabase.co`);
@@ -149,9 +158,18 @@ Deno.serve(async (req) => {
     const budgetUrl = Deno.env.get("BUDGET_EXPENSE_URL");
     const budgetSecret = Deno.env.get("BUDGET_EXPENSE_SECRET");
     if (!budgetUrl || !budgetSecret) {
+      console.error("Budget Expense integration is not configured");
       return new Response(
-        JSON.stringify({ error: "Integration not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          success: false,
+          warning: "Medical reimbursement sync unavailable",
+          period: { start_date, end_date },
+          matched_employees: 0,
+          unmatched_claims: 0,
+          total_claims: 0,
+          data: {},
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -159,8 +177,16 @@ Deno.serve(async (req) => {
     if (!budgetEndpoint) {
       console.error("BUDGET_EXPENSE_URL is not a valid URL");
       return new Response(
-        JSON.stringify({ error: "Budget Expense integration URL is invalid" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          success: false,
+          warning: "Medical reimbursement sync unavailable",
+          period: { start_date, end_date },
+          matched_employees: 0,
+          unmatched_claims: 0,
+          total_claims: 0,
+          data: {},
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -220,8 +246,16 @@ Deno.serve(async (req) => {
 
       if (!upstream) {
         return new Response(
-          JSON.stringify({ error: "Budget Expense service unavailable" }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          JSON.stringify({
+            success: false,
+            warning: "Medical reimbursement sync unavailable",
+            period: { start_date, end_date },
+            matched_employees: 0,
+            unmatched_claims: 0,
+            total_claims: 0,
+            data: {},
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
 
@@ -229,8 +263,16 @@ Deno.serve(async (req) => {
         const text = await upstream.text().catch(() => "");
         console.error("Budget Expense upstream error", upstream.status, text);
         return new Response(
-          JSON.stringify({ error: "Upstream service error", status: upstream.status }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          JSON.stringify({
+            success: false,
+            warning: "Medical reimbursement sync unavailable",
+            period: { start_date, end_date },
+            matched_employees: 0,
+            unmatched_claims: 0,
+            total_claims: 0,
+            data: {},
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
       const upstreamJson = await upstream.json().catch(() => ({}));
