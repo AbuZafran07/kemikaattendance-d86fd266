@@ -9,11 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock } from "lucide-react";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
@@ -60,6 +61,8 @@ const LoanManagement = () => {
   const [employees, setEmployees] = useState<{ id: string; full_name: string; departemen: string }[]>([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [creating, setCreating] = useState(false);
+  const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [form, setForm] = useState({
     user_id: "",
@@ -206,6 +209,27 @@ const LoanManagement = () => {
     }
   };
 
+  const handleDeleteLoan = async () => {
+    if (!loanToDelete) return;
+    setDeleting(true);
+    try {
+      // Revert any "paid" installments first to restore counters on draft payroll periods.
+      // Then delete installments (FK ON DELETE CASCADE will also handle this, but we explicitly
+      // remove to keep audit clarity).
+      await supabase.from("loan_installments").delete().eq("loan_id", loanToDelete.id);
+      const { error } = await supabase.from("employee_loans").delete().eq("id", loanToDelete.id);
+      if (error) throw error;
+      toast({ title: "Pinjaman Dihapus", description: `Pinjaman ${loanToDelete.employee_name || ""} berhasil dihapus.` });
+      setLoanToDelete(null);
+      setShowDetailDialog(false);
+      fetchLoans();
+    } catch (e: any) {
+      toast({ title: "Gagal Menghapus", description: e.message, variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const statusBadge = (status: string) => {
     switch (status) {
       case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
@@ -312,9 +336,20 @@ const LoanManagement = () => {
                         <TableCell className="text-right text-sm font-medium">{formatRupiah(loan.remaining_amount)}</TableCell>
                         <TableCell>{statusBadge(loan.status)}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }}>
-                            <Eye className="h-3.5 w-3.5" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }}>
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={(e) => { e.stopPropagation(); setLoanToDelete(loan); }}
+                              title="Hapus pinjaman"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -449,6 +484,37 @@ const LoanManagement = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={!!loanToDelete} onOpenChange={(open) => { if (!open) setLoanToDelete(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Hapus Pinjaman?</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2">
+                  <p>
+                    Anda akan menghapus pinjaman <strong>{loanToDelete?.employee_name}</strong> sebesar{" "}
+                    <strong>{loanToDelete ? formatRupiah(loanToDelete.total_amount) : ""}</strong>.
+                  </p>
+                  <p className="text-destructive font-medium">
+                    Tindakan ini permanen dan akan menghapus seluruh riwayat cicilannya. Tidak dapat dibatalkan.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Batal</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteLoan}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                Hapus Permanen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );

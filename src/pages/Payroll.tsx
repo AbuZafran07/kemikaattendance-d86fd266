@@ -535,8 +535,13 @@ const Payroll = () => {
     const emps = (empsRaw || []).filter(e => !adminIds.has(e.id));
     setEmployees(emps);
 
-    // Merge existing DB overrides with employee list (fill missing with defaults)
-    const overrides = new Map<string, DeductionOverride>(deductionOverrides);
+    // Merge existing DB overrides with employee list (fill missing with defaults).
+    // Always reset loan_deduction to 0 — pinjaman dihitung otomatis dari modul Manajemen Pinjaman,
+    // tidak boleh di-override manual dari dialog ini agar tidak double-count.
+    const overrides = new Map<string, DeductionOverride>();
+    deductionOverrides.forEach((v, k) => {
+      overrides.set(k, { ...v, loan_deduction: 0 });
+    });
     for (const emp of emps || []) {
       if (!overrides.has(emp.id)) {
         overrides.set(emp.id, { loan_deduction: 0, other_deduction: 0, deduction_notes: "" });
@@ -1095,10 +1100,9 @@ const Payroll = () => {
         // Total allowance = attendance + fixed + incidental
         const totalAllowance = attendanceAllowance + fixedAllowances + incidentalIncome;
 
-        // Combine manual loan override with auto loan deduction
-        const autoLoanDeduction = loanDed?.amount || 0;
-        const manualLoanDeduction = ded?.loan_deduction || 0;
-        const finalLoanDeduction = manualLoanDeduction > 0 ? manualLoanDeduction : autoLoanDeduction;
+        // Loan deduction strictly from auto-calc (modul Manajemen Pinjaman),
+        // manual override pinjaman dihapus untuk mencegah double-count.
+        const finalLoanDeduction = loanDed?.amount || 0;
 
         // Map PTKP status to TER category (e.g. K/I/0 -> K/0 for TER lookup)
         const terCategory = ptkpStatus.replace("/I", "");
@@ -1108,7 +1112,7 @@ const Payroll = () => {
           basicSalary, allowance: totalAllowance, overtimeTotal, ptkpStatus, overtimeHours,
           loanDeduction: finalLoanDeduction,
           otherDeduction: ded?.other_deduction || 0,
-          deductionNotes: ded?.deduction_notes || (autoLoanDeduction > 0 ? "Cicilan pinjaman otomatis" : ""),
+          deductionNotes: ded?.deduction_notes || (finalLoanDeduction > 0 ? "Cicilan pinjaman otomatis" : ""),
           month: selectedMonth,
           terRates: terRatesForEmp,
           totalPphJanNov: pphJanNovMap.get(emp.id) || 0,
@@ -1143,9 +1147,7 @@ const Payroll = () => {
 
       // Schedule loan installments for this period (NOT yet paid).
       // They will be marked "paid" and decrement loan counters only when payroll is finalized.
-      for (const [userId, loanDed] of loanDeductionMap.entries()) {
-        const manualOverride = deductionOverrides.get(userId)?.loan_deduction || 0;
-        if (manualOverride > 0) continue; // Skip auto-schedule if manual override used
+      for (const [, loanDed] of loanDeductionMap.entries()) {
 
         for (const { id: loanId, amount } of loanDed.loanIds) {
           // Find next pending installment
@@ -2265,17 +2267,13 @@ const Payroll = () => {
                       </button>
                       {isExpanded && (
                         <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <Label className="text-xs">Pinjaman/Kasbon</Label>
-                              <Input type="number" value={ded.loan_deduction || ""} placeholder="0"
-                                onChange={(e) => updateDeduction(emp.id, "loan_deduction", e.target.value)} />
-                            </div>
-                            <div>
-                              <Label className="text-xs">Potongan Lain</Label>
-                              <Input type="number" value={ded.other_deduction || ""} placeholder="0"
-                                onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
-                            </div>
+                          <p className="text-[11px] text-muted-foreground italic">
+                            ℹ️ Potongan pinjaman/kasbon diambil otomatis dari modul Manajemen Pinjaman dan hanya tampil di tabel payroll.
+                          </p>
+                          <div>
+                            <Label className="text-xs">Potongan Lain</Label>
+                            <Input type="number" value={ded.other_deduction || ""} placeholder="0"
+                              onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
                           </div>
                           <div>
                             <Label className="text-xs">Catatan</Label>
