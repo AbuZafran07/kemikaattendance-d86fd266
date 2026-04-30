@@ -485,6 +485,45 @@ export type Database = {
           },
         ]
       }
+      kpi_monthly_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+          month: number
+          uploaded_by: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          month: number
+          uploaded_by: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          month?: number
+          uploaded_by?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       kpi_realizations: {
         Row: {
           created_at: string
