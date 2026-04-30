@@ -2241,11 +2241,15 @@ const Payroll = () => {
               className="mb-2"
             />
             <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
-              {employees
+              {(() => {
+                const loanMap = new Map<string, number>();
+                payrollData.forEach(p => loanMap.set(p.user_id, Number(p.loan_deduction) || 0));
+                return employees
                 .filter(emp => emp.full_name.toLowerCase().includes(deductionSearch.toLowerCase()))
                 .map((emp) => {
                   const ded = deductionOverrides.get(emp.id) || { loan_deduction: 0, other_deduction: 0, deduction_notes: "" };
-                  const hasValue = (ded.loan_deduction > 0 || ded.other_deduction > 0);
+                  const autoLoan = loanMap.get(emp.id) || 0;
+                  const hasValue = (autoLoan > 0 || ded.other_deduction > 0);
                   const isExpanded = selectedDeductionEmp === emp.id;
                   return (
                     <div key={emp.id} className={`border rounded-lg transition-colors ${hasValue ? 'border-primary/50 bg-primary/5' : 'border-border'}`}>
@@ -2260,21 +2264,34 @@ const Payroll = () => {
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {hasValue && (
-                            <span>{formatRupiah(ded.loan_deduction + ded.other_deduction)}</span>
+                            <span>{formatRupiah(autoLoan + ded.other_deduction)}</span>
                           )}
                           <span className="text-muted-foreground">{isExpanded ? "▲" : "▼"}</span>
                         </div>
                       </button>
                       {isExpanded && (
                         <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
-                          <p className="text-[11px] text-muted-foreground italic">
-                            ℹ️ Potongan pinjaman/kasbon diambil otomatis dari modul Manajemen Pinjaman dan hanya tampil di tabel payroll.
-                          </p>
-                          <div>
-                            <Label className="text-xs">Potongan Lain</Label>
-                            <Input type="number" value={ded.other_deduction || ""} placeholder="0"
-                              onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-xs">Pinjaman/Kasbon</Label>
+                              <Input
+                                type="text"
+                                value={autoLoan > 0 ? formatRupiah(autoLoan) : "Tidak ada cicilan"}
+                                readOnly
+                                disabled
+                                className="bg-muted/50 cursor-not-allowed"
+                                title="Otomatis dari modul Manajemen Pinjaman — sudah dihitung di tabel payroll, tidak akan dijumlahkan ulang."
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs">Potongan Lain</Label>
+                              <Input type="number" value={ded.other_deduction || ""} placeholder="0"
+                                onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
+                            </div>
                           </div>
+                          <p className="text-[11px] text-muted-foreground italic">
+                            ℹ️ Pinjaman/Kasbon hanya ditampilkan (read-only) — sudah otomatis dipotong dari modul Manajemen Pinjaman. Hanya <strong>Potongan Lain</strong> yang akan ditambahkan sebagai potongan manual.
+                          </p>
                           <div>
                             <Label className="text-xs">Catatan</Label>
                             <Textarea rows={1} value={ded.deduction_notes} placeholder="Keterangan potongan..."
@@ -2284,7 +2301,8 @@ const Payroll = () => {
                       )}
                     </div>
                   );
-                })}
+                });
+              })()}
             </div>
             <Button onClick={async () => { await saveOverridesToDB('deduction'); setShowDeductionDialog(false); }} className="w-full mt-2">Simpan & Tutup</Button>
           </DialogContent>
