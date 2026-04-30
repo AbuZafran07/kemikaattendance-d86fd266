@@ -1112,7 +1112,7 @@ const Payroll = () => {
           basicSalary, allowance: totalAllowance, overtimeTotal, ptkpStatus, overtimeHours,
           loanDeduction: finalLoanDeduction,
           otherDeduction: ded?.other_deduction || 0,
-          deductionNotes: ded?.deduction_notes || (autoLoanDeduction > 0 ? "Cicilan pinjaman otomatis" : ""),
+          deductionNotes: ded?.deduction_notes || (finalLoanDeduction > 0 ? "Cicilan pinjaman otomatis" : ""),
           month: selectedMonth,
           terRates: terRatesForEmp,
           totalPphJanNov: pphJanNovMap.get(emp.id) || 0,
