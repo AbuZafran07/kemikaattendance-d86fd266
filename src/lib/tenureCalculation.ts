@@ -184,3 +184,31 @@ export function getCutoffPeriodBounds(
   const end = new Date(periodYear, prevMonth, cutoffDay - 1);
   return { start, end };
 }
+
+/**
+ * Validates that a (start_date, end_date) pair correctly maps to the
+ * payroll month/year using the configured cutoff day.
+ * Used to guard medical reimbursement / allowance period sync.
+ */
+export function validateCutoffPeriodForPayroll(
+  startStr: string,
+  endStr: string,
+  payrollMonth: number,
+  payrollYear: number,
+  cutoffDay: number = 21
+): { valid: boolean; reason?: string; expected: { start: string; end: string } } {
+  const { start, end } = getCutoffPeriodBounds(payrollMonth, payrollYear, cutoffDay);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const expected = { start: fmt(start), end: fmt(end) };
+  if (startStr !== expected.start || endStr !== expected.end) {
+    return {
+      valid: false,
+      reason: `Periode ${startStr}–${endStr} tidak sesuai cut-off payroll ${pad(payrollMonth)}/${payrollYear} (harusnya ${expected.start}–${expected.end}).`,
+      expected,
+    };
+  }
+  return { valid: true, expected };
+}
+

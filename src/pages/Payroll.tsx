@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { isWeekend } from "@/hooks/usePolicySettings";
 import { format, eachDayOfInterval } from "date-fns";
-import { calculateCutoffTenure, calculateProrateFactor, calculateProrateFactorWithResign, getCutoffPeriodBounds } from "@/lib/tenureCalculation";
+import { calculateCutoffTenure, calculateProrateFactor, calculateProrateFactorWithResign, getCutoffPeriodBounds, validateCutoffPeriodForPayroll } from "@/lib/tenureCalculation";
 import logo from "@/assets/logo.png";
 import { UnlockPayrollDialog } from "@/components/UnlockPayrollDialog";
 import { logPayrollAction, snapshotPayrollRow } from "@/lib/payrollAuditLog";
@@ -762,12 +762,26 @@ const Payroll = () => {
           .select("id, full_name, email")
           .in("id", emps.map((e: any) => e.id));
 
+        // Guard: pastikan periode klaim cocok dengan bulan payroll yang dipilih
+        const periodCheck = validateCutoffPeriodForPayroll(
+          periodStartStr, periodEndStr, selectedMonth, selectedYear, cutoffDayPre
+        );
+        if (!periodCheck.valid) {
+          console.error("Medical reimbursement period mismatch:", periodCheck.reason);
+          toast({
+            title: "Periode klaim tidak sinkron",
+            description: periodCheck.reason,
+            variant: "destructive",
+          });
+          throw new Error(periodCheck.reason);
+        }
+
         const { data: medRes, error: medErr } = await supabase.functions.invoke(
           "fetch-medical-reimbursements",
           {
             body: {
-              start_date: periodStartStr,
-              end_date: periodEndStr,
+              start_date: periodCheck.expected.start,
+              end_date: periodCheck.expected.end,
               employees: empProfilesForMatch || [],
             },
           }
