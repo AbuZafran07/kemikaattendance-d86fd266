@@ -1132,6 +1132,39 @@ export default function KPIPage() {
                   Simpan indicator terlebih dahulu di tab Setup.
                 </CardContent></Card>
               )}
+
+              {/* Lampiran karyawan (admin/HR view) */}
+              {selectedUserId && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">Lampiran Laporan Karyawan ({year})</CardTitle>
+                    <p className="text-xs text-muted-foreground">Lihat & kelola laporan bulanan yang diupload karyawan.</p>
+                  </CardHeader>
+                  <CardContent>
+                    <Accordion type="multiple" className="w-full">
+                      {KPI_MONTHS.map((m, idx) => {
+                        const month = idx + 1;
+                        return (
+                          <AccordionItem key={month} value={`att-${month}`}>
+                            <AccordionTrigger className="py-2 text-sm hover:no-underline">
+                              {m} {year}
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <KPIMonthlyAttachments
+                                ownerUserId={selectedUserId}
+                                year={year}
+                                month={month}
+                                monthLabel={`${m} ${year}`}
+                              />
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
+                    </Accordion>
+                  </CardContent>
+                </Card>
+              )}
+
               {indicators.filter((i) => i.id).map((ind) => {
                 const reals = realizations.filter((r) => r.indicator_id === ind.id);
                 const { score, realized } = computeIndicatorScore(ind, reals);
