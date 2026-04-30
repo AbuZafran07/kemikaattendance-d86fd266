@@ -12,7 +12,9 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Loader2, Target, Award, DollarSign, TrendingUp } from "lucide-react";
+import { ArrowLeft, Loader2, Target, Award, DollarSign, TrendingUp, Paperclip, AlertTriangle } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import KPIMonthlyAttachments from "@/components/KPIMonthlyAttachments";
 import logo from "@/assets/logo.png";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
