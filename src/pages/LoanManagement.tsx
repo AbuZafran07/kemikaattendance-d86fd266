@@ -229,6 +229,8 @@ const LoanManagement = () => {
       setDeleting(false);
     }
   };
+
+  const statusBadge = (status: string) => {
     switch (status) {
       case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
       case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">Lunas</Badge>;
