@@ -1100,10 +1100,9 @@ const Payroll = () => {
         // Total allowance = attendance + fixed + incidental
         const totalAllowance = attendanceAllowance + fixedAllowances + incidentalIncome;
 
-        // Combine manual loan override with auto loan deduction
-        const autoLoanDeduction = loanDed?.amount || 0;
-        const manualLoanDeduction = ded?.loan_deduction || 0;
-        const finalLoanDeduction = manualLoanDeduction > 0 ? manualLoanDeduction : autoLoanDeduction;
+        // Loan deduction strictly from auto-calc (modul Manajemen Pinjaman),
+        // manual override pinjaman dihapus untuk mencegah double-count.
+        const finalLoanDeduction = loanDed?.amount || 0;
 
         // Map PTKP status to TER category (e.g. K/I/0 -> K/0 for TER lookup)
         const terCategory = ptkpStatus.replace("/I", "");
