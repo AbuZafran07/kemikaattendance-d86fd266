@@ -12,7 +12,9 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Loader2, Target, Award, DollarSign, TrendingUp } from "lucide-react";
+import { ArrowLeft, Loader2, Target, Award, DollarSign, TrendingUp, Paperclip, AlertTriangle } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import KPIMonthlyAttachments from "@/components/KPIMonthlyAttachments";
 import logo from "@/assets/logo.png";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
@@ -130,6 +132,7 @@ export default function EmployeeKPI() {
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [realizations, setRealizations] = useState<Realization[]>([]);
   const [grades, setGrades] = useState<GradeSetting[]>([]);
+  const [attachmentCounts, setAttachmentCounts] = useState<Record<number, number>>({});
 
   const yearOptions = useMemo(() => {
     const y = new Date().getFullYear();
@@ -142,10 +145,11 @@ export default function EmployeeKPI() {
     if (!userId) return;
     setLoading(true);
     try {
-      const [indRes, realRes, gradeRes] = await Promise.all([
+      const [indRes, realRes, gradeRes, attRes] = await Promise.all([
         supabase.from("kpi_indicators").select("*").eq("user_id", userId).eq("year", year).order("sort_order", { ascending: true }),
         supabase.from("kpi_realizations").select("*").eq("user_id", userId).eq("year", year),
         supabase.from("kpi_grade_settings").select("*").order("min_score", { ascending: false }),
+        supabase.from("kpi_monthly_attachments").select("month").eq("user_id", userId).eq("year", year),
       ]);
       setIndicators((indRes.data || []) as unknown as Indicator[]);
       setRealizations(((realRes.data || []) as unknown as Realization[]).map((r) => ({
@@ -153,6 +157,11 @@ export default function EmployeeKPI() {
         custom_values: (r.custom_values || {}) as Record<string, number>,
       })));
       setGrades((gradeRes.data || []) as GradeSetting[]);
+      const counts: Record<number, number> = {};
+      ((attRes.data || []) as { month: number }[]).forEach((row) => {
+        counts[row.month] = (counts[row.month] || 0) + 1;
+      });
+      setAttachmentCounts(counts);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Gagal memuat data";
       toast({ title: "Error", description: msg, variant: "destructive" });
@@ -197,13 +206,37 @@ export default function EmployeeKPI() {
   const bonusPercent = myGrade?.bonus_percent || 0;
   const bonusAmount = (basicSalary * bonusPercent) / 100;
 
-  // Upsert single realization (value or custom)
+  // Upsert single realization (value or custom) — wajib ada lampiran bulan tsb
   const upsertRealization = async (
     indicator_id: string,
     month: number,
     payload: { value?: number | null; custom_values?: Record<string, number> }
-  ) => {
-    if (!userId) return;
+  ): Promise<boolean> => {
+    if (!userId) return false;
+
+    // Validasi: minimal 1 lampiran untuk bulan tsb (cek live ke DB untuk antisipasi race)
+    const { count, error: cntErr } = await supabase
+      .from("kpi_monthly_attachments")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("year", year)
+      .eq("month", month);
+    if (cntErr) {
+      toast({ title: "Gagal validasi lampiran", description: cntErr.message, variant: "destructive" });
+      return false;
+    }
+    if (!count || count === 0) {
+      toast({
+        title: "Lampiran wajib",
+        description: `Upload minimal 1 file laporan (PDF/Excel) untuk bulan ${MONTHS[month - 1]} sebelum input realisasi.`,
+        variant: "destructive",
+      });
+      // Sync state
+      setAttachmentCounts((prev) => ({ ...prev, [month]: 0 }));
+      return false;
+    }
+    setAttachmentCounts((prev) => ({ ...prev, [month]: count }));
+
     const existing = realizations.find((r) => r.indicator_id === indicator_id && r.month === month);
     const row = {
       indicator_id,
@@ -220,7 +253,7 @@ export default function EmployeeKPI() {
       .single();
     if (error) {
       toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
-      return;
+      return false;
     }
     setRealizations((prev) => {
       const idx = prev.findIndex((p) => p.indicator_id === indicator_id && p.month === month);
@@ -229,7 +262,12 @@ export default function EmployeeKPI() {
       if (idx >= 0) next[idx] = merged; else next.push(merged);
       return next;
     });
+    return true;
   };
+
+  const handleAttachmentCountChange = useCallback((month: number, count: number) => {
+    setAttachmentCounts((prev) => (prev[month] === count ? prev : { ...prev, [month]: count }));
+  }, []);
 
   if (!userId) {
     return (
@@ -292,6 +330,49 @@ export default function EmployeeKPI() {
 
             {/* TAB 1: INPUT */}
             <TabsContent value="input" className="space-y-4 mt-4">
+              {/* Lampiran wajib per bulan */}
+              <Card className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Paperclip className="w-4 h-4 text-amber-600" />
+                    Lampiran Laporan Bulanan (Wajib)
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground flex items-start gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>Upload laporan bulanan (PDF/Excel, max 10 MB) sebelum input realisasi KPI. Input akan dinonaktifkan jika lampiran belum tersedia.</span>
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <Accordion type="multiple" className="w-full">
+                    {MONTHS.map((m, idx) => {
+                      const month = idx + 1;
+                      const cnt = attachmentCounts[month] || 0;
+                      return (
+                        <AccordionItem key={month} value={`m-${month}`}>
+                          <AccordionTrigger className="py-2 text-sm hover:no-underline">
+                            <div className="flex items-center gap-2 flex-1 mr-2">
+                              <span className="font-medium">{m} {year}</span>
+                              <Badge variant={cnt > 0 ? "default" : "destructive"} className="text-[10px]">
+                                {cnt > 0 ? `${cnt} file` : "Belum ada"}
+                              </Badge>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <KPIMonthlyAttachments
+                              ownerUserId={userId}
+                              year={year}
+                              month={month}
+                              monthLabel={`${m} ${year}`}
+                              onCountChange={(c) => handleAttachmentCountChange(month, c)}
+                            />
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                </CardContent>
+              </Card>
+
               {indicators.map((ind) => {
                 const reals = realsByIndicator.get(ind.id) || [];
                 const filledCount = reals.filter((r) =>
@@ -324,20 +405,27 @@ export default function EmployeeKPI() {
                             const r = reals.find((x) => x.month === month);
                             const val = r?.value;
                             const filled = val !== null && val !== undefined;
+                            const hasAtt = (attachmentCounts[month] || 0) > 0;
                             return (
-                              <div key={month} className="space-y-1">
-                                <Label className="text-xs">{m}</Label>
+                              <div key={`${month}-${attachmentCounts[month] || 0}`} className="space-y-1">
+                                <Label className="text-xs flex items-center gap-1">
+                                  {m}
+                                  {!hasAtt && <Paperclip className="w-3 h-3 text-destructive" />}
+                                </Label>
                                 <Input
                                   type="number"
                                   step="any"
                                   defaultValue={val ?? ""}
+                                  disabled={!hasAtt}
+                                  title={hasAtt ? "" : "Upload lampiran laporan bulan ini terlebih dahulu"}
                                   className={filled ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30" : ""}
-                                  onBlur={(e) => {
+                                  onBlur={async (e) => {
                                     const raw = e.target.value;
                                     const num = raw === "" ? null : Number(raw);
                                     const prev = val ?? null;
                                     if (num === prev) return;
-                                    upsertRealization(ind.id, month, { value: num });
+                                    const ok = await upsertRealization(ind.id, month, { value: num });
+                                    if (!ok) e.target.value = prev === null ? "" : String(prev);
                                   }}
                                 />
                               </div>
@@ -351,9 +439,13 @@ export default function EmployeeKPI() {
                               const month = idx + 1;
                               const r = reals.find((x) => x.month === month);
                               const cv = r?.custom_values || {};
+                              const hasAtt = (attachmentCounts[month] || 0) > 0;
                               return (
-                                <div key={month} className="border rounded-md p-2">
-                                  <p className="text-xs font-medium mb-2">{m}</p>
+                                <div key={`${month}-${attachmentCounts[month] || 0}`} className="border rounded-md p-2">
+                                  <p className="text-xs font-medium mb-2 flex items-center gap-1">
+                                    {m}
+                                    {!hasAtt && <Paperclip className="w-3 h-3 text-destructive" />}
+                                  </p>
                                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                                     {ind.custom_vars.map((v) => {
                                       const cur = cv[v.alias];
@@ -365,13 +457,16 @@ export default function EmployeeKPI() {
                                             type="number"
                                             step="any"
                                             defaultValue={cur ?? ""}
+                                            disabled={!hasAtt}
+                                            title={hasAtt ? "" : "Upload lampiran laporan bulan ini terlebih dahulu"}
                                             className={filled ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30" : ""}
-                                            onBlur={(e) => {
+                                            onBlur={async (e) => {
                                               const raw = e.target.value;
                                               const next = { ...(cv || {}) };
                                               if (raw === "") delete next[v.alias];
                                               else next[v.alias] = Number(raw);
-                                              upsertRealization(ind.id, month, { custom_values: next });
+                                              const ok = await upsertRealization(ind.id, month, { custom_values: next });
+                                              if (!ok) e.target.value = cur === undefined || cur === null ? "" : String(cur);
                                             }}
                                           />
                                         </div>
