@@ -158,9 +158,18 @@ Deno.serve(async (req) => {
     const budgetUrl = Deno.env.get("BUDGET_EXPENSE_URL");
     const budgetSecret = Deno.env.get("BUDGET_EXPENSE_SECRET");
     if (!budgetUrl || !budgetSecret) {
+      console.error("Budget Expense integration is not configured");
       return new Response(
-        JSON.stringify({ error: "Integration not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          success: false,
+          warning: "Medical reimbursement sync unavailable",
+          period: { start_date, end_date },
+          matched_employees: 0,
+          unmatched_claims: 0,
+          total_claims: 0,
+          data: {},
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -168,8 +177,16 @@ Deno.serve(async (req) => {
     if (!budgetEndpoint) {
       console.error("BUDGET_EXPENSE_URL is not a valid URL");
       return new Response(
-        JSON.stringify({ error: "Budget Expense integration URL is invalid" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          success: false,
+          warning: "Medical reimbursement sync unavailable",
+          period: { start_date, end_date },
+          matched_employees: 0,
+          unmatched_claims: 0,
+          total_claims: 0,
+          data: {},
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
@@ -229,8 +246,16 @@ Deno.serve(async (req) => {
 
       if (!upstream) {
         return new Response(
-          JSON.stringify({ error: "Budget Expense service unavailable" }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          JSON.stringify({
+            success: false,
+            warning: "Medical reimbursement sync unavailable",
+            period: { start_date, end_date },
+            matched_employees: 0,
+            unmatched_claims: 0,
+            total_claims: 0,
+            data: {},
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
 
@@ -238,8 +263,16 @@ Deno.serve(async (req) => {
         const text = await upstream.text().catch(() => "");
         console.error("Budget Expense upstream error", upstream.status, text);
         return new Response(
-          JSON.stringify({ error: "Upstream service error", status: upstream.status }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          JSON.stringify({
+            success: false,
+            warning: "Medical reimbursement sync unavailable",
+            period: { start_date, end_date },
+            matched_employees: 0,
+            unmatched_claims: 0,
+            total_claims: 0,
+            data: {},
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
       const upstreamJson = await upstream.json().catch(() => ({}));
