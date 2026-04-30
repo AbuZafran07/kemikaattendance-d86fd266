@@ -44,6 +44,7 @@ interface Installment {
   status: string;
   notes: string | null;
   created_at: string;
+  period_label?: string | null;
 }
 
 const LoanManagement = () => {
