@@ -96,37 +96,73 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Call Budget Expense
-    const upstream = await fetch(budgetUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": budgetSecret,
-      },
-      body: JSON.stringify({
-        start_date,
-        end_date,
-        statuses: ["approved", "paid", "review_finance"],
-      }),
-    });
+    // Build employee payload for Budget Expense (must include email + full_name)
+    const norm = (s?: string | null) =>
+      (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const empPayload = employees
+      .filter((e) => e.email && e.full_name)
+      .map((e) => ({ email: e.email!.trim(), full_name: e.full_name!.trim() }));
 
-    if (!upstream.ok) {
-      const text = await upstream.text().catch(() => "");
-      console.error("Budget Expense upstream error", upstream.status, text);
+    if (empPayload.length === 0) {
       return new Response(
-        JSON.stringify({ error: "Upstream service error" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          success: true,
+          period: { start_date, end_date },
+          matched_employees: 0,
+          unmatched_claims: 0,
+          total_claims: 0,
+          data: {},
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const upstreamJson = await upstream.json().catch(() => ({}));
-    const claims: ClaimRecord[] = Array.isArray(upstreamJson)
-      ? upstreamJson
-      : (upstreamJson?.data ?? upstreamJson?.claims ?? []);
+    // Call Budget Expense (chunk by 500 — upstream limit)
+    const chunks: { email: string; full_name: string }[][] = [];
+    for (let i = 0; i < empPayload.length; i += 500) {
+      chunks.push(empPayload.slice(i, i + 500));
+    }
 
-    // Build lookup maps
-    const norm = (s?: string | null) =>
-      (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+    type UpstreamItem = {
+      email: string;
+      full_name: string;
+      matched_by: "email" | "full_name" | "none";
+      total_amount: number;
+      claim_count: number;
+    };
+    const allResults: UpstreamItem[] = [];
+
+    for (const chunk of chunks) {
+      const upstream = await fetch(budgetUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": budgetSecret,
+          "Origin": "https://kemikaattendance.lovable.app",
+        },
+        body: JSON.stringify({
+          start_date,
+          end_date,
+          employees: chunk,
+        }),
+      });
+
+      if (!upstream.ok) {
+        const text = await upstream.text().catch(() => "");
+        console.error("Budget Expense upstream error", upstream.status, text);
+        return new Response(
+          JSON.stringify({ error: "Upstream service error", status: upstream.status }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const upstreamJson = await upstream.json().catch(() => ({}));
+      const items: UpstreamItem[] = Array.isArray(upstreamJson?.results)
+        ? upstreamJson.results
+        : [];
+      allResults.push(...items);
+    }
+
+    // Lookup back to user_id by email/full_name
     const byEmail = new Map<string, { id: string; full_name: string }>();
     const byName = new Map<string, { id: string; full_name: string }>();
     for (const e of employees) {
@@ -135,41 +171,38 @@ Deno.serve(async (req) => {
     }
 
     const aggregated = new Map<string, AggregatedItem>();
+    let totalClaims = 0;
     let unmatched = 0;
 
-    for (const c of claims) {
-      const status = (c.status || "").toLowerCase();
-      if (!["approved", "paid", "review_finance"].includes(status)) continue;
-      const amount = Number(c.approved_amount ?? 0) || 0;
-      if (amount <= 0) continue;
-
-      const emailKey = norm(c.employee_email);
-      const nameKey = norm(c.employee_full_name || c.patient_name);
-
+    for (const r of allResults) {
+      totalClaims += r.claim_count || 0;
+      if (!r.total_amount || r.matched_by === "none") {
+        if (r.matched_by === "none") unmatched++;
+        continue;
+      }
+      const emailKey = norm(r.email);
+      const nameKey = norm(r.full_name);
       let match: { id: string; full_name: string } | undefined;
       let matchedBy: "email" | "name" = "email";
-      if (emailKey && byEmail.has(emailKey)) {
+      if (r.matched_by === "email" && byEmail.has(emailKey)) {
         match = byEmail.get(emailKey);
         matchedBy = "email";
-      } else if (nameKey && byName.has(nameKey)) {
+      } else if (byName.has(nameKey)) {
         match = byName.get(nameKey);
         matchedBy = "name";
       }
-
       if (!match) {
         unmatched++;
         continue;
       }
-
       const cur = aggregated.get(match.id) || {
         total: 0,
         count: 0,
         matched_by: matchedBy,
         source_name: match.full_name,
       };
-      cur.total += amount;
-      cur.count += 1;
-      // Keep the strongest match (email beats name)
+      cur.total += Number(r.total_amount) || 0;
+      cur.count += Number(r.claim_count) || 0;
       if (matchedBy === "email") cur.matched_by = "email";
       aggregated.set(match.id, cur);
     }
@@ -183,7 +216,7 @@ Deno.serve(async (req) => {
         period: { start_date, end_date },
         matched_employees: aggregated.size,
         unmatched_claims: unmatched,
-        total_claims: claims.length,
+        total_claims: totalClaims,
         data: result,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
