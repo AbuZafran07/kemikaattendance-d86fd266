@@ -1284,6 +1284,48 @@ const Payroll = () => {
     try {
       await supabase.from("payroll_periods").update({ status: "finalized" }).eq("id", period.id);
 
+      // Convert all "scheduled" loan installments for this period to "paid",
+      // and decrement loan counters now (real disbursement).
+      const { data: scheduledInsts } = await supabase
+        .from("loan_installments")
+        .select("id, loan_id, amount")
+        .eq("payroll_period_id", period.id)
+        .eq("status", "scheduled");
+
+      if (scheduledInsts && scheduledInsts.length > 0) {
+        const todayStr = new Date().toISOString().split("T")[0];
+        await supabase
+          .from("loan_installments")
+          .update({ status: "paid", payment_date: todayStr })
+          .eq("payroll_period_id", period.id)
+          .eq("status", "scheduled");
+
+        // Aggregate per loan and update employee_loans counters
+        const aggByLoan = new Map<string, { count: number; total: number }>();
+        for (const inst of scheduledInsts) {
+          const cur = aggByLoan.get(inst.loan_id) || { count: 0, total: 0 };
+          cur.count += 1;
+          cur.total += Number(inst.amount) || 0;
+          aggByLoan.set(inst.loan_id, cur);
+        }
+        for (const [loanId, { count, total }] of aggByLoan.entries()) {
+          const { data: lr } = await supabase
+            .from("employee_loans")
+            .select("paid_installments, remaining_amount, total_installments")
+            .eq("id", loanId)
+            .single();
+          if (lr) {
+            const newPaid = lr.paid_installments + count;
+            const newRemaining = Math.max(0, Number(lr.remaining_amount) - total);
+            await supabase.from("employee_loans").update({
+              paid_installments: newPaid,
+              remaining_amount: newRemaining,
+              status: newPaid >= lr.total_installments ? "completed" : "active",
+            }).eq("id", loanId);
+          }
+        }
+      }
+
       // If this period had been unlocked before, log as refinalize
       const { data: unlockExists } = await supabase
         .from("payroll_audit_logs" as any)
