@@ -18,6 +18,9 @@ import {
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
+import KPIMonthlyAttachments from "@/components/KPIMonthlyAttachments";
+
+const KPI_MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
 
