@@ -132,6 +132,7 @@ export default function EmployeeKPI() {
   const [indicators, setIndicators] = useState<Indicator[]>([]);
   const [realizations, setRealizations] = useState<Realization[]>([]);
   const [grades, setGrades] = useState<GradeSetting[]>([]);
+  const [attachmentCounts, setAttachmentCounts] = useState<Record<number, number>>({});
 
   const yearOptions = useMemo(() => {
     const y = new Date().getFullYear();
