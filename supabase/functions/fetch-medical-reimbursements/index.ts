@@ -30,15 +30,24 @@ interface AggregatedItem {
   source_name?: string;
 }
 
-function getBudgetExpenseEndpoint(rawUrl: string): string | null {
-  const cleaned = rawUrl
+function normalizeBudgetExpenseEndpointCandidate(value: string): string {
+  const urlMatch = value.match(/https?:\/\/[^\s"'`<>]+/i)?.[0];
+  const supabaseHostMatch = value.match(/[a-z0-9-]+\.supabase\.co(?:\/[^\s"'`<>]*)?/i)?.[0];
+  const projectRefMatch = value.match(/\b[a-z0-9]{20}\b/i)?.[0];
+
+  return (urlMatch || supabaseHostMatch || projectRefMatch || value)
     .trim()
-    .replace(/^BUDGET_EXPENSE_URL\s*=\s*/i, "")
-    .replace(/^["'`]+|["'`]+$/g, "")
+    .replace(/^BUDGET_EXPENSE_URL\s*[:=]\s*/i, "")
+    .replace(/^export\s+/i, "")
+    .replace(/^["'`]+|["'`,;]+$/g, "")
     .trim()
     .replace(/\/+$/g, "");
+}
 
-  const candidates = [cleaned];
+function getBudgetExpenseEndpoint(rawUrl: string): string | null {
+  const cleaned = normalizeBudgetExpenseEndpointCandidate(rawUrl);
+
+  const candidates = cleaned ? [cleaned] : [];
   if (!/^https?:\/\//i.test(cleaned)) {
     if (/^[a-z0-9]{20}$/i.test(cleaned)) {
       candidates.push(`https://${cleaned}.supabase.co`);
