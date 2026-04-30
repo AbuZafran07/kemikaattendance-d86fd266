@@ -50,6 +50,7 @@ function getBudgetExpenseEndpoint(rawUrl: string): string | null {
     try {
       const url = new URL(candidate);
       if (!/^https?:$/.test(url.protocol) || !url.hostname) continue;
+      if (!url.hostname.includes(".")) continue;
       if (!url.pathname || url.pathname === "/") {
         url.pathname = "/functions/v1/export-medical-reimbursements";
       }
@@ -212,7 +213,17 @@ Deno.serve(async (req) => {
           end_date,
           employees: chunk,
         }),
+      }).catch((error) => {
+        console.error("Budget Expense fetch failed", error);
+        return null;
       });
+
+      if (!upstream) {
+        return new Response(
+          JSON.stringify({ error: "Budget Expense service unavailable" }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
 
       if (!upstream.ok) {
         const text = await upstream.text().catch(() => "");
