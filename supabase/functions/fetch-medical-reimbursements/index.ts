@@ -306,9 +306,19 @@ Deno.serve(async (req) => {
     let unmatched = 0;
 
     for (const r of allResults) {
-      totalClaims += r.claim_count || 0;
-      if (!r.total_amount || r.matched_by === "none") {
-        if (r.matched_by === "none") unmatched++;
+      // FILTER: hanya hitung klaim ber-status 'approved'.
+      // Klaim 'paid' sudah dibayarkan terpisah (jangan double-bayar lewat payroll).
+      // Klaim 'review_finance' belum final.
+      const approvedClaims = (r.claims || []).filter((c) => c.status === "approved");
+      const approvedTotal = approvedClaims.reduce(
+        (s, c) => s + (Number(c.amount) || 0),
+        0,
+      );
+      const approvedCount = approvedClaims.length;
+
+      totalClaims += approvedCount;
+      if (approvedTotal <= 0 || r.matched_by === "none") {
+        if (r.matched_by === "none" && approvedCount > 0) unmatched++;
         continue;
       }
       const emailKey = norm(r.email);
@@ -332,8 +342,8 @@ Deno.serve(async (req) => {
         matched_by: matchedBy,
         source_name: match.full_name,
       };
-      cur.total += Number(r.total_amount) || 0;
-      cur.count += Number(r.claim_count) || 0;
+      cur.total += approvedTotal;
+      cur.count += approvedCount;
       if (matchedBy === "email") cur.matched_by = "email";
       aggregated.set(match.id, cur);
     }
