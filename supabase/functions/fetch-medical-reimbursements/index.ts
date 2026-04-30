@@ -101,6 +101,32 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Validate ISO date format & ordering, and ensure cut-off span (max ~32 days).
+    const isoRe = /^\d{4}-\d{2}-\d{2}$/;
+    if (!isoRe.test(start_date) || !isoRe.test(end_date)) {
+      return new Response(
+        JSON.stringify({ error: "start_date/end_date must be YYYY-MM-DD" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    const startMs = Date.parse(`${start_date}T00:00:00Z`);
+    const endMs = Date.parse(`${end_date}T00:00:00Z`);
+    if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || startMs > endMs) {
+      return new Response(
+        JSON.stringify({ error: "Invalid date range" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    const spanDays = Math.round((endMs - startMs) / 86400000) + 1;
+    if (spanDays < 27 || spanDays > 32) {
+      return new Response(
+        JSON.stringify({
+          error: `Period span ${spanDays} days is outside allowed cut-off range (27–32)`,
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const budgetUrl = Deno.env.get("BUDGET_EXPENSE_URL");
     const budgetSecret = Deno.env.get("BUDGET_EXPENSE_SECRET");
     if (!budgetUrl || !budgetSecret) {
