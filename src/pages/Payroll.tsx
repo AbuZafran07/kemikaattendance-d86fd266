@@ -265,7 +265,46 @@ const Payroll = () => {
         if (error) throw error;
       }
 
-      toast({ title: "Data Tersimpan", description: `Override ${MONTHS[selectedMonth - 1].label} ${selectedYear} berhasil disimpan.` });
+      // Mirror perubahan ke tabel `payroll` agar Detail langsung refresh
+      // tanpa harus Generate ulang. Hanya kolom breakdown income yang diupdate.
+      if (type === 'income' || type === 'both') {
+        const { data: existingPeriod } = await supabase
+          .from("payroll_periods")
+          .select("id")
+          .eq("month", selectedMonth)
+          .eq("year", selectedYear)
+          .maybeSingle();
+
+        if (existingPeriod?.id) {
+          for (const userId of allUserIds) {
+            const inc = incomeAdditions.get(userId) || {
+              tunjangan_kehadiran: 0, tunjangan_kesehatan: 0, bonus_tahunan: 0,
+              thr: 0, insentif_kinerja: 0, bonus_lainnya: 0,
+              pengembalian_employee: 0, insentif_penjualan: 0, overtime_override: 0,
+            };
+            await supabase
+              .from("payroll")
+              .update({
+                tunjangan_kesehatan: Number(inc.tunjangan_kesehatan) || 0,
+                bonus_tahunan: Number(inc.bonus_tahunan) || 0,
+                thr: Number(inc.thr) || 0,
+                insentif_kinerja: Number(inc.insentif_kinerja) || 0,
+                bonus_lainnya: Number(inc.bonus_lainnya) || 0,
+                pengembalian_employee: Number(inc.pengembalian_employee) || 0,
+                insentif_penjualan: Number(inc.insentif_penjualan) || 0,
+              })
+              .eq("user_id", userId)
+              .eq("period_id", existingPeriod.id);
+          }
+          // Refresh tampilan tabel payroll
+          await fetchPayrollData();
+        }
+      }
+
+      toast({
+        title: "Data Tersimpan",
+        description: `Override ${MONTHS[selectedMonth - 1].label} ${selectedYear} berhasil disimpan. Catatan: total Take Home Pay & PPh21 tetap nilai lama sampai Generate Payroll dijalankan ulang.`,
+      });
     } catch (error: any) {
       console.error("Error saving overrides:", error);
       toast({ title: "Gagal Simpan", description: error.message, variant: "destructive" });
