@@ -175,7 +175,10 @@ Deno.serve(async (req) => {
 
     const budgetEndpoint = getBudgetExpenseEndpoint(budgetUrl);
     if (!budgetEndpoint) {
-      console.error("BUDGET_EXPENSE_URL is not a valid URL");
+      const cleanedDebug = normalizeBudgetExpenseEndpointCandidate(budgetUrl);
+      console.error(
+        `BUDGET_EXPENSE_URL is not a valid URL. raw_length=${budgetUrl.length} starts="${budgetUrl.slice(0, 12)}" cleaned="${cleanedDebug}"`,
+      );
       return new Response(
         JSON.stringify({
           success: false,
@@ -261,7 +264,7 @@ Deno.serve(async (req) => {
 
       if (!upstream.ok) {
         const text = await upstream.text().catch(() => "");
-        console.error("Budget Expense upstream error", upstream.status, text);
+        console.error(`Budget Expense upstream error status=${upstream.status} endpoint=${budgetEndpoint} body=${text}`);
         return new Response(
           JSON.stringify({
             success: false,
