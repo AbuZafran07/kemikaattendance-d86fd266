@@ -170,7 +170,7 @@ const Payroll = () => {
       const { data: settingsData } = await supabase
         .from("system_settings").select("value").eq("key", "overtime_policy").maybeSingle();
       const holidays: { name: string; date: string }[] = (settingsData?.value as any)?.holidays || [];
-      const idulFitriKeywords = ["idul fitri", "hari raya", "lebaran", "eid al-fitr"];
+      const idulFitriKeywords = ["idul fitri", "lebaran", "eid al-fitr", "idulfitri"];
       const found = holidays.some((h) => {
         const d = parseLocalDate(h.date);
         return d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear &&
@@ -541,7 +541,7 @@ const Payroll = () => {
       const holidays: { id: string; name: string; date: string }[] =
         (settingsData?.value as any)?.holidays || [];
 
-      const idulFitriKeywords = ["idul fitri", "hari raya", "lebaran", "eid al-fitr"];
+      const idulFitriKeywords = ["idul fitri", "lebaran", "eid al-fitr", "idulfitri"];
       const idulFitriHolidays = holidays.filter((h) =>
         idulFitriKeywords.some((kw) => h.name.toLowerCase().includes(kw))
       );
