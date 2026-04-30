@@ -31,17 +31,35 @@ interface AggregatedItem {
 }
 
 function getBudgetExpenseEndpoint(rawUrl: string): string | null {
-  const trimmed = rawUrl.trim();
+  const cleaned = rawUrl
+    .trim()
+    .replace(/^BUDGET_EXPENSE_URL\s*=\s*/i, "")
+    .replace(/^["'`]+|["'`]+$/g, "")
+    .trim()
+    .replace(/\/+$/g, "");
 
-  try {
-    const url = new URL(trimmed);
-    if (!url.pathname || url.pathname === "/") {
-      url.pathname = "/functions/v1/export-medical-reimbursements";
+  const candidates = [cleaned];
+  if (!/^https?:\/\//i.test(cleaned)) {
+    candidates.push(`https://${cleaned}`);
+    if (/^[a-z0-9]{20}$/i.test(cleaned)) {
+      candidates.push(`https://${cleaned}.supabase.co`);
     }
-    return url.toString();
-  } catch {
-    return null;
   }
+
+  for (const candidate of candidates) {
+    try {
+      const url = new URL(candidate);
+      if (!/^https?:$/.test(url.protocol) || !url.hostname) continue;
+      if (!url.pathname || url.pathname === "/") {
+        url.pathname = "/functions/v1/export-medical-reimbursements";
+      }
+      return url.toString();
+    } catch {
+      // Try next normalized candidate.
+    }
+  }
+
+  return null;
 }
 
 Deno.serve(async (req) => {
