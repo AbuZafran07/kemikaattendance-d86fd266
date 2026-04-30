@@ -206,13 +206,37 @@ export default function EmployeeKPI() {
   const bonusPercent = myGrade?.bonus_percent || 0;
   const bonusAmount = (basicSalary * bonusPercent) / 100;
 
-  // Upsert single realization (value or custom)
+  // Upsert single realization (value or custom) — wajib ada lampiran bulan tsb
   const upsertRealization = async (
     indicator_id: string,
     month: number,
     payload: { value?: number | null; custom_values?: Record<string, number> }
-  ) => {
-    if (!userId) return;
+  ): Promise<boolean> => {
+    if (!userId) return false;
+
+    // Validasi: minimal 1 lampiran untuk bulan tsb (cek live ke DB untuk antisipasi race)
+    const { count, error: cntErr } = await supabase
+      .from("kpi_monthly_attachments")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("year", year)
+      .eq("month", month);
+    if (cntErr) {
+      toast({ title: "Gagal validasi lampiran", description: cntErr.message, variant: "destructive" });
+      return false;
+    }
+    if (!count || count === 0) {
+      toast({
+        title: "Lampiran wajib",
+        description: `Upload minimal 1 file laporan (PDF/Excel) untuk bulan ${MONTHS[month - 1]} sebelum input realisasi.`,
+        variant: "destructive",
+      });
+      // Sync state
+      setAttachmentCounts((prev) => ({ ...prev, [month]: 0 }));
+      return false;
+    }
+    setAttachmentCounts((prev) => ({ ...prev, [month]: count }));
+
     const existing = realizations.find((r) => r.indicator_id === indicator_id && r.month === month);
     const row = {
       indicator_id,
@@ -229,7 +253,7 @@ export default function EmployeeKPI() {
       .single();
     if (error) {
       toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
-      return;
+      return false;
     }
     setRealizations((prev) => {
       const idx = prev.findIndex((p) => p.indicator_id === indicator_id && p.month === month);
@@ -238,7 +262,12 @@ export default function EmployeeKPI() {
       if (idx >= 0) next[idx] = merged; else next.push(merged);
       return next;
     });
+    return true;
   };
+
+  const handleAttachmentCountChange = useCallback((month: number, count: number) => {
+    setAttachmentCounts((prev) => (prev[month] === count ? prev : { ...prev, [month]: count }));
+  }, []);
 
   if (!userId) {
     return (
