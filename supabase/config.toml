@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.checkout-reminder]
 verify_jwt = false
+
+[functions.fetch-medical-reimbursements]
+verify_jwt = true

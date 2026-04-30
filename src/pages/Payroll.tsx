@@ -752,6 +752,104 @@ const Payroll = () => {
 
       const allowanceMap = await calculateAttendanceAllowances();
 
+      // === Pull Medical Reimbursement dari Budget Expense ===
+      // Match by email (priority) → fallback full_name. Period mengikuti cut-off (21-20).
+      // Hasil DITAMBAHKAN (Add) ke tunjangan_kesehatan manual yang sudah ada di payroll_overrides.
+      const medicalMap = new Map<string, { total: number; count: number; matched_by: string; source_name?: string }>();
+      try {
+        const { data: empProfilesForMatch } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", emps.map((e: any) => e.id));
+
+        const { data: medRes, error: medErr } = await supabase.functions.invoke(
+          "fetch-medical-reimbursements",
+          {
+            body: {
+              start_date: periodStartStr,
+              end_date: periodEndStr,
+              employees: empProfilesForMatch || [],
+            },
+          }
+        );
+
+        if (medErr) {
+          console.warn("Medical reimbursement fetch failed:", medErr);
+        } else if (medRes?.success && medRes?.data) {
+          for (const [uid, info] of Object.entries(medRes.data as Record<string, any>)) {
+            medicalMap.set(uid, {
+              total: Number(info.total) || 0,
+              count: Number(info.count) || 0,
+              matched_by: info.matched_by || "email",
+              source_name: info.source_name,
+            });
+          }
+
+          // Merge ke incomeAdditions (Add behavior) sebelum perhitungan
+          if (medicalMap.size > 0) {
+            setIncomeAdditions((prev) => {
+              const next = new Map(prev);
+              for (const [uid, info] of medicalMap.entries()) {
+                const cur = next.get(uid) || {
+                  tunjangan_kehadiran: 0, tunjangan_kesehatan: 0, bonus_tahunan: 0,
+                  thr: 0, insentif_kinerja: 0, bonus_lainnya: 0,
+                  pengembalian_employee: 0, insentif_penjualan: 0, overtime_override: 0,
+                };
+                // Add: existing manual + medical reimbursement
+                cur.tunjangan_kesehatan = (cur.tunjangan_kesehatan || 0) + info.total;
+                next.set(uid, cur);
+              }
+              return next;
+            });
+
+            // Mirror ke local Map agar payrollRecords.map (yang baca incomeAdditions via getter)
+            // segera melihat nilai gabungan tanpa menunggu re-render.
+            for (const [uid, info] of medicalMap.entries()) {
+              const cur = incomeAdditions.get(uid) || {
+                tunjangan_kehadiran: 0, tunjangan_kesehatan: 0, bonus_tahunan: 0,
+                thr: 0, insentif_kinerja: 0, bonus_lainnya: 0,
+                pengembalian_employee: 0, insentif_penjualan: 0, overtime_override: 0,
+              };
+              cur.tunjangan_kesehatan = (cur.tunjangan_kesehatan || 0) + info.total;
+              incomeAdditions.set(uid, cur);
+            }
+
+            // Persist akumulasi gabungan ke payroll_overrides (tunjangan_kesehatan)
+            for (const [uid, info] of medicalMap.entries()) {
+              const merged = incomeAdditions.get(uid);
+              const newTk = merged?.tunjangan_kesehatan || info.total;
+              const { data: existing } = await supabase
+                .from("payroll_overrides")
+                .select("id")
+                .eq("user_id", uid)
+                .eq("period_year", selectedYear)
+                .eq("period_month", selectedMonth)
+                .maybeSingle();
+              if (existing) {
+                await supabase.from("payroll_overrides")
+                  .update({ tunjangan_kesehatan: newTk, updated_at: new Date().toISOString() })
+                  .eq("id", existing.id);
+              } else {
+                await supabase.from("payroll_overrides").insert({
+                  user_id: uid,
+                  period_year: selectedYear,
+                  period_month: selectedMonth,
+                  tunjangan_kesehatan: newTk,
+                });
+              }
+            }
+
+            toast({
+              title: "Medical Reimbursement Disinkronkan",
+              description: `${medicalMap.size} karyawan menerima total ${[...medicalMap.values()].reduce((s, v) => s + v.count, 0)} klaim dari Budget Expense.`,
+            });
+          }
+        }
+      } catch (e) {
+        console.warn("Medical reimbursement integration error:", e);
+      }
+
+
       // Fetch dynamic BPJS config
       let bpjsConfig: BPJSRatesConfig | undefined;
       const { data: bpjsData } = await supabase.rpc("get_bpjs_config");
