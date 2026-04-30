@@ -30,6 +30,20 @@ interface AggregatedItem {
   source_name?: string;
 }
 
+function getBudgetExpenseEndpoint(rawUrl: string): string | null {
+  const trimmed = rawUrl.trim();
+
+  try {
+    const url = new URL(trimmed);
+    if (!url.pathname || url.pathname === "/") {
+      url.pathname = "/functions/v1/export-medical-reimbursements";
+    }
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -96,6 +110,15 @@ Deno.serve(async (req) => {
       );
     }
 
+    const budgetEndpoint = getBudgetExpenseEndpoint(budgetUrl);
+    if (!budgetEndpoint) {
+      console.error("BUDGET_EXPENSE_URL is not a valid URL");
+      return new Response(
+        JSON.stringify({ error: "Budget Expense integration URL is invalid" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // Build employee payload for Budget Expense (must include email + full_name)
     const norm = (s?: string | null) =>
       (s || "").trim().toLowerCase().replace(/\s+/g, " ");
@@ -133,7 +156,7 @@ Deno.serve(async (req) => {
     const allResults: UpstreamItem[] = [];
 
     for (const chunk of chunks) {
-      const upstream = await fetch(budgetUrl, {
+      const upstream = await fetch(budgetEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
