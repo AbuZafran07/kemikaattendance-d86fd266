@@ -1141,10 +1141,11 @@ const Payroll = () => {
       const { error: insertError } = await supabase.from("payroll").insert(payrollRecords);
       if (insertError) throw insertError;
 
-      // Mark loan installments as paid and update loan records
+      // Schedule loan installments for this period (NOT yet paid).
+      // They will be marked "paid" and decrement loan counters only when payroll is finalized.
       for (const [userId, loanDed] of loanDeductionMap.entries()) {
         const manualOverride = deductionOverrides.get(userId)?.loan_deduction || 0;
-        if (manualOverride > 0) continue; // Skip auto-update if manual override used
+        if (manualOverride > 0) continue; // Skip auto-schedule if manual override used
 
         for (const { id: loanId, amount } of loanDed.loanIds) {
           // Find next pending installment
@@ -1159,29 +1160,11 @@ const Payroll = () => {
 
           if (nextInst) {
             await supabase.from("loan_installments").update({
-              status: "paid",
-              payment_date: new Date().toISOString().split("T")[0],
+              status: "scheduled",
+              payment_date: null,
               payroll_period_id: periodId,
               amount,
             }).eq("id", nextInst.id);
-          }
-
-          // Update loan record
-          const { data: loanRecord } = await supabase
-            .from("employee_loans")
-            .select("paid_installments, total_installments, remaining_amount")
-            .eq("id", loanId)
-            .single();
-
-          if (loanRecord) {
-            const newPaid = loanRecord.paid_installments + 1;
-            const newRemaining = Math.max(0, loanRecord.remaining_amount - amount);
-            const newStatus = newPaid >= loanRecord.total_installments ? "completed" : "active";
-            await supabase.from("employee_loans").update({
-              paid_installments: newPaid,
-              remaining_amount: newRemaining,
-              status: newStatus,
-            }).eq("id", loanId);
           }
         }
       }
