@@ -9,11 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock } from "lucide-react";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
@@ -60,6 +61,8 @@ const LoanManagement = () => {
   const [employees, setEmployees] = useState<{ id: string; full_name: string; departemen: string }[]>([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [creating, setCreating] = useState(false);
+  const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [form, setForm] = useState({
     user_id: "",
