@@ -729,6 +729,53 @@ const Payroll = () => {
       if (existingPeriod) {
         periodId = existingPeriod.id;
         await supabase.from("payroll").delete().eq("period_id", periodId);
+
+        // Revert any previously scheduled/paid loan installments for this period back to pending,
+        // so re-generate is idempotent and doesn't double-count cicilan.
+        const { data: prevInstallments } = await supabase
+          .from("loan_installments")
+          .select("id, loan_id, amount, status")
+          .eq("payroll_period_id", periodId)
+          .in("status", ["scheduled", "paid"]);
+
+        if (prevInstallments && prevInstallments.length > 0) {
+          // Group reverts per loan to recompute counters
+          const revertByLoan = new Map<string, { paidCount: number; totalAmount: number }>();
+          for (const inst of prevInstallments) {
+            const cur = revertByLoan.get(inst.loan_id) || { paidCount: 0, totalAmount: 0 };
+            // Only previously "paid" rows actually decremented loan counters
+            if (inst.status === "paid") {
+              cur.paidCount += 1;
+              cur.totalAmount += Number(inst.amount) || 0;
+            }
+            revertByLoan.set(inst.loan_id, cur);
+          }
+
+          // Reset installments rows
+          await supabase
+            .from("loan_installments")
+            .update({ status: "pending", payment_date: null, payroll_period_id: null })
+            .eq("payroll_period_id", periodId);
+
+          // Restore loan counters where needed
+          for (const [loanId, { paidCount, totalAmount }] of revertByLoan.entries()) {
+            if (paidCount === 0 && totalAmount === 0) continue;
+            const { data: lr } = await supabase
+              .from("employee_loans")
+              .select("paid_installments, remaining_amount, total_amount, total_installments")
+              .eq("id", loanId)
+              .single();
+            if (lr) {
+              const newPaid = Math.max(0, lr.paid_installments - paidCount);
+              const newRemaining = Math.min(Number(lr.total_amount), Number(lr.remaining_amount) + totalAmount);
+              await supabase.from("employee_loans").update({
+                paid_installments: newPaid,
+                remaining_amount: newRemaining,
+                status: newPaid >= lr.total_installments ? "completed" : "active",
+              }).eq("id", loanId);
+            }
+          }
+        }
       } else {
         const { data: newPeriod, error } = await supabase
           .from("payroll_periods").insert({ month: selectedMonth, year: selectedYear, status: "draft" })
