@@ -484,6 +484,37 @@ const LoanManagement = () => {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={!!loanToDelete} onOpenChange={(open) => { if (!open) setLoanToDelete(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Hapus Pinjaman?</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2">
+                  <p>
+                    Anda akan menghapus pinjaman <strong>{loanToDelete?.employee_name}</strong> sebesar{" "}
+                    <strong>{loanToDelete ? formatRupiah(loanToDelete.total_amount) : ""}</strong>.
+                  </p>
+                  <p className="text-destructive font-medium">
+                    Tindakan ini permanen dan akan menghapus seluruh riwayat cicilannya. Tidak dapat dibatalkan.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Batal</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteLoan}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                Hapus Permanen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );
