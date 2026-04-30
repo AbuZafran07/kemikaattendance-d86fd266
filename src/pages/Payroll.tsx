@@ -1254,6 +1254,46 @@ const Payroll = () => {
         .eq("id", period.id);
       if (error) throw error;
 
+      // Revert "paid" loan installments for this period back to "scheduled"
+      // and restore loan counters, since payment is no longer finalized.
+      const { data: paidInsts } = await supabase
+        .from("loan_installments")
+        .select("id, loan_id, amount")
+        .eq("payroll_period_id", period.id)
+        .eq("status", "paid");
+
+      if (paidInsts && paidInsts.length > 0) {
+        await supabase
+          .from("loan_installments")
+          .update({ status: "scheduled", payment_date: null })
+          .eq("payroll_period_id", period.id)
+          .eq("status", "paid");
+
+        const aggByLoan = new Map<string, { count: number; total: number }>();
+        for (const inst of paidInsts) {
+          const cur = aggByLoan.get(inst.loan_id) || { count: 0, total: 0 };
+          cur.count += 1;
+          cur.total += Number(inst.amount) || 0;
+          aggByLoan.set(inst.loan_id, cur);
+        }
+        for (const [loanId, { count, total }] of aggByLoan.entries()) {
+          const { data: lr } = await supabase
+            .from("employee_loans")
+            .select("paid_installments, remaining_amount, total_amount, total_installments")
+            .eq("id", loanId)
+            .single();
+          if (lr) {
+            const newPaid = Math.max(0, lr.paid_installments - count);
+            const newRemaining = Math.min(Number(lr.total_amount), Number(lr.remaining_amount) + total);
+            await supabase.from("employee_loans").update({
+              paid_installments: newPaid,
+              remaining_amount: newRemaining,
+              status: newPaid >= lr.total_installments ? "completed" : "active",
+            }).eq("id", loanId);
+          }
+        }
+      }
+
       // Log unlock action
       await logPayrollAction({
         period_id: period.id,
