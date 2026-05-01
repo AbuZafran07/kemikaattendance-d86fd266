@@ -104,13 +104,14 @@ const LoanManagement = () => {
       if (!loansData || loansData.length === 0) { setLoans([]); setLoading(false); return; }
 
       const userIds = [...new Set(loansData.map(l => l.user_id))];
-      const { data: profiles } = await supabase.from("profiles").select("id, full_name, departemen").in("id", userIds);
+      const { data: profiles } = await supabase.from("profiles").select("id, full_name, departemen, nik").in("id", userIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
       setLoans(loansData.map(l => ({
         ...l,
         employee_name: profileMap.get(l.user_id)?.full_name || "Unknown",
         departemen: profileMap.get(l.user_id)?.departemen || "-",
+        nik: (profileMap.get(l.user_id) as any)?.nik || "",
       })));
     } catch (e) {
       console.error(e);
