@@ -336,6 +336,11 @@ const LoanManagement = () => {
 
   const totalActiveLoans = loans.filter(l => l.status === "active").length;
   const totalRemainingAmount = loans.filter(l => l.status === "active").reduce((s, l) => s + l.remaining_amount, 0);
+  const totalPages = Math.max(1, Math.ceil(loans.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedLoans = loans.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const startIdx = loans.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const endIdx = Math.min(safePage * pageSize, loans.length);
 
   return (
     <DashboardLayout>
