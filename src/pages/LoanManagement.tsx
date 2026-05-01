@@ -121,7 +121,7 @@ const LoanManagement = () => {
   };
 
   useEffect(() => { fetchLoans(); }, [filterStatus]);
-  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize]);
+  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize, searchQuery]);
 
   const handleCreate = async () => {
     if (!form.user_id || !form.total_amount || !form.total_installments) {
