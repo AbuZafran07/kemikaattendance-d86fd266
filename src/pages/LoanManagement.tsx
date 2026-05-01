@@ -258,10 +258,10 @@ const LoanManagement = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <CreditCard className="h-7 w-7 text-primary" /> Manajemen Pinjaman
+              <CreditCard className="h-7 w-7 text-primary" /> Manajemen Potongan
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Kelola pinjaman dan kasbon karyawan dengan tracking cicilan otomatis
+              Kelola pinjaman, kasbon, dan potongan lain karyawan dengan tracking cicilan otomatis
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -275,22 +275,22 @@ const LoanManagement = () => {
               </SelectContent>
             </Select>
             <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
-              <Plus className="h-4 w-4" /> Tambah Pinjaman
+              <Plus className="h-4 w-4" /> Tambah Potongan
             </Button>
           </div>
         </div>
 
         {/* Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{loans.length}</p><p className="text-xs text-muted-foreground">Total Pinjaman</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{totalActiveLoans}</p><p className="text-xs text-muted-foreground">Pinjaman Aktif</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">Total Sisa Pinjaman</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{loans.length}</p><p className="text-xs text-muted-foreground">Total Potongan</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{totalActiveLoans}</p><p className="text-xs text-muted-foreground">Potongan Aktif</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">Total Sisa Potongan</p></CardContent></Card>
         </div>
 
         {/* Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Daftar Pinjaman Karyawan</CardTitle>
+            <CardTitle className="text-lg">Daftar Potongan Karyawan</CardTitle>
             <CardDescription>Klik baris untuk melihat detail cicilan</CardDescription>
           </CardHeader>
           <CardContent>
@@ -364,7 +364,7 @@ const LoanManagement = () => {
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Tambah Pinjaman Baru</DialogTitle>
+              <DialogTitle>Tambah Potongan Baru</DialogTitle>
               <DialogDescription>Buat pinjaman atau kasbon baru untuk karyawan</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
