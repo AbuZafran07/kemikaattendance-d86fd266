@@ -33,6 +33,7 @@ interface Loan {
   created_at: string;
   employee_name?: string;
   departemen?: string;
+  nik?: string;
 }
 
 interface Installment {
