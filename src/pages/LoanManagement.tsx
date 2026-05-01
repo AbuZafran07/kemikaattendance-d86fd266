@@ -240,7 +240,77 @@ const LoanManagement = () => {
     }
   };
 
-  const statusBadge = (status: string) => {
+  const openEdit = (loan: Loan) => {
+    if (loan.paid_installments > 0) {
+      toast({
+        title: "Tidak Bisa Diedit",
+        description: "Pinjaman ini sudah memiliki cicilan yang terbayar. Hapus dan buat ulang jika perlu mengubah.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoanToEdit(loan);
+    setEditForm({
+      loan_type: loan.loan_type,
+      description: loan.description || "",
+      total_amount: String(loan.total_amount),
+      total_installments: String(loan.total_installments),
+      start_date: loan.start_date,
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateLoan = async () => {
+    if (!loanToEdit) return;
+    if (!editForm.total_amount || !editForm.total_installments) {
+      toast({ title: "Data belum lengkap", description: "Isi semua field yang diperlukan.", variant: "destructive" });
+      return;
+    }
+    setUpdating(true);
+    try {
+      const totalAmount = Number(editForm.total_amount);
+      const totalInstallments = Number(editForm.total_installments);
+      const monthlyInstallment = Math.ceil(totalAmount / totalInstallments);
+
+      const { error: updErr } = await supabase
+        .from("employee_loans")
+        .update({
+          loan_type: editForm.loan_type,
+          description: editForm.description || null,
+          total_amount: totalAmount,
+          monthly_installment: monthlyInstallment,
+          total_installments: totalInstallments,
+          remaining_amount: totalAmount,
+          start_date: editForm.start_date,
+        })
+        .eq("id", loanToEdit.id);
+      if (updErr) throw updErr;
+
+      // Regenerate installments (safe: paid_installments = 0)
+      await supabase.from("loan_installments").delete().eq("loan_id", loanToEdit.id);
+      const installmentRecords = Array.from({ length: totalInstallments }, (_, i) => {
+        const isLast = i === totalInstallments - 1;
+        const amount = isLast ? totalAmount - monthlyInstallment * (totalInstallments - 1) : monthlyInstallment;
+        return {
+          loan_id: loanToEdit.id,
+          installment_number: i + 1,
+          amount: Math.max(0, amount),
+          status: "pending",
+        };
+      });
+      const { error: instErr } = await supabase.from("loan_installments").insert(installmentRecords);
+      if (instErr) throw instErr;
+
+      toast({ title: "Pinjaman Diperbarui", description: `${totalInstallments}x cicilan @ ${formatRupiah(monthlyInstallment)}` });
+      setShowEditDialog(false);
+      setLoanToEdit(null);
+      fetchLoans();
+    } catch (e: any) {
+      toast({ title: "Gagal Memperbarui", description: e.message, variant: "destructive" });
+    } finally {
+      setUpdating(false);
+    }
+  };
     switch (status) {
       case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
       case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">Lunas</Badge>;
