@@ -33,6 +33,7 @@ interface Loan {
   created_at: string;
   employee_name?: string;
   departemen?: string;
+  nik?: string;
 }
 
 interface Installment {
@@ -62,6 +63,7 @@ const LoanManagement = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -102,13 +104,14 @@ const LoanManagement = () => {
       if (!loansData || loansData.length === 0) { setLoans([]); setLoading(false); return; }
 
       const userIds = [...new Set(loansData.map(l => l.user_id))];
-      const { data: profiles } = await supabase.from("profiles").select("id, full_name, departemen").in("id", userIds);
+      const { data: profiles } = await supabase.from("profiles").select("id, full_name, departemen, nik").in("id", userIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
       setLoans(loansData.map(l => ({
         ...l,
         employee_name: profileMap.get(l.user_id)?.full_name || "Unknown",
         departemen: profileMap.get(l.user_id)?.departemen || "-",
+        nik: (profileMap.get(l.user_id) as any)?.nik || "",
       })));
     } catch (e) {
       console.error(e);
@@ -118,7 +121,7 @@ const LoanManagement = () => {
   };
 
   useEffect(() => { fetchLoans(); }, [filterStatus]);
-  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize]);
+  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize, searchQuery]);
 
   const handleCreate = async () => {
     if (!form.user_id || !form.total_amount || !form.total_installments) {
@@ -336,11 +339,19 @@ const LoanManagement = () => {
 
   const totalActiveLoans = loans.filter(l => l.status === "active").length;
   const totalRemainingAmount = loans.filter(l => l.status === "active").reduce((s, l) => s + l.remaining_amount, 0);
-  const totalPages = Math.max(1, Math.ceil(loans.length / pageSize));
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredLoans = normalizedQuery
+    ? loans.filter(l =>
+        (l.employee_name || "").toLowerCase().includes(normalizedQuery) ||
+        (l.nik || "").toLowerCase().includes(normalizedQuery) ||
+        (l.departemen || "").toLowerCase().includes(normalizedQuery)
+      )
+    : loans;
+  const totalPages = Math.max(1, Math.ceil(filteredLoans.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
-  const paginatedLoans = loans.slice((safePage - 1) * pageSize, safePage * pageSize);
-  const startIdx = loans.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
-  const endIdx = Math.min(safePage * pageSize, loans.length);
+  const paginatedLoans = filteredLoans.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const startIdx = filteredLoans.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const endIdx = Math.min(safePage * pageSize, filteredLoans.length);
 
   return (
     <DashboardLayout>
@@ -354,7 +365,13 @@ const LoanManagement = () => {
               Kelola pinjaman, kasbon, dan potongan lain karyawan dengan tracking cicilan otomatis
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
+            <Input
+              placeholder="Cari nama, NIK, atau departemen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:w-[260px]"
+            />
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -372,7 +389,7 @@ const LoanManagement = () => {
 
         {/* Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{loans.length}</p><p className="text-xs text-muted-foreground">Total Potongan</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{filteredLoans.length}</p><p className="text-xs text-muted-foreground">Total Potongan{normalizedQuery ? " (filter)" : ""}</p></CardContent></Card>
           <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{totalActiveLoans}</p><p className="text-xs text-muted-foreground">Potongan Aktif</p></CardContent></Card>
           <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">Total Sisa Potongan</p></CardContent></Card>
         </div>
@@ -386,10 +403,10 @@ const LoanManagement = () => {
           <CardContent>
             {loading ? (
               <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-            ) : loans.length === 0 ? (
+            ) : filteredLoans.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <CreditCard className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Belum ada data pinjaman</p>
+                <p className="font-medium">{normalizedQuery ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data pinjaman"}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -457,7 +474,7 @@ const LoanManagement = () => {
                 </Table>
               </div>
             )}
-            {!loading && loans.length > 0 && (
+            {!loading && filteredLoans.length > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span>Tampilkan</span>
@@ -469,7 +486,7 @@ const LoanManagement = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <span>dari {loans.length} ({startIdx}-{endIdx})</span>
+                  <span>dari {filteredLoans.length} ({startIdx}-{endIdx})</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage - 1)} disabled={safePage <= 1}>Sebelumnya</Button>
