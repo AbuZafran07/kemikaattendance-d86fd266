@@ -2267,13 +2267,22 @@ const Payroll = () => {
             <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
               {(() => {
                 const loanMap = new Map<string, number>();
-                payrollData.forEach(p => loanMap.set(p.user_id, Number(p.loan_deduction) || 0));
+                const otherTotalMap = new Map<string, number>();
+                const autoNotesMap = new Map<string, string>();
+                payrollData.forEach(p => {
+                  loanMap.set(p.user_id, Number(p.loan_deduction) || 0);
+                  otherTotalMap.set(p.user_id, Number(p.other_deduction) || 0);
+                  autoNotesMap.set(p.user_id, p.deduction_notes || "");
+                });
                 return employees
                 .filter(emp => emp.full_name.toLowerCase().includes(deductionSearch.toLowerCase()))
                 .map((emp) => {
                   const ded = deductionOverrides.get(emp.id) || { loan_deduction: 0, other_deduction: 0, deduction_notes: "" };
                   const autoLoan = loanMap.get(emp.id) || 0;
-                  const hasValue = (autoLoan > 0 || ded.other_deduction > 0);
+                  // Auto "Potongan Lain" = total other_deduction di payroll - manual override
+                  const totalOther = otherTotalMap.get(emp.id) || 0;
+                  const autoOther = Math.max(0, totalOther - (ded.other_deduction || 0));
+                  const hasValue = (autoLoan > 0 || autoOther > 0 || ded.other_deduction > 0);
                   const isExpanded = selectedDeductionEmp === emp.id;
                   return (
                     <div key={emp.id} className={`border rounded-lg transition-colors ${hasValue ? 'border-primary/50 bg-primary/5' : 'border-border'}`}>
@@ -2288,14 +2297,14 @@ const Payroll = () => {
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {hasValue && (
-                            <span>{formatRupiah(autoLoan + ded.other_deduction)}</span>
+                            <span>{formatRupiah(autoLoan + autoOther + ded.other_deduction)}</span>
                           )}
                           <span className="text-muted-foreground">{isExpanded ? "▲" : "▼"}</span>
                         </div>
                       </button>
                       {isExpanded && (
                         <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-3 gap-2">
                             <div>
                               <Label className="text-xs">Pinjaman/Kasbon</Label>
                               <Input
@@ -2304,21 +2313,37 @@ const Payroll = () => {
                                 readOnly
                                 disabled
                                 className="bg-muted/50 cursor-not-allowed"
-                                title="Otomatis dari modul Manajemen Pinjaman — sudah dihitung di tabel payroll, tidak akan dijumlahkan ulang."
+                                title="Otomatis dari modul Deduction (Pinjaman/Kasbon)."
                               />
                             </div>
                             <div>
-                              <Label className="text-xs">Potongan Lain</Label>
+                              <Label className="text-xs">Potongan Lain (Auto)</Label>
+                              <Input
+                                type="text"
+                                value={autoOther > 0 ? formatRupiah(autoOther) : "Tidak ada"}
+                                readOnly
+                                disabled
+                                className="bg-muted/50 cursor-not-allowed"
+                                title="Otomatis dari modul Deduction (jenis: Potongan Lain)."
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs">Potongan Lain (Manual)</Label>
                               <Input type="number" value={ded.other_deduction || ""} placeholder="0"
                                 onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
                             </div>
                           </div>
                           <p className="text-[11px] text-muted-foreground italic">
-                            ℹ️ Pinjaman/Kasbon hanya ditampilkan (read-only) — sudah otomatis dipotong dari modul Manajemen Pinjaman. Hanya <strong>Potongan Lain</strong> yang akan ditambahkan sebagai potongan manual.
+                            ℹ️ Kolom <strong>Auto</strong> diambil otomatis dari modul <strong>Deduction</strong> (read-only). Catatan otomatis tersinkron dari deskripsi potongan. Tambahkan <strong>Potongan Lain (Manual)</strong> hanya jika ada potongan tambahan di luar modul Deduction.
                           </p>
+                          {autoNotesMap.get(emp.id) && (
+                            <div className="text-[11px] text-muted-foreground">
+                              <span className="font-medium">Catatan tersinkron:</span> {autoNotesMap.get(emp.id)}
+                            </div>
+                          )}
                           <div>
-                            <Label className="text-xs">Catatan</Label>
-                            <Textarea rows={1} value={ded.deduction_notes} placeholder="Keterangan potongan..."
+                            <Label className="text-xs">Catatan Manual (Tambahan)</Label>
+                            <Textarea rows={1} value={ded.deduction_notes} placeholder="Catatan tambahan untuk potongan manual..."
                               onChange={(e) => updateDeduction(emp.id, "deduction_notes", e.target.value)} />
                           </div>
                         </div>
