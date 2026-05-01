@@ -395,7 +395,7 @@ const LoanManagement = () => {
                       <TableHead className="text-center">Progress</TableHead>
                       <TableHead className="text-right">Sisa</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="w-[80px]"></TableHead>
+                      <TableHead className="w-[120px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
