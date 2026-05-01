@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2 } from "lucide-react";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
@@ -63,6 +63,16 @@ const LoanManagement = () => {
   const [creating, setCreating] = useState(false);
   const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [loanToEdit, setLoanToEdit] = useState<Loan | null>(null);
+  const [updating, setUpdating] = useState(false);
+  const [editForm, setEditForm] = useState({
+    loan_type: "pinjaman",
+    description: "",
+    total_amount: "",
+    total_installments: "",
+    start_date: format(new Date(), "yyyy-MM-dd"),
+  });
 
   const [form, setForm] = useState({
     user_id: "",
@@ -230,6 +240,78 @@ const LoanManagement = () => {
     }
   };
 
+  const openEdit = (loan: Loan) => {
+    if (loan.paid_installments > 0) {
+      toast({
+        title: "Tidak Bisa Diedit",
+        description: "Pinjaman ini sudah memiliki cicilan yang terbayar. Hapus dan buat ulang jika perlu mengubah.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoanToEdit(loan);
+    setEditForm({
+      loan_type: loan.loan_type,
+      description: loan.description || "",
+      total_amount: String(loan.total_amount),
+      total_installments: String(loan.total_installments),
+      start_date: loan.start_date,
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateLoan = async () => {
+    if (!loanToEdit) return;
+    if (!editForm.total_amount || !editForm.total_installments) {
+      toast({ title: "Data belum lengkap", description: "Isi semua field yang diperlukan.", variant: "destructive" });
+      return;
+    }
+    setUpdating(true);
+    try {
+      const totalAmount = Number(editForm.total_amount);
+      const totalInstallments = Number(editForm.total_installments);
+      const monthlyInstallment = Math.ceil(totalAmount / totalInstallments);
+
+      const { error: updErr } = await supabase
+        .from("employee_loans")
+        .update({
+          loan_type: editForm.loan_type,
+          description: editForm.description || null,
+          total_amount: totalAmount,
+          monthly_installment: monthlyInstallment,
+          total_installments: totalInstallments,
+          remaining_amount: totalAmount,
+          start_date: editForm.start_date,
+        })
+        .eq("id", loanToEdit.id);
+      if (updErr) throw updErr;
+
+      // Regenerate installments (safe: paid_installments = 0)
+      await supabase.from("loan_installments").delete().eq("loan_id", loanToEdit.id);
+      const installmentRecords = Array.from({ length: totalInstallments }, (_, i) => {
+        const isLast = i === totalInstallments - 1;
+        const amount = isLast ? totalAmount - monthlyInstallment * (totalInstallments - 1) : monthlyInstallment;
+        return {
+          loan_id: loanToEdit.id,
+          installment_number: i + 1,
+          amount: Math.max(0, amount),
+          status: "pending",
+        };
+      });
+      const { error: instErr } = await supabase.from("loan_installments").insert(installmentRecords);
+      if (instErr) throw instErr;
+
+      toast({ title: "Pinjaman Diperbarui", description: `${totalInstallments}x cicilan @ ${formatRupiah(monthlyInstallment)}` });
+      setShowEditDialog(false);
+      setLoanToEdit(null);
+      fetchLoans();
+    } catch (e: any) {
+      toast({ title: "Gagal Memperbarui", description: e.message, variant: "destructive" });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   const statusBadge = (status: string) => {
     switch (status) {
       case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
@@ -313,7 +395,7 @@ const LoanManagement = () => {
                       <TableHead className="text-center">Progress</TableHead>
                       <TableHead className="text-right">Sisa</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead className="w-[80px]"></TableHead>
+                      <TableHead className="w-[120px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -337,15 +419,25 @@ const LoanManagement = () => {
                         <TableCell>{statusBadge(loan.status)}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }}>
+                            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }} title="Lihat detail">
                               <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={(e) => { e.stopPropagation(); openEdit(loan); }}
+                              title="Edit potongan"
+                              disabled={loan.paid_installments > 0 || loan.status !== "active"}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={(e) => { e.stopPropagation(); setLoanToDelete(loan); }}
-                              title="Hapus pinjaman"
+                              title="Hapus potongan"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
@@ -483,6 +575,56 @@ const LoanManagement = () => {
                 )}
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Dialog */}
+        <Dialog open={showEditDialog} onOpenChange={(open) => { setShowEditDialog(open); if (!open) setLoanToEdit(null); }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Potongan</DialogTitle>
+              <DialogDescription>
+                {loanToEdit?.employee_name} — perubahan akan membuat ulang jadwal cicilan.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Tipe</Label>
+                <Select value={editForm.loan_type} onValueChange={(v) => setEditForm(f => ({ ...f, loan_type: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pinjaman">Pinjaman</SelectItem>
+                    <SelectItem value="kasbon">Kasbon</SelectItem>
+                    <SelectItem value="potongan_lain">Potongan Lain</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Jumlah (Rp)</Label>
+                <Input type="number" value={editForm.total_amount} onChange={(e) => setEditForm(f => ({ ...f, total_amount: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Jumlah Cicilan (bulan)</Label>
+                <Input type="number" value={editForm.total_installments} onChange={(e) => setEditForm(f => ({ ...f, total_installments: e.target.value }))} />
+              </div>
+              {editForm.total_amount && editForm.total_installments && (
+                <p className="text-sm text-muted-foreground">
+                  Cicilan/bulan: <span className="font-semibold text-foreground">{formatRupiah(Math.ceil(Number(editForm.total_amount) / Number(editForm.total_installments)))}</span>
+                </p>
+              )}
+              <div>
+                <Label>Tanggal Mulai</Label>
+                <Input type="date" value={editForm.start_date} onChange={(e) => setEditForm(f => ({ ...f, start_date: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Keterangan</Label>
+                <Textarea value={editForm.description} onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))} rows={2} />
+              </div>
+              <Button onClick={handleUpdateLoan} disabled={updating} className="w-full gap-2">
+                {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
+                Simpan Perubahan
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 
