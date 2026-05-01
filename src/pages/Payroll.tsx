@@ -1036,17 +1036,29 @@ const Payroll = () => {
       // Fetch active loans for auto-deduction
       const { data: activeLoans } = await supabase
         .from("employee_loans")
-        .select("id, user_id, monthly_installment, paid_installments, total_installments, remaining_amount")
+        .select("id, user_id, monthly_installment, paid_installments, total_installments, remaining_amount, loan_type, description")
         .eq("status", "active");
 
-      // Build loan deduction map: sum of all active loan installments per employee
+      // Build deduction maps:
+      //  - loanDeductionMap: pinjaman & kasbon → field loan_deduction
+      //  - otherAutoDeductionMap: potongan_lain → field other_deduction (auto, dari modul Deduction)
+      // loanIds tetap dikumpulkan bersama supaya scheduling installment tetap berjalan untuk semua tipe.
       const loanDeductionMap = new Map<string, { amount: number; loanIds: { id: string; amount: number }[] }>();
+      const otherAutoDeductionMap = new Map<string, { amount: number; notes: string[] }>();
       for (const loan of activeLoans || []) {
         if (loan.paid_installments >= loan.total_installments) continue;
         const installmentAmount = Math.min(loan.monthly_installment, loan.remaining_amount);
         const existing = loanDeductionMap.get(loan.user_id) || { amount: 0, loanIds: [] };
-        existing.amount += installmentAmount;
         existing.loanIds.push({ id: loan.id, amount: installmentAmount });
+
+        if (loan.loan_type === "potongan_lain") {
+          const o = otherAutoDeductionMap.get(loan.user_id) || { amount: 0, notes: [] };
+          o.amount += installmentAmount;
+          if (loan.description && loan.description.trim()) o.notes.push(loan.description.trim());
+          otherAutoDeductionMap.set(loan.user_id, o);
+        } else {
+          existing.amount += installmentAmount;
+        }
         loanDeductionMap.set(loan.user_id, existing);
       }
 
@@ -1104,6 +1116,18 @@ const Payroll = () => {
         // manual override pinjaman dihapus untuk mencegah double-count.
         const finalLoanDeduction = loanDed?.amount || 0;
 
+        // Auto "Potongan Lain" dari modul Deduction (loan_type = 'potongan_lain') ditambahkan ke other_deduction,
+        // PLUS input manual other_deduction dari dialog Tambahan Penghasilan.
+        const otherAuto = otherAutoDeductionMap.get(emp.id);
+        const finalOtherDeduction = (otherAuto?.amount || 0) + (ded?.other_deduction || 0);
+
+        // Sinkronisasi catatan: gabungkan deskripsi dari modul Deduction (potongan_lain) dengan catatan manual.
+        const autoNotesParts: string[] = [];
+        if ((otherAuto?.notes?.length || 0) > 0) autoNotesParts.push(...(otherAuto!.notes));
+        if (finalLoanDeduction > 0) autoNotesParts.push("Cicilan pinjaman otomatis");
+        const manualNote = (ded?.deduction_notes || "").trim();
+        const mergedNotes = [manualNote, autoNotesParts.join("; ")].filter(Boolean).join(" | ");
+
         // Map PTKP status to TER category (e.g. K/I/0 -> K/0 for TER lookup)
         const terCategory = ptkpStatus.replace("/I", "");
         const terRatesForEmp = terRatesByCategory.get(terCategory) || terRatesByCategory.get(ptkpStatus) || [];
@@ -1111,8 +1135,8 @@ const Payroll = () => {
         const result = calculatePayroll({
           basicSalary, allowance: totalAllowance, overtimeTotal, ptkpStatus, overtimeHours,
           loanDeduction: finalLoanDeduction,
-          otherDeduction: ded?.other_deduction || 0,
-          deductionNotes: ded?.deduction_notes || (finalLoanDeduction > 0 ? "Cicilan pinjaman otomatis" : ""),
+          otherDeduction: finalOtherDeduction,
+          deductionNotes: mergedNotes,
           month: selectedMonth,
           terRates: terRatesForEmp,
           totalPphJanNov: pphJanNovMap.get(emp.id) || 0,
@@ -2243,13 +2267,22 @@ const Payroll = () => {
             <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
               {(() => {
                 const loanMap = new Map<string, number>();
-                payrollData.forEach(p => loanMap.set(p.user_id, Number(p.loan_deduction) || 0));
+                const otherTotalMap = new Map<string, number>();
+                const autoNotesMap = new Map<string, string>();
+                payrollData.forEach(p => {
+                  loanMap.set(p.user_id, Number(p.loan_deduction) || 0);
+                  otherTotalMap.set(p.user_id, Number(p.other_deduction) || 0);
+                  autoNotesMap.set(p.user_id, p.deduction_notes || "");
+                });
                 return employees
                 .filter(emp => emp.full_name.toLowerCase().includes(deductionSearch.toLowerCase()))
                 .map((emp) => {
                   const ded = deductionOverrides.get(emp.id) || { loan_deduction: 0, other_deduction: 0, deduction_notes: "" };
                   const autoLoan = loanMap.get(emp.id) || 0;
-                  const hasValue = (autoLoan > 0 || ded.other_deduction > 0);
+                  // Auto "Potongan Lain" = total other_deduction di payroll - manual override
+                  const totalOther = otherTotalMap.get(emp.id) || 0;
+                  const autoOther = Math.max(0, totalOther - (ded.other_deduction || 0));
+                  const hasValue = (autoLoan > 0 || autoOther > 0 || ded.other_deduction > 0);
                   const isExpanded = selectedDeductionEmp === emp.id;
                   return (
                     <div key={emp.id} className={`border rounded-lg transition-colors ${hasValue ? 'border-primary/50 bg-primary/5' : 'border-border'}`}>
@@ -2264,14 +2297,14 @@ const Payroll = () => {
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {hasValue && (
-                            <span>{formatRupiah(autoLoan + ded.other_deduction)}</span>
+                            <span>{formatRupiah(autoLoan + autoOther + ded.other_deduction)}</span>
                           )}
                           <span className="text-muted-foreground">{isExpanded ? "▲" : "▼"}</span>
                         </div>
                       </button>
                       {isExpanded && (
                         <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-3 gap-2">
                             <div>
                               <Label className="text-xs">Pinjaman/Kasbon</Label>
                               <Input
@@ -2280,21 +2313,37 @@ const Payroll = () => {
                                 readOnly
                                 disabled
                                 className="bg-muted/50 cursor-not-allowed"
-                                title="Otomatis dari modul Manajemen Pinjaman — sudah dihitung di tabel payroll, tidak akan dijumlahkan ulang."
+                                title="Otomatis dari modul Deduction (Pinjaman/Kasbon)."
                               />
                             </div>
                             <div>
-                              <Label className="text-xs">Potongan Lain</Label>
+                              <Label className="text-xs">Potongan Lain (Auto)</Label>
+                              <Input
+                                type="text"
+                                value={autoOther > 0 ? formatRupiah(autoOther) : "Tidak ada"}
+                                readOnly
+                                disabled
+                                className="bg-muted/50 cursor-not-allowed"
+                                title="Otomatis dari modul Deduction (jenis: Potongan Lain)."
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs">Potongan Lain (Manual)</Label>
                               <Input type="number" value={ded.other_deduction || ""} placeholder="0"
                                 onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
                             </div>
                           </div>
                           <p className="text-[11px] text-muted-foreground italic">
-                            ℹ️ Pinjaman/Kasbon hanya ditampilkan (read-only) — sudah otomatis dipotong dari modul Manajemen Pinjaman. Hanya <strong>Potongan Lain</strong> yang akan ditambahkan sebagai potongan manual.
+                            ℹ️ Kolom <strong>Auto</strong> diambil otomatis dari modul <strong>Deduction</strong> (read-only). Catatan otomatis tersinkron dari deskripsi potongan. Tambahkan <strong>Potongan Lain (Manual)</strong> hanya jika ada potongan tambahan di luar modul Deduction.
                           </p>
+                          {autoNotesMap.get(emp.id) && (
+                            <div className="text-[11px] text-muted-foreground">
+                              <span className="font-medium">Catatan tersinkron:</span> {autoNotesMap.get(emp.id)}
+                            </div>
+                          )}
                           <div>
-                            <Label className="text-xs">Catatan</Label>
-                            <Textarea rows={1} value={ded.deduction_notes} placeholder="Keterangan potongan..."
+                            <Label className="text-xs">Catatan Manual (Tambahan)</Label>
+                            <Textarea rows={1} value={ded.deduction_notes} placeholder="Catatan tambahan untuk potongan manual..."
                               onChange={(e) => updateDeduction(emp.id, "deduction_notes", e.target.value)} />
                           </div>
                         </div>
