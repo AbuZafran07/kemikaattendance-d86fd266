@@ -407,7 +407,7 @@ const LoanManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {loans.map((loan) => (
+                    {paginatedLoans.map((loan) => (
                       <TableRow key={loan.id} className="cursor-pointer hover:bg-accent/50" onClick={() => openDetail(loan)}>
                         <TableCell>
                           <div>
