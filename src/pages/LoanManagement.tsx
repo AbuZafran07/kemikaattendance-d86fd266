@@ -486,7 +486,7 @@ const LoanManagement = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <span>dari {loans.length} ({startIdx}-{endIdx})</span>
+                  <span>dari {filteredLoans.length} ({startIdx}-{endIdx})</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage - 1)} disabled={safePage <= 1}>Sebelumnya</Button>
