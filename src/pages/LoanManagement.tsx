@@ -60,6 +60,8 @@ const LoanManagement = () => {
   const [installmentsLoading, setInstallmentsLoading] = useState(false);
   const [employees, setEmployees] = useState<{ id: string; full_name: string; departemen: string }[]>([]);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [creating, setCreating] = useState(false);
   const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
   const [deleting, setDeleting] = useState(false);
