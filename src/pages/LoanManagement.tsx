@@ -419,15 +419,25 @@ const LoanManagement = () => {
                         <TableCell>{statusBadge(loan.status)}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }}>
+                            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }} title="Lihat detail">
                               <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2"
+                              onClick={(e) => { e.stopPropagation(); openEdit(loan); }}
+                              title="Edit potongan"
+                              disabled={loan.paid_installments > 0 || loan.status !== "active"}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={(e) => { e.stopPropagation(); setLoanToDelete(loan); }}
-                              title="Hapus pinjaman"
+                              title="Hapus potongan"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
