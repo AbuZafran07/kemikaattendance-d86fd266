@@ -403,10 +403,10 @@ const LoanManagement = () => {
           <CardContent>
             {loading ? (
               <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-            ) : loans.length === 0 ? (
+            ) : filteredLoans.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <CreditCard className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Belum ada data pinjaman</p>
+                <p className="font-medium">{normalizedQuery ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data pinjaman"}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
