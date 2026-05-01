@@ -578,6 +578,56 @@ const LoanManagement = () => {
           </DialogContent>
         </Dialog>
 
+        {/* Edit Dialog */}
+        <Dialog open={showEditDialog} onOpenChange={(open) => { setShowEditDialog(open); if (!open) setLoanToEdit(null); }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Potongan</DialogTitle>
+              <DialogDescription>
+                {loanToEdit?.employee_name} — perubahan akan membuat ulang jadwal cicilan.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Tipe</Label>
+                <Select value={editForm.loan_type} onValueChange={(v) => setEditForm(f => ({ ...f, loan_type: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pinjaman">Pinjaman</SelectItem>
+                    <SelectItem value="kasbon">Kasbon</SelectItem>
+                    <SelectItem value="potongan_lain">Potongan Lain</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Jumlah (Rp)</Label>
+                <Input type="number" value={editForm.total_amount} onChange={(e) => setEditForm(f => ({ ...f, total_amount: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Jumlah Cicilan (bulan)</Label>
+                <Input type="number" value={editForm.total_installments} onChange={(e) => setEditForm(f => ({ ...f, total_installments: e.target.value }))} />
+              </div>
+              {editForm.total_amount && editForm.total_installments && (
+                <p className="text-sm text-muted-foreground">
+                  Cicilan/bulan: <span className="font-semibold text-foreground">{formatRupiah(Math.ceil(Number(editForm.total_amount) / Number(editForm.total_installments)))}</span>
+                </p>
+              )}
+              <div>
+                <Label>Tanggal Mulai</Label>
+                <Input type="date" value={editForm.start_date} onChange={(e) => setEditForm(f => ({ ...f, start_date: e.target.value }))} />
+              </div>
+              <div>
+                <Label>Keterangan</Label>
+                <Textarea value={editForm.description} onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))} rows={2} />
+              </div>
+              <Button onClick={handleUpdateLoan} disabled={updating} className="w-full gap-2">
+                {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
+                Simpan Perubahan
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Delete Confirmation */}
         <AlertDialog open={!!loanToDelete} onOpenChange={(open) => { if (!open) setLoanToDelete(null); }}>
           <AlertDialogContent>
