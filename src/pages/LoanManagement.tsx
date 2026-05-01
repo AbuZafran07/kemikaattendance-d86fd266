@@ -384,6 +384,7 @@ const LoanManagement = () => {
                   <SelectContent>
                     <SelectItem value="pinjaman">Pinjaman</SelectItem>
                     <SelectItem value="kasbon">Kasbon</SelectItem>
+                    <SelectItem value="potongan_lain">Potongan Lain</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
