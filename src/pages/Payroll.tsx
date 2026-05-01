@@ -1116,15 +1116,23 @@ const Payroll = () => {
         // manual override pinjaman dihapus untuk mencegah double-count.
         const finalLoanDeduction = loanDed?.amount || 0;
 
-        // Map PTKP status to TER category (e.g. K/I/0 -> K/0 for TER lookup)
-        const terCategory = ptkpStatus.replace("/I", "");
-        const terRatesForEmp = terRatesByCategory.get(terCategory) || terRatesByCategory.get(ptkpStatus) || [];
+        // Auto "Potongan Lain" dari modul Deduction (loan_type = 'potongan_lain') ditambahkan ke other_deduction,
+        // PLUS input manual other_deduction dari dialog Tambahan Penghasilan.
+        const otherAuto = otherAutoDeductionMap.get(emp.id);
+        const finalOtherDeduction = (otherAuto?.amount || 0) + (ded?.other_deduction || 0);
+
+        // Sinkronisasi catatan: gabungkan deskripsi dari modul Deduction (potongan_lain) dengan catatan manual.
+        const autoNotesParts: string[] = [];
+        if ((otherAuto?.notes?.length || 0) > 0) autoNotesParts.push(...(otherAuto!.notes));
+        if (finalLoanDeduction > 0) autoNotesParts.push("Cicilan pinjaman otomatis");
+        const manualNote = (ded?.deduction_notes || "").trim();
+        const mergedNotes = [manualNote, autoNotesParts.join("; ")].filter(Boolean).join(" | ");
 
         const result = calculatePayroll({
           basicSalary, allowance: totalAllowance, overtimeTotal, ptkpStatus, overtimeHours,
           loanDeduction: finalLoanDeduction,
-          otherDeduction: ded?.other_deduction || 0,
-          deductionNotes: ded?.deduction_notes || (finalLoanDeduction > 0 ? "Cicilan pinjaman otomatis" : ""),
+          otherDeduction: finalOtherDeduction,
+          deductionNotes: mergedNotes,
           month: selectedMonth,
           terRates: terRatesForEmp,
           totalPphJanNov: pphJanNovMap.get(emp.id) || 0,
