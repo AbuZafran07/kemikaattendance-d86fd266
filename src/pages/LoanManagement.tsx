@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2 } from "lucide-react";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
@@ -63,6 +63,16 @@ const LoanManagement = () => {
   const [creating, setCreating] = useState(false);
   const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [loanToEdit, setLoanToEdit] = useState<Loan | null>(null);
+  const [updating, setUpdating] = useState(false);
+  const [editForm, setEditForm] = useState({
+    loan_type: "pinjaman",
+    description: "",
+    total_amount: "",
+    total_installments: "",
+    start_date: format(new Date(), "yyyy-MM-dd"),
+  });
 
   const [form, setForm] = useState({
     user_id: "",
