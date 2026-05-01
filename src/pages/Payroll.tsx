@@ -1036,17 +1036,29 @@ const Payroll = () => {
       // Fetch active loans for auto-deduction
       const { data: activeLoans } = await supabase
         .from("employee_loans")
-        .select("id, user_id, monthly_installment, paid_installments, total_installments, remaining_amount")
+        .select("id, user_id, monthly_installment, paid_installments, total_installments, remaining_amount, loan_type, description")
         .eq("status", "active");
 
-      // Build loan deduction map: sum of all active loan installments per employee
+      // Build deduction maps:
+      //  - loanDeductionMap: pinjaman & kasbon → field loan_deduction
+      //  - otherAutoDeductionMap: potongan_lain → field other_deduction (auto, dari modul Deduction)
+      // loanIds tetap dikumpulkan bersama supaya scheduling installment tetap berjalan untuk semua tipe.
       const loanDeductionMap = new Map<string, { amount: number; loanIds: { id: string; amount: number }[] }>();
+      const otherAutoDeductionMap = new Map<string, { amount: number; notes: string[] }>();
       for (const loan of activeLoans || []) {
         if (loan.paid_installments >= loan.total_installments) continue;
         const installmentAmount = Math.min(loan.monthly_installment, loan.remaining_amount);
         const existing = loanDeductionMap.get(loan.user_id) || { amount: 0, loanIds: [] };
-        existing.amount += installmentAmount;
         existing.loanIds.push({ id: loan.id, amount: installmentAmount });
+
+        if (loan.loan_type === "potongan_lain") {
+          const o = otherAutoDeductionMap.get(loan.user_id) || { amount: 0, notes: [] };
+          o.amount += installmentAmount;
+          if (loan.description && loan.description.trim()) o.notes.push(loan.description.trim());
+          otherAutoDeductionMap.set(loan.user_id, o);
+        } else {
+          existing.amount += installmentAmount;
+        }
         loanDeductionMap.set(loan.user_id, existing);
       }
 
