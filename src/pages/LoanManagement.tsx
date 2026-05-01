@@ -365,7 +365,13 @@ const LoanManagement = () => {
               Kelola pinjaman, kasbon, dan potongan lain karyawan dengan tracking cicilan otomatis
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
+            <Input
+              placeholder="Cari nama, NIK, atau departemen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:w-[260px]"
+            />
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -383,7 +389,7 @@ const LoanManagement = () => {
 
         {/* Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{loans.length}</p><p className="text-xs text-muted-foreground">Total Potongan</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{filteredLoans.length}</p><p className="text-xs text-muted-foreground">Total Potongan{normalizedQuery ? " (filter)" : ""}</p></CardContent></Card>
           <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{totalActiveLoans}</p><p className="text-xs text-muted-foreground">Potongan Aktif</p></CardContent></Card>
           <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">Total Sisa Potongan</p></CardContent></Card>
         </div>
