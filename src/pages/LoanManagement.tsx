@@ -60,6 +60,8 @@ const LoanManagement = () => {
   const [installmentsLoading, setInstallmentsLoading] = useState(false);
   const [employees, setEmployees] = useState<{ id: string; full_name: string; departemen: string }[]>([]);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [creating, setCreating] = useState(false);
   const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -116,6 +118,7 @@ const LoanManagement = () => {
   };
 
   useEffect(() => { fetchLoans(); }, [filterStatus]);
+  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize]);
 
   const handleCreate = async () => {
     if (!form.user_id || !form.total_amount || !form.total_installments) {
@@ -333,6 +336,11 @@ const LoanManagement = () => {
 
   const totalActiveLoans = loans.filter(l => l.status === "active").length;
   const totalRemainingAmount = loans.filter(l => l.status === "active").reduce((s, l) => s + l.remaining_amount, 0);
+  const totalPages = Math.max(1, Math.ceil(loans.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedLoans = loans.slice((safePage - 1) * pageSize, safePage * pageSize);
+  const startIdx = loans.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const endIdx = Math.min(safePage * pageSize, loans.length);
 
   return (
     <DashboardLayout>
@@ -399,7 +407,7 @@ const LoanManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {loans.map((loan) => (
+                    {paginatedLoans.map((loan) => (
                       <TableRow key={loan.id} className="cursor-pointer hover:bg-accent/50" onClick={() => openDetail(loan)}>
                         <TableCell>
                           <div>
@@ -447,6 +455,27 @@ const LoanManagement = () => {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+            )}
+            {!loading && loans.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Tampilkan</span>
+                  <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                    <SelectTrigger className="w-[80px] h-8"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {[10, 20, 30, 50].map((n) => (
+                        <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <span>dari {loans.length} ({startIdx}-{endIdx})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage - 1)} disabled={safePage <= 1}>Sebelumnya</Button>
+                  <span className="text-sm">Hal {safePage} / {totalPages}</span>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage + 1)} disabled={safePage >= totalPages}>Berikutnya</Button>
+                </div>
               </div>
             )}
           </CardContent>
