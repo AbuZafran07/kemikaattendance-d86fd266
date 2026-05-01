@@ -1128,6 +1128,10 @@ const Payroll = () => {
         const manualNote = (ded?.deduction_notes || "").trim();
         const mergedNotes = [manualNote, autoNotesParts.join("; ")].filter(Boolean).join(" | ");
 
+        // Map PTKP status to TER category (e.g. K/I/0 -> K/0 for TER lookup)
+        const terCategory = ptkpStatus.replace("/I", "");
+        const terRatesForEmp = terRatesByCategory.get(terCategory) || terRatesByCategory.get(ptkpStatus) || [];
+
         const result = calculatePayroll({
           basicSalary, allowance: totalAllowance, overtimeTotal, ptkpStatus, overtimeHours,
           loanDeduction: finalLoanDeduction,
