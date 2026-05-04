@@ -35,6 +35,8 @@ interface Loan {
   employee_name?: string;
   departemen?: string;
   nik?: string;
+  archived_at?: string | null;
+  archived_reason?: string | null;
 }
 
 interface Installment {
