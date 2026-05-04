@@ -369,12 +369,12 @@ const LoanManagement = () => {
 
   const totalActiveLoans = loans.filter(l => l.status === "active").length;
   const totalRemainingAmount = loans.filter(l => l.status === "active").reduce((s, l) => s + l.remaining_amount, 0);
-  const archivedCount = loans.filter(l => l.status === "completed").length;
+  const archivedCount = loans.filter(l => l.status === "completed" || l.status === "cancelled").length;
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  // View split: archived = lunas (completed). Active view = aktif + dibatalkan.
+  // View split: archived = lunas (completed) + dibatalkan. Active view = aktif saja.
   const viewLoans = view === "archived"
-    ? loans.filter(l => l.status === "completed")
-    : loans.filter(l => l.status !== "completed");
+    ? loans.filter(l => l.status === "completed" || l.status === "cancelled")
+    : loans.filter(l => l.status === "active");
   const statusFilteredLoans = (view === "active" && filterStatus !== "all")
     ? viewLoans.filter(l => l.status === filterStatus)
     : viewLoans;
