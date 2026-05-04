@@ -14,7 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil, Archive } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
