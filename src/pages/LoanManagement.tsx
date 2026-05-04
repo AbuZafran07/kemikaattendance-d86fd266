@@ -566,12 +566,48 @@ const LoanManagement = () => {
             <div className="space-y-4">
               <div>
                 <Label>Karyawan</Label>
-                <Select value={form.user_id} onValueChange={(v) => setForm(f => ({ ...f, user_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Pilih karyawan" /></SelectTrigger>
-                  <SelectContent>
-                    {employees.map(e => <SelectItem key={e.id} value={e.id}>{e.full_name} — {e.departemen}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Popover open={employeePickerOpen} onOpenChange={setEmployeePickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      className={cn("w-full justify-between font-normal", !form.user_id && "text-muted-foreground")}
+                    >
+                      {form.user_id
+                        ? (() => {
+                            const emp = employees.find(e => e.id === form.user_id);
+                            return emp ? `${emp.full_name} — ${emp.departemen}` : "Pilih karyawan";
+                          })()
+                        : "Pilih karyawan"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Cari nama atau departemen..." />
+                      <CommandList>
+                        <CommandEmpty>Karyawan tidak ditemukan.</CommandEmpty>
+                        <CommandGroup>
+                          {employees.map(e => (
+                            <CommandItem
+                              key={e.id}
+                              value={`${e.full_name} ${e.departemen}`}
+                              onSelect={() => {
+                                setForm(f => ({ ...f, user_id: e.id }));
+                                setEmployeePickerOpen(false);
+                              }}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", form.user_id === e.id ? "opacity-100" : "opacity-0")} />
+                              <span className="flex-1">{e.full_name}</span>
+                              <span className="text-xs text-muted-foreground ml-2">{e.departemen}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div>
                 <Label>Tipe</Label>
