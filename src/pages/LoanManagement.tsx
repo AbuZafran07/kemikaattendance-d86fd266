@@ -14,7 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil, Archive } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
@@ -61,6 +62,7 @@ const LoanManagement = () => {
   const [installmentsLoading, setInstallmentsLoading] = useState(false);
   const [employees, setEmployees] = useState<{ id: string; full_name: string; departemen: string }[]>([]);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [view, setView] = useState<"active" | "archived">("active");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -97,9 +99,10 @@ const LoanManagement = () => {
   const fetchLoans = async () => {
     setLoading(true);
     try {
-      let query = supabase.from("employee_loans").select("*").order("created_at", { ascending: false });
-      if (filterStatus !== "all") query = query.eq("status", filterStatus);
-      const { data: loansData } = await query;
+      const { data: loansData } = await supabase
+        .from("employee_loans")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (!loansData || loansData.length === 0) { setLoans([]); setLoading(false); return; }
 
@@ -120,8 +123,7 @@ const LoanManagement = () => {
     }
   };
 
-  useEffect(() => { fetchLoans(); }, [filterStatus]);
-  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize, searchQuery]);
+  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize, searchQuery, view]);
 
   const handleCreate = async () => {
     if (!form.user_id || !form.total_amount || !form.total_installments) {
@@ -339,14 +341,22 @@ const LoanManagement = () => {
 
   const totalActiveLoans = loans.filter(l => l.status === "active").length;
   const totalRemainingAmount = loans.filter(l => l.status === "active").reduce((s, l) => s + l.remaining_amount, 0);
+  const archivedCount = loans.filter(l => l.status === "completed").length;
   const normalizedQuery = searchQuery.trim().toLowerCase();
+  // View split: archived = lunas (completed). Active view = aktif + dibatalkan.
+  const viewLoans = view === "archived"
+    ? loans.filter(l => l.status === "completed")
+    : loans.filter(l => l.status !== "completed");
+  const statusFilteredLoans = (view === "active" && filterStatus !== "all")
+    ? viewLoans.filter(l => l.status === filterStatus)
+    : viewLoans;
   const filteredLoans = normalizedQuery
-    ? loans.filter(l =>
+    ? statusFilteredLoans.filter(l =>
         (l.employee_name || "").toLowerCase().includes(normalizedQuery) ||
         (l.nik || "").toLowerCase().includes(normalizedQuery) ||
         (l.departemen || "").toLowerCase().includes(normalizedQuery)
       )
-    : loans;
+    : statusFilteredLoans;
   const totalPages = Math.max(1, Math.ceil(filteredLoans.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const paginatedLoans = filteredLoans.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -365,23 +375,8 @@ const LoanManagement = () => {
               Kelola pinjaman, kasbon, dan potongan lain karyawan dengan tracking cicilan otomatis
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
-            <Input
-              placeholder="Cari nama, NIK, atau departemen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-[260px]"
-            />
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua</SelectItem>
-                <SelectItem value="active">Aktif</SelectItem>
-                <SelectItem value="completed">Lunas</SelectItem>
-                <SelectItem value="cancelled">Dibatalkan</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <Button onClick={() => setShowCreateDialog(true)} className="gap-2 ml-auto">
               <Plus className="h-4 w-4" /> Tambah Potongan
             </Button>
           </div>
@@ -394,11 +389,47 @@ const LoanManagement = () => {
           <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">Total Sisa Potongan</p></CardContent></Card>
         </div>
 
+        {/* Tabs Active / Archived */}
+        <Tabs value={view} onValueChange={(v) => setView(v as "active" | "archived")}>
+          <TabsList>
+            <TabsTrigger value="active" className="gap-2">
+              <CreditCard className="h-4 w-4" /> Aktif
+            </TabsTrigger>
+            <TabsTrigger value="archived" className="gap-2">
+              <Archive className="h-4 w-4" /> Archived ({archivedCount})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         {/* Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Daftar Potongan Karyawan</CardTitle>
-            <CardDescription>Klik baris untuk melihat detail cicilan</CardDescription>
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+              <div>
+                <CardTitle className="text-lg">
+                  {view === "archived" ? "Arsip Potongan (Lunas)" : "Daftar Potongan Karyawan"}
+                </CardTitle>
+                <CardDescription>Klik baris untuk melihat detail cicilan</CardDescription>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:justify-end">
+                <Input
+                  placeholder="Cari nama, NIK, atau departemen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full sm:w-[260px] h-9"
+                />
+                {view === "active" && (
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Semua</SelectItem>
+                      <SelectItem value="active">Aktif</SelectItem>
+                      <SelectItem value="cancelled">Dibatalkan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
