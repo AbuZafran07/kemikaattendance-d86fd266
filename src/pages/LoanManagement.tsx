@@ -446,16 +446,7 @@ const LoanManagement = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full sm:w-[260px] h-9"
                 />
-                {view === "active" && (
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Semua</SelectItem>
-                      <SelectItem value="active">Aktif</SelectItem>
-                      <SelectItem value="cancelled">Dibatalkan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+              </div>
               </div>
             </div>
           </CardHeader>
