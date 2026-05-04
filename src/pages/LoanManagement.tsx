@@ -99,9 +99,10 @@ const LoanManagement = () => {
   const fetchLoans = async () => {
     setLoading(true);
     try {
-      let query = supabase.from("employee_loans").select("*").order("created_at", { ascending: false });
-      if (filterStatus !== "all") query = query.eq("status", filterStatus);
-      const { data: loansData } = await query;
+      const { data: loansData } = await supabase
+        .from("employee_loans")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (!loansData || loansData.length === 0) { setLoans([]); setLoading(false); return; }
 
@@ -122,8 +123,7 @@ const LoanManagement = () => {
     }
   };
 
-  useEffect(() => { fetchLoans(); }, [filterStatus]);
-  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize, searchQuery]);
+  useEffect(() => { setCurrentPage(1); }, [filterStatus, pageSize, searchQuery, view]);
 
   const handleCreate = async () => {
     if (!form.user_id || !form.total_amount || !form.total_installments) {
