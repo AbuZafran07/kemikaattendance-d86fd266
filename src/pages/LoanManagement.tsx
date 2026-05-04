@@ -479,6 +479,12 @@ const LoanManagement = () => {
                           <div>
                             <p className="font-medium text-sm">{loan.employee_name}</p>
                             <p className="text-xs text-muted-foreground">{loan.departemen}</p>
+                            {view === "archived" && loan.archived_at && (
+                              <p className="text-[10px] text-muted-foreground mt-1 italic">
+                                Diarsipkan {format(new Date(loan.archived_at), "dd MMM yyyy", { locale: idLocale })}
+                                {loan.archived_reason ? ` • ${loan.archived_reason}` : ""}
+                              </p>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
