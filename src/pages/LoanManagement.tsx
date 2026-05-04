@@ -71,6 +71,7 @@ const LoanManagement = () => {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [employeePickerOpen, setEmployeePickerOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
   const [deleting, setDeleting] = useState(false);
