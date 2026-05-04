@@ -15,7 +15,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil, Archive } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil, Archive, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
@@ -35,6 +38,8 @@ interface Loan {
   employee_name?: string;
   departemen?: string;
   nik?: string;
+  archived_at?: string | null;
+  archived_reason?: string | null;
 }
 
 interface Installment {
@@ -66,6 +71,7 @@ const LoanManagement = () => {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [employeePickerOpen, setEmployeePickerOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [loanToDelete, setLoanToDelete] = useState<Loan | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -110,12 +116,38 @@ const LoanManagement = () => {
       const { data: profiles } = await supabase.from("profiles").select("id, full_name, departemen, nik").in("id", userIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
-      setLoans(loansData.map(l => ({
-        ...l,
-        employee_name: profileMap.get(l.user_id)?.full_name || "Unknown",
-        departemen: profileMap.get(l.user_id)?.departemen || "-",
-        nik: (profileMap.get(l.user_id) as any)?.nik || "",
-      })));
+      // For loans yang sudah completed/cancelled, ambil tanggal arsip (terakhir diubah / terakhir bayar)
+      const archivedIds = loansData.filter(l => l.status === "completed" || l.status === "cancelled").map(l => l.id);
+      const archivedDateMap = new Map<string, string>();
+      if (archivedIds.length > 0) {
+        const { data: lastPaid } = await supabase
+          .from("loan_installments")
+          .select("loan_id, payment_date")
+          .in("loan_id", archivedIds)
+          .eq("status", "paid")
+          .order("payment_date", { ascending: false });
+        (lastPaid || []).forEach((r: any) => {
+          if (r.payment_date && !archivedDateMap.has(r.loan_id)) {
+            archivedDateMap.set(r.loan_id, r.payment_date);
+          }
+        });
+      }
+
+      setLoans(loansData.map(l => {
+        const isArchived = l.status === "completed" || l.status === "cancelled";
+        return {
+          ...l,
+          employee_name: profileMap.get(l.user_id)?.full_name || "Unknown",
+          departemen: profileMap.get(l.user_id)?.departemen || "-",
+          nik: (profileMap.get(l.user_id) as any)?.nik || "",
+          archived_at: isArchived ? (archivedDateMap.get(l.id) || (l as any).updated_at || l.created_at) : null,
+          archived_reason: l.status === "completed"
+            ? "Otomatis diarsipkan: seluruh cicilan telah lunas"
+            : l.status === "cancelled"
+              ? "Diarsipkan: pinjaman dibatalkan"
+              : null,
+        };
+      }));
     } catch (e) {
       console.error(e);
     } finally {
@@ -341,12 +373,12 @@ const LoanManagement = () => {
 
   const totalActiveLoans = loans.filter(l => l.status === "active").length;
   const totalRemainingAmount = loans.filter(l => l.status === "active").reduce((s, l) => s + l.remaining_amount, 0);
-  const archivedCount = loans.filter(l => l.status === "completed").length;
+  const archivedCount = loans.filter(l => l.status === "completed" || l.status === "cancelled").length;
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  // View split: archived = lunas (completed). Active view = aktif + dibatalkan.
+  // View split: archived = lunas (completed) + dibatalkan. Active view = aktif saja.
   const viewLoans = view === "archived"
-    ? loans.filter(l => l.status === "completed")
-    : loans.filter(l => l.status !== "completed");
+    ? loans.filter(l => l.status === "completed" || l.status === "cancelled")
+    : loans.filter(l => l.status === "active");
   const statusFilteredLoans = (view === "active" && filterStatus !== "all")
     ? viewLoans.filter(l => l.status === filterStatus)
     : viewLoans;
@@ -418,16 +450,6 @@ const LoanManagement = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full sm:w-[260px] h-9"
                 />
-                {view === "active" && (
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Semua</SelectItem>
-                      <SelectItem value="active">Aktif</SelectItem>
-                      <SelectItem value="cancelled">Dibatalkan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
               </div>
             </div>
           </CardHeader>
@@ -461,6 +483,12 @@ const LoanManagement = () => {
                           <div>
                             <p className="font-medium text-sm">{loan.employee_name}</p>
                             <p className="text-xs text-muted-foreground">{loan.departemen}</p>
+                            {view === "archived" && loan.archived_at && (
+                              <p className="text-[10px] text-muted-foreground mt-1 italic">
+                                Diarsipkan {format(new Date(loan.archived_at), "dd MMM yyyy", { locale: idLocale })}
+                                {loan.archived_reason ? ` • ${loan.archived_reason}` : ""}
+                              </p>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -539,12 +567,48 @@ const LoanManagement = () => {
             <div className="space-y-4">
               <div>
                 <Label>Karyawan</Label>
-                <Select value={form.user_id} onValueChange={(v) => setForm(f => ({ ...f, user_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Pilih karyawan" /></SelectTrigger>
-                  <SelectContent>
-                    {employees.map(e => <SelectItem key={e.id} value={e.id}>{e.full_name} — {e.departemen}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Popover open={employeePickerOpen} onOpenChange={setEmployeePickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      className={cn("w-full justify-between font-normal", !form.user_id && "text-muted-foreground")}
+                    >
+                      {form.user_id
+                        ? (() => {
+                            const emp = employees.find(e => e.id === form.user_id);
+                            return emp ? `${emp.full_name} — ${emp.departemen}` : "Pilih karyawan";
+                          })()
+                        : "Pilih karyawan"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Cari nama atau departemen..." />
+                      <CommandList>
+                        <CommandEmpty>Karyawan tidak ditemukan.</CommandEmpty>
+                        <CommandGroup>
+                          {employees.map(e => (
+                            <CommandItem
+                              key={e.id}
+                              value={`${e.full_name} ${e.departemen}`}
+                              onSelect={() => {
+                                setForm(f => ({ ...f, user_id: e.id }));
+                                setEmployeePickerOpen(false);
+                              }}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", form.user_id === e.id ? "opacity-100" : "opacity-0")} />
+                              <span className="flex-1">{e.full_name}</span>
+                              <span className="text-xs text-muted-foreground ml-2">{e.departemen}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div>
                 <Label>Tipe</Label>
@@ -611,6 +675,12 @@ const LoanManagement = () => {
                   {selectedLoan.description && <>
                     <span className="text-muted-foreground">Keterangan</span>
                     <span>{selectedLoan.description}</span>
+                  </>}
+                  {selectedLoan.archived_at && (selectedLoan.status === "completed" || selectedLoan.status === "cancelled") && <>
+                    <span className="text-muted-foreground">Diarsipkan</span>
+                    <span>{format(new Date(selectedLoan.archived_at), "dd MMM yyyy", { locale: idLocale })}</span>
+                    <span className="text-muted-foreground">Alasan Arsip</span>
+                    <span className="italic text-xs">{selectedLoan.archived_reason}</span>
                   </>}
                 </div>
 
