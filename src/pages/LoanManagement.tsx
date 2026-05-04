@@ -341,14 +341,22 @@ const LoanManagement = () => {
 
   const totalActiveLoans = loans.filter(l => l.status === "active").length;
   const totalRemainingAmount = loans.filter(l => l.status === "active").reduce((s, l) => s + l.remaining_amount, 0);
+  const archivedCount = loans.filter(l => l.status === "completed").length;
   const normalizedQuery = searchQuery.trim().toLowerCase();
+  // View split: archived = lunas (completed). Active view = aktif + dibatalkan.
+  const viewLoans = view === "archived"
+    ? loans.filter(l => l.status === "completed")
+    : loans.filter(l => l.status !== "completed");
+  const statusFilteredLoans = (view === "active" && filterStatus !== "all")
+    ? viewLoans.filter(l => l.status === filterStatus)
+    : viewLoans;
   const filteredLoans = normalizedQuery
-    ? loans.filter(l =>
+    ? statusFilteredLoans.filter(l =>
         (l.employee_name || "").toLowerCase().includes(normalizedQuery) ||
         (l.nik || "").toLowerCase().includes(normalizedQuery) ||
         (l.departemen || "").toLowerCase().includes(normalizedQuery)
       )
-    : loans;
+    : statusFilteredLoans;
   const totalPages = Math.max(1, Math.ceil(filteredLoans.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const paginatedLoans = filteredLoans.slice((safePage - 1) * pageSize, safePage * pageSize);
