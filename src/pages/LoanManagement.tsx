@@ -112,12 +112,38 @@ const LoanManagement = () => {
       const { data: profiles } = await supabase.from("profiles").select("id, full_name, departemen, nik").in("id", userIds);
       const profileMap = new Map((profiles || []).map(p => [p.id, p]));
 
-      setLoans(loansData.map(l => ({
-        ...l,
-        employee_name: profileMap.get(l.user_id)?.full_name || "Unknown",
-        departemen: profileMap.get(l.user_id)?.departemen || "-",
-        nik: (profileMap.get(l.user_id) as any)?.nik || "",
-      })));
+      // For loans yang sudah completed/cancelled, ambil tanggal arsip (terakhir diubah / terakhir bayar)
+      const archivedIds = loansData.filter(l => l.status === "completed" || l.status === "cancelled").map(l => l.id);
+      const archivedDateMap = new Map<string, string>();
+      if (archivedIds.length > 0) {
+        const { data: lastPaid } = await supabase
+          .from("loan_installments")
+          .select("loan_id, payment_date")
+          .in("loan_id", archivedIds)
+          .eq("status", "paid")
+          .order("payment_date", { ascending: false });
+        (lastPaid || []).forEach((r: any) => {
+          if (r.payment_date && !archivedDateMap.has(r.loan_id)) {
+            archivedDateMap.set(r.loan_id, r.payment_date);
+          }
+        });
+      }
+
+      setLoans(loansData.map(l => {
+        const isArchived = l.status === "completed" || l.status === "cancelled";
+        return {
+          ...l,
+          employee_name: profileMap.get(l.user_id)?.full_name || "Unknown",
+          departemen: profileMap.get(l.user_id)?.departemen || "-",
+          nik: (profileMap.get(l.user_id) as any)?.nik || "",
+          archived_at: isArchived ? (archivedDateMap.get(l.id) || (l as any).updated_at || l.created_at) : null,
+          archived_reason: l.status === "completed"
+            ? "Otomatis diarsipkan: seluruh cicilan telah lunas"
+            : l.status === "cancelled"
+              ? "Diarsipkan: pinjaman dibatalkan"
+              : null,
+        };
+      }));
     } catch (e) {
       console.error(e);
     } finally {
