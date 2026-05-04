@@ -447,7 +447,6 @@ const LoanManagement = () => {
                   className="w-full sm:w-[260px] h-9"
                 />
               </div>
-              </div>
             </div>
           </CardHeader>
           <CardContent>
