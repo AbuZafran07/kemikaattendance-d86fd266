@@ -567,7 +567,7 @@ const LoanManagement = () => {
             <div className="space-y-4">
               <div>
                 <Label>Karyawan</Label>
-                <Popover open={employeePickerOpen} onOpenChange={setEmployeePickerOpen}>
+                <Popover open={employeePickerOpen} onOpenChange={setEmployeePickerOpen} modal={true}>
                   <PopoverTrigger asChild>
                     <Button
                       type="button"
@@ -587,7 +587,11 @@ const LoanManagement = () => {
                   <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                     <Command>
                       <CommandInput placeholder="Cari nama atau departemen..." />
-                      <CommandList>
+                      <CommandList
+                        className="max-h-[260px] overflow-y-auto overscroll-contain"
+                        onWheel={(e) => e.stopPropagation()}
+                        onTouchMove={(e) => e.stopPropagation()}
+                      >
                         <CommandEmpty>Karyawan tidak ditemukan.</CommandEmpty>
                         <CommandGroup>
                           {employees.map(e => (
