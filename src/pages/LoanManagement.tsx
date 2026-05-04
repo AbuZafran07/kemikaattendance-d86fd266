@@ -15,7 +15,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatRupiah } from "@/lib/payrollCalculation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil, Archive } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil, Archive, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
