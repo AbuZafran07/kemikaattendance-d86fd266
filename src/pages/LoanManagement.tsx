@@ -636,6 +636,12 @@ const LoanManagement = () => {
                     <span className="text-muted-foreground">Keterangan</span>
                     <span>{selectedLoan.description}</span>
                   </>}
+                  {selectedLoan.archived_at && (selectedLoan.status === "completed" || selectedLoan.status === "cancelled") && <>
+                    <span className="text-muted-foreground">Diarsipkan</span>
+                    <span>{format(new Date(selectedLoan.archived_at), "dd MMM yyyy", { locale: idLocale })}</span>
+                    <span className="text-muted-foreground">Alasan Arsip</span>
+                    <span className="italic text-xs">{selectedLoan.archived_reason}</span>
+                  </>}
                 </div>
 
                 {/* Progress bar */}
