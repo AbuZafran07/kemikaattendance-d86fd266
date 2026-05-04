@@ -375,23 +375,8 @@ const LoanManagement = () => {
               Kelola pinjaman, kasbon, dan potongan lain karyawan dengan tracking cicilan otomatis
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
-            <Input
-              placeholder="Cari nama, NIK, atau departemen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-[260px]"
-            />
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua</SelectItem>
-                <SelectItem value="active">Aktif</SelectItem>
-                <SelectItem value="completed">Lunas</SelectItem>
-                <SelectItem value="cancelled">Dibatalkan</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <Button onClick={() => setShowCreateDialog(true)} className="gap-2 ml-auto">
               <Plus className="h-4 w-4" /> Tambah Potongan
             </Button>
           </div>
@@ -404,11 +389,47 @@ const LoanManagement = () => {
           <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">Total Sisa Potongan</p></CardContent></Card>
         </div>
 
+        {/* Tabs Active / Archived */}
+        <Tabs value={view} onValueChange={(v) => setView(v as "active" | "archived")}>
+          <TabsList>
+            <TabsTrigger value="active" className="gap-2">
+              <CreditCard className="h-4 w-4" /> Aktif
+            </TabsTrigger>
+            <TabsTrigger value="archived" className="gap-2">
+              <Archive className="h-4 w-4" /> Archived ({archivedCount})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         {/* Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Daftar Potongan Karyawan</CardTitle>
-            <CardDescription>Klik baris untuk melihat detail cicilan</CardDescription>
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+              <div>
+                <CardTitle className="text-lg">
+                  {view === "archived" ? "Arsip Potongan (Lunas)" : "Daftar Potongan Karyawan"}
+                </CardTitle>
+                <CardDescription>Klik baris untuk melihat detail cicilan</CardDescription>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:justify-end">
+                <Input
+                  placeholder="Cari nama, NIK, atau departemen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full sm:w-[260px] h-9"
+                />
+                {view === "active" && (
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Semua</SelectItem>
+                      <SelectItem value="active">Aktif</SelectItem>
+                      <SelectItem value="cancelled">Dibatalkan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
