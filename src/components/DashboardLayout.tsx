@@ -246,14 +246,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Kemika" className="h-9 object-contain" />
             <div>
-              <h2 className="text-sm font-bold text-foreground leading-tight">PT. KEMIKA KARYA PRATAMA</h2>
-              <p className="text-[11px] text-muted-foreground">Attendance & HR Management System</p>
+              <h2 className="text-sm font-bold text-foreground leading-tight">{t("common.appName")}</h2>
+              <p className="text-[11px] text-muted-foreground">{t("common.appTagline")}</p>
             </div>
           </div>
 
           {/* Right: Bell + User dropdown */}
           {profile && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher variant="ghost" />
               <NotificationDropdown pendingCount={pendingCount} />
               <UserDropdown />
             </div>
