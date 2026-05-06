@@ -3,6 +3,7 @@ import { Clock, UserX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EmployeeAvatar } from "@/components/ui/employee-avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "react-i18next";
 
 interface AttendanceRecord {
   id: string;
@@ -31,24 +32,25 @@ interface RecentActivityProps {
 }
 
 const RecentActivity = ({ data, absentEmployees = [] }: RecentActivityProps) => {
+  const { t } = useTranslation();
   const formatStatus = (status: string) => {
     const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-      hadir: { label: "Tepat Waktu", variant: "default" },
-      terlambat: { label: "Terlambat", variant: "secondary" },
-      pulang_cepat: { label: "Pulang Cepat", variant: "outline" },
-      tidak_hadir: { label: "Tidak Hadir", variant: "destructive" },
+      hadir: { label: t("dashboard.recent.status.onTime"), variant: "default" },
+      terlambat: { label: t("dashboard.recent.status.late"), variant: "secondary" },
+      pulang_cepat: { label: t("dashboard.recent.status.earlyLeave"), variant: "outline" },
+      tidak_hadir: { label: t("dashboard.recent.status.absent"), variant: "destructive" },
     };
     return statusMap[status] || { label: status, variant: "outline" as const };
   };
 
   const formatAbsenceReason = (reason: string, leaveType?: string) => {
     const reasonMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-      cuti: { label: leaveType === "cuti_tahunan" ? "Cuti Tahunan" : "Cuti", variant: "secondary" },
-      izin: { label: "Izin", variant: "outline" },
-      sakit: { label: "Sakit", variant: "destructive" },
-      tidak_absen: { label: "Tidak Absen", variant: "destructive" },
+      cuti: { label: leaveType === "cuti_tahunan" ? t("dashboard.recent.absence.annualLeave") : t("dashboard.recent.absence.leave"), variant: "secondary" },
+      izin: { label: t("dashboard.recent.absence.permit"), variant: "outline" },
+      sakit: { label: t("dashboard.recent.absence.sick"), variant: "destructive" },
+      tidak_absen: { label: t("dashboard.recent.absence.noAttendance"), variant: "destructive" },
     };
-    return reasonMap[reason] || { label: "Tidak Masuk", variant: "destructive" as const };
+    return reasonMap[reason] || { label: t("dashboard.recent.absence.default"), variant: "destructive" as const };
   };
 
   // Cek apakah tanggal check_in adalah hari ini
@@ -67,14 +69,14 @@ const RecentActivity = ({ data, absentEmployees = [] }: RecentActivityProps) => 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Aktivitas Terbaru</CardTitle>
-        <CardDescription>Status kehadiran karyawan hari ini</CardDescription>
+        <CardTitle>{t("dashboard.recent.title")}</CardTitle>
+        <CardDescription>{t("dashboard.recent.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="hadir" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="hadir">Hadir ({todayRecords.length})</TabsTrigger>
-            <TabsTrigger value="tidak_masuk">Tidak Masuk ({absentEmployees.length})</TabsTrigger>
+            <TabsTrigger value="hadir">{t("dashboard.recent.tabPresent", { count: todayRecords.length })}</TabsTrigger>
+            <TabsTrigger value="tidak_masuk">{t("dashboard.recent.tabAbsent", { count: absentEmployees.length })}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="hadir">
