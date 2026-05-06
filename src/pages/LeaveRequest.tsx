@@ -121,14 +121,9 @@ const LeaveRequest = () => {
     const fetchColleagues = async () => {
       if (!profile?.id || !profile?.departemen) return;
       try {
-        const { data } = await supabase
-          .from("profiles")
-          .select("id, full_name, jabatan")
-          .eq("departemen", profile.departemen)
-          .eq("status", "Active")
-          .neq("id", profile.id)
-          .order("full_name");
-        if (data) setColleagues(data);
+        const { data, error } = await supabase.rpc("get_delegation_colleagues");
+        if (error) throw error;
+        if (data) setColleagues(data as any);
       } catch (error) {
         console.error("Error fetching colleagues:", error);
       }
