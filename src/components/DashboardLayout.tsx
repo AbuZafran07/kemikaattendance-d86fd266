@@ -46,55 +46,55 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const navigationGroups = [
+const buildNavigationGroups = (t: (k: string) => string) => [
   {
-    label: "RINGKASAN",
+    label: t("nav.groups.ringkasan"),
     items: [
-      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { name: t("nav.items.dashboard"), href: "/dashboard", icon: LayoutDashboard },
     ],
   },
   {
-    label: "MANAJEMEN",
+    label: t("nav.groups.manajemen"),
     items: [
-      { name: "Karyawan", href: "/dashboard/employees", icon: Users },
-      { name: "Absensi", href: "/dashboard/attendance", icon: ClipboardCheck },
-      { name: "Cuti", href: "/dashboard/leave", icon: Calendar },
-      { name: "Lembur", href: "/dashboard/overtime", icon: Clock },
-      { name: "Perjalanan Dinas", href: "/dashboard/business-travel", icon: Plane },
+      { name: t("nav.items.employees"), href: "/dashboard/employees", icon: Users },
+      { name: t("nav.items.attendance"), href: "/dashboard/attendance", icon: ClipboardCheck },
+      { name: t("nav.items.leave"), href: "/dashboard/leave", icon: Calendar },
+      { name: t("nav.items.overtime"), href: "/dashboard/overtime", icon: Clock },
+      { name: t("nav.items.businessTravel"), href: "/dashboard/business-travel", icon: Plane },
     ],
   },
   {
-    label: "KEUANGAN",
+    label: t("nav.groups.keuangan"),
     items: [
-      { name: "Payroll", href: "/dashboard/payroll", icon: DollarSign },
-      { name: "Payroll Analytics", href: "/dashboard/payroll-analytics", icon: BarChart3 },
-      { name: "Deduction", href: "/dashboard/loans", icon: CreditCard },
-      { name: "Tarif TER PPh21", href: "/dashboard/ter-management", icon: FileText },
-      { name: "Bukti Potong 1721-A1", href: "/dashboard/bukti-potong", icon: FileCheck },
-      { name: "Laporan PPh 21", href: "/dashboard/reports/pph21", icon: FileText },
+      { name: t("nav.items.payroll"), href: "/dashboard/payroll", icon: DollarSign },
+      { name: t("nav.items.payrollAnalytics"), href: "/dashboard/payroll-analytics", icon: BarChart3 },
+      { name: t("nav.items.deduction"), href: "/dashboard/loans", icon: CreditCard },
+      { name: t("nav.items.terManagement"), href: "/dashboard/ter-management", icon: FileText },
+      { name: t("nav.items.buktiPotong"), href: "/dashboard/bukti-potong", icon: FileCheck },
+      { name: t("nav.items.pph21Report"), href: "/dashboard/reports/pph21", icon: FileText },
     ],
   },
   {
-    label: "KPI",
+    label: t("nav.groups.kpi"),
     items: [
-      { name: "KPI Management", href: "/dashboard/kpi", icon: Target },
-      { name: "Daftar KPI Karyawan", href: "/dashboard/kpi-recap", icon: Trophy },
+      { name: t("nav.items.kpiManagement"), href: "/dashboard/kpi", icon: Target },
+      { name: t("nav.items.kpiRecap"), href: "/dashboard/kpi-recap", icon: Trophy },
     ],
   },
   {
-    label: "LAPORAN",
+    label: t("nav.groups.laporan"),
     items: [
-      { name: "Laporan", href: "/dashboard/reports", icon: FileText },
-      { name: "Audit Log Persetujuan", href: "/dashboard/approval-audit-log", icon: ShieldCheck },
-      { name: "Audit Log Payroll", href: "/dashboard/payroll-audit-log", icon: ShieldCheck },
-      { name: "Notifikasi", href: "/dashboard/notifications", icon: Bell },
+      { name: t("nav.items.reports"), href: "/dashboard/reports", icon: FileText },
+      { name: t("nav.items.approvalAuditLog"), href: "/dashboard/approval-audit-log", icon: ShieldCheck },
+      { name: t("nav.items.payrollAuditLog"), href: "/dashboard/payroll-audit-log", icon: ShieldCheck },
+      { name: t("nav.items.notifications"), href: "/dashboard/notifications", icon: Bell },
     ],
   },
   {
-    label: "SISTEM",
+    label: t("nav.groups.sistem"),
     items: [
-      { name: "Pengumuman", href: "/dashboard/announcements", icon: Megaphone },
-      { name: "Pengaturan", href: "/dashboard/settings", icon: Settings },
+      { name: t("nav.items.announcements"), href: "/dashboard/announcements", icon: Megaphone },
+      { name: t("nav.items.settings"), href: "/dashboard/settings", icon: Settings },
     ],
   },
 ];
