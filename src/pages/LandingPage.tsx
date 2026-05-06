@@ -40,6 +40,15 @@ interface Announcement {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const quickLinks = [
+    { icon: Fingerprint, label: t("landing.quickLinks.attendance"), desc: t("landing.quickLinks.attendanceDesc") },
+    { icon: CalendarDays, label: t("landing.quickLinks.leave"), desc: t("landing.quickLinks.leaveDesc") },
+    { icon: Clock, label: t("landing.quickLinks.overtime"), desc: t("landing.quickLinks.overtimeDesc") },
+    { icon: Wallet, label: t("landing.quickLinks.payroll"), desc: t("landing.quickLinks.payrollDesc") },
+    { icon: MapPin, label: t("landing.quickLinks.businessTravel"), desc: t("landing.quickLinks.businessTravelDesc") },
+    { icon: BarChart3, label: t("landing.quickLinks.reports"), desc: t("landing.quickLinks.reportsDesc") },
+  ];
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
 
