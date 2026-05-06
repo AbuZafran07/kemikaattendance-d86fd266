@@ -26,15 +26,8 @@ import { APP_VERSION } from "@/config/appVersion";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import DOMPurify from "dompurify";
-
-const quickLinks = [
-  { icon: Fingerprint, label: "Absensi", desc: "Check-in & Check-out harian" },
-  { icon: CalendarDays, label: "Cuti & Izin", desc: "Pengajuan & riwayat cuti" },
-  { icon: Clock, label: "Lembur", desc: "Pengajuan lembur kerja" },
-  { icon: Wallet, label: "Payroll", desc: "Slip gaji & riwayat" },
-  { icon: MapPin, label: "Perjalanan Dinas", desc: "Pengajuan & tracking" },
-  { icon: BarChart3, label: "Laporan", desc: "Kehadiran & kinerja" },
-];
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface Announcement {
   id: string;
