@@ -30,8 +30,8 @@ const ResetPassword = () => {
         setIsValidSession(true);
       } else {
         toast({
-          title: "Link Tidak Valid",
-          description: "Link reset password tidak valid atau sudah kadaluarsa",
+          title: t("resetPassword.invalidLinkTitle"),
+          description: t("resetPassword.invalidLinkDesc"),
           variant: "destructive"
         });
         navigate("/");
@@ -48,15 +48,15 @@ const ResetPassword = () => {
     checkSession();
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, toast, t]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password.length < 6) {
       toast({
-        title: "Password Terlalu Pendek",
-        description: "Password minimal 6 karakter",
+        title: t("resetPassword.tooShortTitle"),
+        description: t("resetPassword.tooShortDesc"),
         variant: "destructive"
       });
       return;
@@ -64,8 +64,8 @@ const ResetPassword = () => {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Password Tidak Sama",
-        description: "Konfirmasi password tidak sesuai",
+        title: t("resetPassword.mismatchTitle"),
+        description: t("resetPassword.mismatchDesc"),
         variant: "destructive"
       });
       return;
@@ -79,14 +79,14 @@ const ResetPassword = () => {
 
     if (error) {
       toast({
-        title: "Gagal Mengubah Password",
+        title: t("resetPassword.failedTitle"),
         description: error.message,
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Password Berhasil Diubah",
-        description: "Silakan login dengan password baru Anda"
+        title: t("resetPassword.successTitle"),
+        description: t("resetPassword.successDesc")
       });
       await supabase.auth.signOut();
       navigate("/");
@@ -100,7 +100,7 @@ const ResetPassword = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4 flex items-center justify-center">
         <Card className="w-full max-w-md shadow-xl">
           <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">Memvalidasi link reset password...</p>
+            <p className="text-center text-muted-foreground">{t("resetPassword.validating")}</p>
           </CardContent>
         </Card>
       </div>
