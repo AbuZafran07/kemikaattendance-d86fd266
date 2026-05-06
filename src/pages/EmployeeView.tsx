@@ -894,12 +894,12 @@ const EmployeeView = () => {
                 <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-accent/50 border border-border">
                   <Clock className="h-4 w-4 text-primary shrink-0" />
                   <span className="text-xs text-muted-foreground">
-                    Jam kerja hari ini:{" "}
+                    {t("employeeHome.workHoursToday")}{" "}
                     <span className="font-semibold text-foreground">
                       {workHours.check_in_start || "08:00"} - {workHours.check_out_end || "17:00"}
                     </span>
                     <span className="ml-1 text-muted-foreground">
-                      (toleransi terlambat {workHours.late_tolerance_minutes || 0} menit)
+                      {t("employeeHome.lateTolerance", { minutes: workHours.late_tolerance_minutes || 0 })}
                     </span>
                   </span>
                 </div>
