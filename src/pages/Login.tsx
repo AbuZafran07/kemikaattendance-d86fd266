@@ -11,12 +11,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { loginSchema } from "@/lib/validationSchemas";
 import { supabase } from "@/integrations/supabase/client";
-import { z } from "zod";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +32,8 @@ const Login = () => {
   const handleResetPassword = async () => {
     if (!resetEmail) {
       toast({
-        title: "Email Diperlukan",
-        description: "Masukkan email yang terdaftar",
+        title: t("login.emailRequired"),
+        description: t("login.emailRequiredDesc"),
         variant: "destructive"
       });
       return;
@@ -44,14 +46,14 @@ const Login = () => {
 
     if (error) {
       toast({
-        title: "Gagal Mengirim Email",
+        title: t("login.resetEmailFailedTitle"),
         description: error.message,
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Email Terkirim",
-        description: "Link reset password telah dikirim ke email Anda"
+        title: t("login.resetEmailSentTitle"),
+        description: t("login.resetEmailSentDesc")
       });
       setResetDialogOpen(false);
       setResetEmail("");
@@ -62,8 +64,7 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    
-    // Validate input
+
     const result = loginSchema.safeParse({ email, password });
     if (!result.success) {
       const fieldErrors: { email?: string; password?: string } = {};
@@ -79,14 +80,14 @@ const Login = () => {
     const { error } = await signIn(result.data.email, result.data.password);
     if (error) {
       toast({
-        title: "Login Gagal",
-        description: error.message || "Email atau password salah",
+        title: t("login.loginFailed"),
+        description: error.message || t("login.loginFailedDesc"),
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Login Berhasil",
-        description: "Selamat datang di Kemika HR System"
+        title: t("login.loginSuccess"),
+        description: t("login.loginSuccessDesc")
       });
     }
     setIsLoading(false);
@@ -94,34 +95,37 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4 bg-[#3c3c28] flex flex-col items-center justify-center border-0 border-solid rounded-none">
+      <div className="w-full max-w-md flex justify-end mb-2">
+        <LanguageSwitcher variant="outline" />
+      </div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
             <img src={logo} alt="Kemika Logo" className="h-16 object-contain" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">PT KEMIKA KARYA PRATAMA</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t("common.appName")}</CardTitle>
             <CardDescription className="mt-2">
-              Attendance & HR Management System
+              {t("common.appTagline")}
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-1">
-              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="login">{t("login.tabLogin")}</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="nama@kemika.com" 
-                    value={email} 
-                    onChange={e => setEmail(e.target.value)} 
+                  <Label htmlFor="email">{t("common.email")}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={t("login.emailPlaceholder")}
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
                     className={errors.email ? "border-destructive" : ""}
                   />
                   {errors.email && (
@@ -129,12 +133,12 @@ const Login = () => {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    placeholder="••••••••" 
-                    value={password} 
+                  <Label htmlFor="password">{t("common.password")}</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder={t("login.passwordPlaceholder")}
+                    value={password}
                     onChange={e => setPassword(e.target.value)}
                     className={errors.password ? "border-destructive" : ""}
                   />
@@ -143,29 +147,29 @@ const Login = () => {
                   )}
                 </div>
                 <Button type="submit" disabled={isLoading} className="w-full bg-green-800 hover:bg-green-700">
-                  {isLoading ? "Memproses..." : "Masuk"}
+                  {isLoading ? t("login.loggingIn") : t("login.submit")}
                 </Button>
-                
+
                 <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="link" type="button" className="w-full text-muted-foreground">
-                      Lupa Password?
+                      {t("login.forgotPassword")}
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Reset Password</DialogTitle>
+                      <DialogTitle>{t("login.resetTitle")}</DialogTitle>
                       <DialogDescription>
-                        Masukkan email Anda untuk menerima link reset password
+                        {t("login.resetDescription")}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="reset-email">Email</Label>
+                        <Label htmlFor="reset-email">{t("common.email")}</Label>
                         <Input
                           id="reset-email"
                           type="email"
-                          placeholder="nama@kemika.com"
+                          placeholder={t("login.emailPlaceholder")}
                           value={resetEmail}
                           onChange={(e) => setResetEmail(e.target.value)}
                         />
@@ -175,7 +179,7 @@ const Login = () => {
                         disabled={isResetLoading}
                         className="w-full"
                       >
-                        {isResetLoading ? "Mengirim..." : "Kirim Link Reset"}
+                        {isResetLoading ? t("login.sendingResetLink") : t("login.sendResetLink")}
                       </Button>
                     </div>
                   </DialogContent>
@@ -189,9 +193,9 @@ const Login = () => {
         onClick={() => navigate("/")}
         className="flex items-center gap-2 mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
-        <ArrowLeft className="h-4 w-4" /> Kembali ke Beranda
+        <ArrowLeft className="h-4 w-4" /> {t("common.backToHome")}
       </button>
-      <p className="text-xs text-muted-foreground/80 mt-3 opacity-60 text-center">App Version {APP_VERSION}</p>
+      <p className="text-xs text-muted-foreground/80 mt-3 opacity-60 text-center">{t("common.appVersion")} {APP_VERSION}</p>
     </div>
   );
 };

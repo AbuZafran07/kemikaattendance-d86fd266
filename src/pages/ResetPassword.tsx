@@ -8,8 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 import { Eye, EyeOff, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,8 +30,8 @@ const ResetPassword = () => {
         setIsValidSession(true);
       } else {
         toast({
-          title: "Link Tidak Valid",
-          description: "Link reset password tidak valid atau sudah kadaluarsa",
+          title: t("resetPassword.invalidLinkTitle"),
+          description: t("resetPassword.invalidLinkDesc"),
           variant: "destructive"
         });
         navigate("/");
@@ -45,15 +48,15 @@ const ResetPassword = () => {
     checkSession();
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, toast, t]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password.length < 6) {
       toast({
-        title: "Password Terlalu Pendek",
-        description: "Password minimal 6 karakter",
+        title: t("resetPassword.tooShortTitle"),
+        description: t("resetPassword.tooShortDesc"),
         variant: "destructive"
       });
       return;
@@ -61,8 +64,8 @@ const ResetPassword = () => {
 
     if (password !== confirmPassword) {
       toast({
-        title: "Password Tidak Sama",
-        description: "Konfirmasi password tidak sesuai",
+        title: t("resetPassword.mismatchTitle"),
+        description: t("resetPassword.mismatchDesc"),
         variant: "destructive"
       });
       return;
@@ -76,14 +79,14 @@ const ResetPassword = () => {
 
     if (error) {
       toast({
-        title: "Gagal Mengubah Password",
+        title: t("resetPassword.failedTitle"),
         description: error.message,
         variant: "destructive"
       });
     } else {
       toast({
-        title: "Password Berhasil Diubah",
-        description: "Silakan login dengan password baru Anda"
+        title: t("resetPassword.successTitle"),
+        description: t("resetPassword.successDesc")
       });
       await supabase.auth.signOut();
       navigate("/");
@@ -97,7 +100,7 @@ const ResetPassword = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4 flex items-center justify-center">
         <Card className="w-full max-w-md shadow-xl">
           <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">Memvalidasi link reset password...</p>
+            <p className="text-center text-muted-foreground">{t("resetPassword.validating")}</p>
           </CardContent>
         </Card>
       </div>
@@ -105,7 +108,10 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4 flex flex-col items-center justify-center">
+      <div className="w-full max-w-md flex justify-end mb-2">
+        <LanguageSwitcher variant="outline" />
+      </div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
@@ -114,22 +120,22 @@ const ResetPassword = () => {
           <div>
             <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
               <Lock className="h-6 w-6" />
-              Reset Password
+              {t("resetPassword.title")}
             </CardTitle>
             <CardDescription className="mt-2">
-              Masukkan password baru Anda
+              {t("resetPassword.description")}
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Password Baru</Label>
+              <Label htmlFor="password">{t("resetPassword.newPassword")}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Minimal 6 karakter"
+                  placeholder={t("resetPassword.newPasswordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -145,12 +151,12 @@ const ResetPassword = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+              <Label htmlFor="confirmPassword">{t("resetPassword.confirmPassword")}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Ulangi password baru"
+                  placeholder={t("resetPassword.confirmPasswordPlaceholder")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -166,7 +172,7 @@ const ResetPassword = () => {
               </div>
             </div>
             <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? "Menyimpan..." : "Simpan Password Baru"}
+              {isLoading ? t("resetPassword.submitting") : t("resetPassword.submit")}
             </Button>
             <Button
               type="button"
@@ -174,7 +180,7 @@ const ResetPassword = () => {
               className="w-full"
               onClick={() => navigate("/")}
             >
-              Kembali ke Login
+              {t("common.backToLogin")}
             </Button>
           </form>
         </CardContent>
