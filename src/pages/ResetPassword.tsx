@@ -108,7 +108,10 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 p-4 flex flex-col items-center justify-center">
+      <div className="w-full max-w-md flex justify-end mb-2">
+        <LanguageSwitcher variant="outline" />
+      </div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
@@ -117,22 +120,22 @@ const ResetPassword = () => {
           <div>
             <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
               <Lock className="h-6 w-6" />
-              Reset Password
+              {t("resetPassword.title")}
             </CardTitle>
             <CardDescription className="mt-2">
-              Masukkan password baru Anda
+              {t("resetPassword.description")}
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">Password Baru</Label>
+              <Label htmlFor="password">{t("resetPassword.newPassword")}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Minimal 6 karakter"
+                  placeholder={t("resetPassword.newPasswordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -148,12 +151,12 @@ const ResetPassword = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+              <Label htmlFor="confirmPassword">{t("resetPassword.confirmPassword")}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Ulangi password baru"
+                  placeholder={t("resetPassword.confirmPasswordPlaceholder")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -169,7 +172,7 @@ const ResetPassword = () => {
               </div>
             </div>
             <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? "Menyimpan..." : "Simpan Password Baru"}
+              {isLoading ? t("resetPassword.submitting") : t("resetPassword.submit")}
             </Button>
             <Button
               type="button"
@@ -177,7 +180,7 @@ const ResetPassword = () => {
               className="w-full"
               onClick={() => navigate("/")}
             >
-              Kembali ke Login
+              {t("common.backToLogin")}
             </Button>
           </form>
         </CardContent>
