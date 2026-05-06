@@ -31,6 +31,8 @@ import { format } from "date-fns";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import MyDelegatedTasks from "@/components/MyDelegatedTasks";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 // Office coordinates and work hours will be fetched from system settings
 
@@ -89,6 +91,8 @@ const EmployeeView = () => {
   const { signOut, profile, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
   useEffect(() => {
     checkAdminStatus();
     fetchOfficeLocation();
