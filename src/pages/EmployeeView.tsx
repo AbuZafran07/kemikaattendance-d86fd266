@@ -217,7 +217,7 @@ const EmployeeView = () => {
       setTodayAttendance(data);
       setIsCheckedIn(true);
       setCheckInTime(
-        new Date(data.check_in_time).toLocaleTimeString("id-ID", {
+        new Date(data.check_in_time).toLocaleTimeString(dateLocaleStr, {
           hour: "2-digit",
           minute: "2-digit",
         }),
@@ -667,7 +667,7 @@ const EmployeeView = () => {
       setIsCheckedIn(true);
       setTodayAttendance(data);
       setCheckInTime(
-        new Date(insertData.check_in_time).toLocaleTimeString("id-ID", {
+        new Date(insertData.check_in_time).toLocaleTimeString(dateLocaleStr, {
           hour: "2-digit",
           minute: "2-digit",
         }),
@@ -792,7 +792,7 @@ const EmployeeView = () => {
               </Avatar>
               <div className="flex-1">
                 <CardTitle className="text-xl">
-                  Assalamualaikum,
+                  {t("employeeHome.greeting")}
                   <br />
                   {profile?.full_name || "User"}!
                 </CardTitle>
@@ -814,7 +814,7 @@ const EmployeeView = () => {
                   {currentTime.getMinutes().toString().padStart(2, "0")}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentTime.toLocaleDateString("id-ID", {
+                  {currentTime.toLocaleDateString(dateLocaleStr, {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
@@ -827,11 +827,11 @@ const EmployeeView = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                   <span className="text-sm font-medium text-primary">
-                    Admin tidak perlu melakukan absensi
+                    {t("employeeHome.adminNoAttendance")}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Akun admin dikecualikan dari sistem absensi harian
+                  {t("employeeHome.adminExcluded")}
                 </p>
               </div>
             </CardContent>
@@ -847,7 +847,7 @@ const EmployeeView = () => {
                   {currentTime.getMinutes().toString().padStart(2, "0")}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentTime.toLocaleDateString("id-ID", {
+                  {currentTime.toLocaleDateString(dateLocaleStr, {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
@@ -861,7 +861,7 @@ const EmployeeView = () => {
                 {gpsStatus === "loading" && (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    <span className="text-muted-foreground">Mendeteksi lokasi...</span>
+                    <span className="text-muted-foreground">{t("employeeHome.gpsDetecting")}</span>
                   </>
                 )}
                 {gpsStatus === "success" && nearestOffice && (
@@ -878,13 +878,13 @@ const EmployeeView = () => {
                 {gpsStatus === "error" && (
                   <>
                     <XCircle className="h-4 w-4 text-destructive" />
-                    <span className="text-destructive">Gagal mendeteksi lokasi</span>
+                    <span className="text-destructive">{t("employeeHome.gpsFailed")}</span>
                   </>
                 )}
                 {gpsStatus === "idle" && (
                   <>
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">GPS akan divalidasi</span>
+                    <span className="text-muted-foreground">{t("employeeHome.gpsWillValidate")}</span>
                   </>
                 )}
               </div>
@@ -912,7 +912,7 @@ const EmployeeView = () => {
                     Check-in:{" "}
                     {todayAttendance?.check_in_time ? (
                       <span className="text-primary font-semibold">
-                        {new Date(todayAttendance.check_in_time).toLocaleTimeString("id-ID", {
+                        {new Date(todayAttendance.check_in_time).toLocaleTimeString(dateLocaleStr, {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
@@ -927,7 +927,7 @@ const EmployeeView = () => {
                     Check-out:{" "}
                     {todayAttendance?.check_out_time ? (
                       <span className="text-primary font-semibold">
-                        {new Date(todayAttendance.check_out_time).toLocaleTimeString("id-ID", {
+                        {new Date(todayAttendance.check_out_time).toLocaleTimeString(dateLocaleStr, {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
@@ -941,7 +941,7 @@ const EmployeeView = () => {
 
               {/* Action Button */}
               {todayAttendance?.check_out_time ? (
-                <div className="text-center py-3 text-muted-foreground">Absensi hari ini selesai</div>
+                <div className="text-center py-3 text-muted-foreground">{t("employeeHome.attendanceDone")}</div>
               ) : todayAttendance ? (
                 <Button
                   onClick={() => {
