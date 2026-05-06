@@ -23,7 +23,50 @@
     "view": "Lihat",
     "days": "hari",
     "hours": "jam",
-    "minutes": "menit"
+    "minutes": "menit",
+    "name": "Nama",
+    "nik": "NIK",
+    "department": "Departemen",
+    "date": "Tanggal",
+    "status": "Status",
+    "reason": "Alasan",
+    "actions": "Aksi",
+    "duration": "Durasi",
+    "notes": "Catatan",
+    "success": "Berhasil",
+    "error": "Error",
+    "saving": "Menyimpan...",
+    "delete": "Hapus",
+    "deleting": "Menghapus...",
+    "edit": "Edit",
+    "detail": "Detail",
+    "close": "Tutup",
+    "apply": "Tampilkan",
+    "reset": "Reset",
+    "approve": "Setujui",
+    "reject": "Tolak",
+    "approved": "Disetujui",
+    "rejected": "Ditolak",
+    "pending": "Pending",
+    "present": "Hadir",
+    "late": "Terlambat",
+    "earlyLeave": "Pulang Cepat",
+    "absent": "Tidak Hadir",
+    "valid": "Valid",
+    "invalid": "Invalid",
+    "search": "Cari...",
+    "loadFailed": "Gagal Memuat Data",
+    "noData": "Tidak ada data",
+    "required": "wajib diisi",
+    "createdAt": "Tanggal Pengajuan",
+    "approvalNotes": "Catatan Persetujuan",
+    "rejectionReason": "Alasan Penolakan",
+    "period": "Periode",
+    "startDate": "Tanggal Mulai",
+    "endDate": "Tanggal Akhir",
+    "total": "Total",
+    "yes": "Ya",
+    "no": "Tidak"
   },
   "landing": {
     "tagline": "Spreading Solutions",
@@ -249,6 +292,314 @@
       "payslipDesc": "Lihat riwayat slip gaji bulanan Anda",
       "loanTitle": "Pinjaman Saya",
       "loanDesc": "Lihat daftar pinjaman dan progress cicilan"
+    }
+  },
+  "settingsPage": {
+    "title": "Pengaturan Sistem",
+    "subtitle": "Konfigurasi sistem dan pengaturan aplikasi",
+    "items": {
+      "office": {
+        "title": "Lokasi Kantor",
+        "desc": "Kelola lokasi dan koordinat GPS kantor"
+      },
+      "workHours": {
+        "title": "Jam Kerja",
+        "desc": "Atur jam kerja dan toleransi keterlambatan"
+      },
+      "specialHours": {
+        "title": "Jam Kerja Khusus",
+        "desc": "Atur jam kerja untuk periode khusus (Ramadhan, event, dll)"
+      },
+      "leave": {
+        "title": "Kebijakan Cuti",
+        "desc": "Kelola kuota dan aturan cuti"
+      },
+      "overtime": {
+        "title": "Kebijakan Lembur",
+        "desc": "Atur aturan dan kompensasi lembur"
+      },
+      "holidays": {
+        "title": "Hari Libur & Event Kantor",
+        "desc": "Kelola daftar hari libur nasional dan event kegiatan kantor"
+      },
+      "allowance": {
+        "title": "Tunjangan Kehadiran",
+        "desc": "Konfigurasi perhitungan tunjangan kehadiran"
+      },
+      "bank": {
+        "title": "Bank Perusahaan",
+        "desc": "Atur rekening perusahaan untuk e-Payroll bank"
+      },
+      "bpjs": {
+        "title": "Pengaturan BPJS",
+        "desc": "Konfigurasi tarif BPJS Ketenagakerjaan & Kesehatan"
+      },
+      "ptkp": {
+        "title": "Pengaturan PTKP",
+        "desc": "Kelola nilai Penghasilan Tidak Kena Pajak"
+      },
+      "biayaJabatan": {
+        "title": "Biaya Jabatan",
+        "desc": "Konfigurasi tarif dan batas maksimal biaya jabatan PPh 21"
+      },
+      "pph21": {
+        "title": "Tarif PPh 21 Progresif",
+        "desc": "Konfigurasi lapisan tarif pajak penghasilan progresif"
+      },
+      "notif": {
+        "title": "Pengaturan Notifikasi",
+        "desc": "Kelola notifikasi push untuk admin"
+      },
+      "backup": {
+        "title": "Backup & Restore",
+        "desc": "Backup dan pemulihan data sistem"
+      },
+      "deptJab": {
+        "title": "Departemen & Jabatan",
+        "desc": "Kelola daftar departemen dan jabatan perusahaan"
+      }
+    }
+  },
+  "notifPage": {
+    "title": "Pusat Notifikasi",
+    "subtitle": "Aktivitas real-time hari ini -",
+    "stats": {
+      "attendance": "Aktivitas Absensi",
+      "leavePending": "Cuti Pending",
+      "overtimePending": "Lembur Pending",
+      "travelPending": "Perjalanan Dinas Pending"
+    },
+    "tabs": {
+      "attendance": "Aktivitas Absensi",
+      "leave": "Cuti Pending",
+      "overtime": "Lembur Pending",
+      "travel": "Perjalanan Dinas"
+    },
+    "card": {
+      "attendanceTitle": "Aktivitas Absensi",
+      "attendanceDesc": "Check-in dan check-out karyawan",
+      "leaveTitle": "Pengajuan Cuti Menunggu Persetujuan",
+      "leaveDesc": "Tinjau dan setujui pengajuan cuti karyawan",
+      "overtimeTitle": "Pengajuan Lembur Menunggu Persetujuan",
+      "overtimeDesc": "Tinjau dan setujui pengajuan lembur karyawan",
+      "travelTitle": "Pengajuan Perjalanan Dinas Menunggu Persetujuan",
+      "travelDesc": "Tinjau dan setujui pengajuan perjalanan dinas karyawan"
+    },
+    "empty": {
+      "attendance": "Belum ada aktivitas absensi hari ini",
+      "leave": "Tidak ada pengajuan cuti yang pending",
+      "overtime": "Tidak ada pengajuan lembur yang pending",
+      "travel": "Tidak ada pengajuan perjalanan dinas yang pending"
+    },
+    "toast": {
+      "checkInTitle": "Check-In Baru",
+      "checkInDesc": "Seorang karyawan baru saja check-in",
+      "checkOutTitle": "Check-Out Baru",
+      "checkOutDesc": "Seorang karyawan baru saja check-out",
+      "newLeave": "Pengajuan Cuti Baru",
+      "newLeaveDesc": "Ada pengajuan cuti yang memerlukan persetujuan",
+      "newOvertime": "Pengajuan Lembur Baru",
+      "newOvertimeDesc": "Ada pengajuan lembur yang memerlukan persetujuan",
+      "newTravel": "Pengajuan Perjalanan Dinas Baru",
+      "newTravelDesc": "Ada pengajuan perjalanan dinas yang memerlukan persetujuan"
+    }
+  },
+  "attendancePage": {
+    "title": "Rekap Absensi",
+    "subtitle": "Data rekap absensi seluruh karyawan",
+    "btn": {
+      "manualInput": "Input Manual",
+      "auditLog": "Audit Log",
+      "recalculate": "Hitung Ulang Status"
+    },
+    "filterTitle": "Filter Tanggal",
+    "stats": {
+      "total": "Total Absensi",
+      "onTime": "Tepat Waktu",
+      "late": "Terlambat"
+    },
+    "tableTitle": "Data Rekap Absensi",
+    "searchPlaceholder": "Cari nama atau tanggal...",
+    "cols": {
+      "employee": "Karyawan",
+      "date": "Tanggal",
+      "checkIn": "Check-In",
+      "checkOut": "Check-Out",
+      "duration": "Durasi",
+      "photo": "Foto Absen",
+      "location": "Lokasi",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "noData": "Tidak ada data absensi pada periode ini",
+    "photoDialog": {
+      "title": "Foto",
+      "desc": "Foto absensi karyawan"
+    },
+    "editDialog": {
+      "title": "Edit Waktu Absensi",
+      "reasonLabel": "Alasan Perubahan",
+      "reasonPlaceholder": "Contoh: Koreksi waktu check-in karena lupa absen",
+      "reasonRequired": "Alasan perubahan wajib diisi",
+      "successUpdated": "Data absensi berhasil diperbarui. Status: ",
+      "failUpdate": "Gagal memperbarui data"
+    },
+    "deleteDialog": {
+      "title": "Hapus Data Absensi",
+      "desc": "Apakah Anda yakin ingin menghapus data absensi",
+      "onDate": "pada tanggal",
+      "irreversible": "Tindakan ini tidak dapat dibatalkan.",
+      "successDeleted": "Data absensi berhasil dihapus",
+      "failDelete": "Gagal menghapus data",
+      "auditReason": "Dihapus oleh admin"
+    },
+    "recalc": {
+      "successCount": "record diperbarui statusnya",
+      "fail": "Gagal menghitung ulang"
+    },
+    "loadFailDesc": "Gagal memuat data absensi"
+  },
+  "leavePage": {
+    "title": "Manajemen Cuti",
+    "subtitle": "Kelola permintaan cuti dan izin karyawan",
+    "createBtn": "Buat Cuti",
+    "stats": {
+      "total": "Total Permintaan",
+      "pending": "Pending",
+      "approved": "Disetujui"
+    },
+    "tableTitle": "Daftar Permintaan Cuti",
+    "tableDesc": "Semua permintaan cuti dan izin karyawan",
+    "cols": {
+      "name": "Nama",
+      "nik": "NIK",
+      "department": "Departemen",
+      "type": "Jenis",
+      "date": "Tanggal",
+      "duration": "Durasi",
+      "reason": "Alasan",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "empty": "Belum ada permintaan cuti",
+    "approvalTitle": "Permintaan Cuti",
+    "leaveType": {
+      "cuti_tahunan": "Cuti Tahunan",
+      "izin": "Izin",
+      "sakit": "Sakit",
+      "lupa_absen": "Lupa Absen"
+    },
+    "toast": {
+      "new": "Pengajuan Cuti Baru",
+      "newDesc": "Ada permintaan cuti baru masuk",
+      "approveOk": "Permintaan cuti telah disetujui",
+      "rejectOk": "Permintaan cuti telah ditolak",
+      "approveFail": "Gagal Menyetujui",
+      "rejectFail": "Gagal Menolak",
+      "deleteOk": "Permintaan cuti berhasil dihapus",
+      "deleteFail": "Gagal menghapus permintaan cuti"
+    },
+    "detail": {
+      "title": "Detail Permintaan Cuti",
+      "desc": "Informasi lengkap permohonan cuti/izin karyawan",
+      "leaveType": "Jenis Cuti",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Selesai",
+      "delegationTitle": "Pendelegasian Tugas",
+      "substitute": "Karyawan Pengganti",
+      "taskDetail": "Detail Tugas"
+    },
+    "deleteDialog": {
+      "title": "Hapus Permintaan Cuti",
+      "desc": "Apakah Anda yakin ingin menghapus permintaan cuti ini? Jika cuti tahunan yang sudah disetujui, kuota cuti karyawan akan dikembalikan. Tindakan ini tidak dapat dibatalkan."
+    }
+  },
+  "overtimePage": {
+    "title": "Manajemen Lembur",
+    "subtitle": "Kelola permintaan lembur karyawan",
+    "createBtn": "Buat Lembur",
+    "stats": {
+      "total": "Total Permintaan",
+      "pending": "Pending",
+      "approved": "Disetujui"
+    },
+    "tableTitle": "Daftar Permintaan Lembur",
+    "tableDesc": "Semua permintaan lembur karyawan",
+    "cols": {
+      "name": "Nama",
+      "nik": "NIK",
+      "department": "Departemen",
+      "date": "Tanggal",
+      "hours": "Jam",
+      "reason": "Alasan",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "empty": "Belum ada permintaan lembur",
+    "approvalTitle": "Permintaan Lembur",
+    "toast": {
+      "new": "Pengajuan Lembur Baru",
+      "newDesc": "Ada permintaan lembur baru masuk",
+      "approveOk": "Permintaan lembur telah disetujui",
+      "rejectOk": "Permintaan lembur telah ditolak",
+      "approveFail": "Gagal Menyetujui",
+      "rejectFail": "Gagal Menolak",
+      "deleteOk": "Permintaan lembur berhasil dihapus",
+      "deleteFail": "Gagal menghapus permintaan lembur"
+    },
+    "detail": {
+      "title": "Detail Permintaan Lembur",
+      "desc": "Informasi lengkap permohonan lembur karyawan",
+      "date": "Tanggal Lembur",
+      "hours": "Jumlah Jam"
+    },
+    "deleteDialog": {
+      "title": "Hapus Permintaan Lembur",
+      "desc": "Apakah Anda yakin ingin menghapus permintaan lembur ini? Tindakan ini tidak dapat dibatalkan."
+    }
+  },
+  "reportsPage": {
+    "title": "Laporan & Analytics",
+    "subtitle": "Buat dan ekspor laporan absensi, cuti, dan data karyawan",
+    "general": {
+      "title": "Laporan Umum",
+      "desc": "Export laporan absensi, cuti, dan database karyawan",
+      "hint": "Gunakan form di bawah untuk menghasilkan laporan berdasarkan rentang tanggal dan departemen"
+    },
+    "perEmployee": {
+      "title": "Laporan Per Karyawan",
+      "desc": "Export data kehadiran untuk karyawan individual",
+      "hint": "Pilih karyawan tertentu dan hasilkan laporan kehadiran mereka dalam format Excel atau PDF",
+      "cta": "Buka Laporan Per Karyawan →"
+    },
+    "allowance": {
+      "title": "Tunjangan Kehadiran",
+      "desc": "Perhitungan tunjangan kehadiran bulanan",
+      "hint": "Hitung tunjangan kehadiran berdasarkan data absensi dengan potongan keterlambatan otomatis",
+      "cta": "Buka Laporan Tunjangan →"
+    },
+    "config": {
+      "title": "Konfigurasi Laporan",
+      "desc": "Pilih jenis laporan dan filter",
+      "reportType": "Jenis Laporan",
+      "department": "Departemen",
+      "allDept": "Semua Departemen"
+    },
+    "types": {
+      "attendance": "Laporan Absensi",
+      "leave": "Laporan Cuti",
+      "overtime": "Laporan Lembur",
+      "business_travel": "Laporan Perjalanan Dinas",
+      "payroll": "Laporan Payroll (Absensi + Tunjangan)",
+      "employees": "Database Karyawan"
+    },
+    "btn": {
+      "excel": "Export ke Excel",
+      "pdf": "Export ke PDF"
+    },
+    "toast": {
+      "excelOk": "Laporan berhasil diekspor ke Excel",
+      "pdfOk": "Laporan berhasil diekspor ke PDF"
     }
   }
 }
