@@ -51,7 +51,7 @@ export const EmployeeBottomNav = () => {
                   "text-xs mt-1 font-medium",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}>
-                  {item.label}
+                  {t(item.labelKey)}
                 </span>
               </button>
             );
@@ -78,7 +78,7 @@ export const EmployeeBottomNav = () => {
                 "text-xs mt-1",
                 isActive ? "text-primary font-medium" : "text-muted-foreground"
               )}>
-                {item.label}
+                {t(item.labelKey)}
               </span>
             </button>
           );
