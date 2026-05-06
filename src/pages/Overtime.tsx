@@ -15,6 +15,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +26,8 @@ import { logApprovalAction } from "@/lib/approvalAuditLog";
 import logger from "@/lib/logger";
 
 const Overtime = () => {
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
   const [overtimeRequests, setOvertimeRequests] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -63,8 +66,8 @@ const Overtime = () => {
           
           if (payload.eventType === "INSERT") {
             toast({
-              title: "Pengajuan Lembur Baru",
-              description: "Ada permintaan lembur baru masuk",
+              title: t("overtimePage.toast.new"),
+              description: t("overtimePage.toast.newDesc"),
             });
           }
         }
@@ -88,7 +91,7 @@ const Overtime = () => {
     if (overtimeError) {
       logger.error("Error fetching overtime requests:", overtimeError);
       toast({
-        title: "Gagal Memuat Data",
+        title: t("common.loadFailed"),
         description: overtimeError.message,
         variant: "destructive",
       });
@@ -147,15 +150,15 @@ const Overtime = () => {
 
     if (error) {
       toast({
-        title: "Gagal Menyetujui",
+        title: t("overtimePage.toast.approveFail"),
         description: error.message,
         variant: "destructive",
       });
       throw error;
     } else {
       toast({
-        title: "Berhasil",
-        description: "Permintaan lembur telah disetujui",
+        title: t("common.success"),
+        description: t("overtimePage.toast.approveOk"),
       });
       
       const currentUser = (await supabase.auth.getUser()).data.user;
@@ -192,15 +195,15 @@ const Overtime = () => {
 
     if (error) {
       toast({
-        title: "Gagal Menolak",
+        title: t("overtimePage.toast.rejectFail"),
         description: error.message,
         variant: "destructive",
       });
       throw error;
     } else {
       toast({
-        title: "Berhasil",
-        description: "Permintaan lembur telah ditolak",
+        title: t("common.success"),
+        description: t("overtimePage.toast.rejectOk"),
       });
       
       const currentUser = (await supabase.auth.getUser()).data.user;
@@ -229,11 +232,11 @@ const Overtime = () => {
     try {
       const { error } = await supabase.from("overtime_requests").delete().eq("id", deleteTargetId);
       if (error) throw error;
-      toast({ title: "Berhasil", description: "Permintaan lembur berhasil dihapus" });
+      toast({ title: t("common.success"), description: t("overtimePage.toast.deleteOk") });
       fetchOvertimeRequests();
     } catch (err) {
       logger.error("Failed to delete overtime request:", err);
-      toast({ title: "Gagal", description: "Gagal menghapus permintaan lembur", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("overtimePage.toast.deleteFail"), variant: "destructive" });
     } finally {
       setDeleteConfirmOpen(false);
       setDeleteTargetId(null);
@@ -244,11 +247,11 @@ const Overtime = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-primary">Disetujui</Badge>;
+        return <Badge className="bg-primary">{t("common.approved")}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive">Ditolak</Badge>;
+        return <Badge variant="destructive">{t("common.rejected")}</Badge>;
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("common.pending")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -259,13 +262,13 @@ const Overtime = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Manajemen Lembur</h1>
-            <p className="text-muted-foreground mt-1">Kelola permintaan lembur karyawan</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("overtimePage.title")}</h1>
+            <p className="text-muted-foreground mt-1">{t("overtimePage.subtitle")}</p>
           </div>
           {isAdmin && (
             <Button onClick={() => setCreateDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Buat Lembur
+              {t("overtimePage.createBtn")}
             </Button>
           )}
         </div>
@@ -274,7 +277,7 @@ const Overtime = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Permintaan
+                {t("overtimePage.stats.total")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -288,7 +291,7 @@ const Overtime = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Pending
+                {t("common.pending")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -304,7 +307,7 @@ const Overtime = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Disetujui
+                {t("common.approved")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -320,9 +323,9 @@ const Overtime = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Daftar Permintaan Lembur</CardTitle>
+            <CardTitle>{t("overtimePage.tableTitle")}</CardTitle>
             <CardDescription>
-              Semua permintaan lembur karyawan
+              {t("overtimePage.tableDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -330,14 +333,14 @@ const Overtime = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>NIK</TableHead>
-                    <TableHead>Departemen</TableHead>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Jam</TableHead>
-                    <TableHead>Alasan</TableHead>
-                    <TableHead>Status</TableHead>
-                    {isAdmin && <TableHead>Aksi</TableHead>}
+                    <TableHead>{t("overtimePage.cols.name")}</TableHead>
+                    <TableHead>{t("overtimePage.cols.nik")}</TableHead>
+                    <TableHead>{t("overtimePage.cols.department")}</TableHead>
+                    <TableHead>{t("overtimePage.cols.date")}</TableHead>
+                    <TableHead>{t("overtimePage.cols.hours")}</TableHead>
+                    <TableHead>{t("overtimePage.cols.reason")}</TableHead>
+                    <TableHead>{t("overtimePage.cols.status")}</TableHead>
+                    {isAdmin && <TableHead>{t("overtimePage.cols.actions")}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -352,7 +355,7 @@ const Overtime = () => {
                         <TableCell>
                           {new Date(request.overtime_date).toLocaleDateString('id-ID')}
                         </TableCell>
-                        <TableCell>{request.hours} jam</TableCell>
+                        <TableCell>{request.hours} {t("common.hours")}</TableCell>
                         <TableCell className="max-w-xs truncate">{request.reason}</TableCell>
                         <TableCell>{getStatusBadge(request.status)}</TableCell>
                         {isAdmin && (
@@ -391,7 +394,7 @@ const Overtime = () => {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-8 text-muted-foreground">
-                        Belum ada permintaan lembur
+                        {t("overtimePage.empty")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -415,7 +418,7 @@ const Overtime = () => {
         onOpenChange={setDialogOpen}
         action={dialogAction}
         onConfirm={dialogAction === "approve" ? handleApprove : handleReject}
-        title="Permintaan Lembur"
+        title={t("overtimePage.approvalTitle")}
       />
 
       <AdminCreateOvertimeDialog
@@ -428,56 +431,56 @@ const Overtime = () => {
       <Dialog open={!!detailRequest} onOpenChange={(open) => !open && setDetailRequest(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detail Permintaan Lembur</DialogTitle>
-            <DialogDescription>Informasi lengkap permohonan lembur karyawan</DialogDescription>
+            <DialogTitle>{t("overtimePage.detail.title")}</DialogTitle>
+            <DialogDescription>{t("overtimePage.detail.desc")}</DialogDescription>
           </DialogHeader>
           {detailRequest && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Nama</p>
+                  <p className="text-sm text-muted-foreground">{t("common.name")}</p>
                   <p className="font-medium">{detailRequest.profiles?.full_name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">NIK</p>
+                  <p className="text-sm text-muted-foreground">{t("common.nik")}</p>
                   <p className="font-medium">{detailRequest.profiles?.nik || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Departemen</p>
+                  <p className="text-sm text-muted-foreground">{t("common.department")}</p>
                   <p className="font-medium">{detailRequest.profiles?.departemen || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Tanggal Lembur</p>
-                  <p className="font-medium">{new Date(detailRequest.overtime_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</p>
+                  <p className="text-sm text-muted-foreground">{t("overtimePage.detail.date")}</p>
+                  <p className="font-medium">{new Date(detailRequest.overtime_date).toLocaleDateString(dateLocaleStr, { day: "numeric", month: "long", year: "numeric" })}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Jumlah Jam</p>
-                  <p className="font-medium">{detailRequest.hours} jam</p>
+                  <p className="text-sm text-muted-foreground">{t("overtimePage.detail.hours")}</p>
+                  <p className="font-medium">{detailRequest.hours} {t("common.hours")}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="text-sm text-muted-foreground">{t("common.status")}</p>
                   {getStatusBadge(detailRequest.status)}
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Alasan</p>
+                <p className="text-sm text-muted-foreground">{t("common.reason")}</p>
                 <p className="font-medium whitespace-pre-wrap">{detailRequest.reason}</p>
               </div>
               {detailRequest.approval_notes && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Catatan Persetujuan</p>
+                  <p className="text-sm text-muted-foreground">{t("common.approvalNotes")}</p>
                   <p className="font-medium whitespace-pre-wrap">{detailRequest.approval_notes}</p>
                 </div>
               )}
               {detailRequest.rejection_reason && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Alasan Penolakan</p>
+                  <p className="text-sm text-muted-foreground">{t("common.rejectionReason")}</p>
                   <p className="font-medium whitespace-pre-wrap text-destructive">{detailRequest.rejection_reason}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-muted-foreground">Tanggal Pengajuan</p>
-                <p className="font-medium">{new Date(detailRequest.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                <p className="text-sm text-muted-foreground">{t("common.createdAt")}</p>
+                <p className="font-medium">{new Date(detailRequest.created_at).toLocaleDateString(dateLocaleStr, { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
               </div>
             </div>
           )}
@@ -487,14 +490,14 @@ const Overtime = () => {
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Permintaan Lembur</AlertDialogTitle>
+            <AlertDialogTitle>{t("overtimePage.deleteDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus permintaan lembur ini? Tindakan ini tidak dapat dibatalkan.
+              {t("overtimePage.deleteDialog.desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Hapus</AlertDialogAction>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{t("common.delete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
