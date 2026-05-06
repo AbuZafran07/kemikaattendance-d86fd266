@@ -587,7 +587,7 @@ const Attendance = () => {
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <CardTitle>Data {t("attendancePage.title")}</CardTitle>
+                <CardTitle>{t("attendancePage.tableTitle")}</CardTitle>
                 <CardDescription>
                   {t("common.period")}: {startDate && formatDate(startDate)} - {endDate && formatDate(endDate)}
                 </CardDescription>
