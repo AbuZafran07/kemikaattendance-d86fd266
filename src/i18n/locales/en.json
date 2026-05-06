@@ -14,14 +14,23 @@
     "password": "Password",
     "language": "Language",
     "languageId": "Indonesian",
-    "languageEn": "English"
+    "languageEn": "English",
+    "logout": "Logout",
+    "myProfile": "My Profile",
+    "admin": "Admin",
+    "employee": "Employee",
+    "processing": "Processing...",
+    "view": "View",
+    "days": "days",
+    "hours": "hours",
+    "minutes": "minutes"
   },
   "landing": {
     "tagline": "Spreading Solutions",
     "loginButton": "Sign In",
     "heroTitle": "PT KEMIKA KARYA PRATAMA",
     "heroSubtitle": "Attendance & HR Management System",
-    "heroDescription": "Manage attendance, leave, overtime, and payroll in one unified platform.",
+    "heroDescription": "Manage your attendance, leave, overtime, and payroll in one integrated platform.",
     "loginToSystem": "Sign In to System",
     "quickAccess": "Quick Access",
     "announcements": "Announcements & Information",
@@ -29,8 +38,8 @@
     "publishedOn": "Published",
     "quickLinks": {
       "attendance": "Attendance",
-      "attendanceDesc": "Daily check-in & check-out",
-      "leave": "Leave",
+      "attendanceDesc": "Daily Check-in & Check-out",
+      "leave": "Leave & Permit",
       "leaveDesc": "Leave requests & history",
       "overtime": "Overtime",
       "overtimeDesc": "Overtime requests",
@@ -56,9 +65,9 @@
     "loginSuccess": "Login Successful",
     "loginSuccessDesc": "Welcome to Kemika HR System",
     "loginFailed": "Login Failed",
-    "loginFailedDesc": "Incorrect email or password",
+    "loginFailedDesc": "Wrong email or password",
     "emailRequired": "Email Required",
-    "emailRequiredDesc": "Please enter a registered email",
+    "emailRequiredDesc": "Please enter your registered email",
     "resetEmailSentTitle": "Email Sent",
     "resetEmailSentDesc": "Password reset link has been sent to your email",
     "resetEmailFailedTitle": "Failed to Send Email"
@@ -74,13 +83,172 @@
     "submitting": "Saving...",
     "validating": "Validating reset password link...",
     "invalidLinkTitle": "Invalid Link",
-    "invalidLinkDesc": "The reset password link is invalid or has expired",
+    "invalidLinkDesc": "Reset password link is invalid or has expired",
     "tooShortTitle": "Password Too Short",
     "tooShortDesc": "Password must be at least 6 characters",
     "mismatchTitle": "Passwords Do Not Match",
     "mismatchDesc": "Password confirmation does not match",
-    "successTitle": "Password Changed Successfully",
-    "successDesc": "Please sign in with your new password",
+    "successTitle": "Password Successfully Changed",
+    "successDesc": "Please log in with your new password",
     "failedTitle": "Failed to Change Password"
+  },
+  "nav": {
+    "groups": {
+      "ringkasan": "OVERVIEW",
+      "manajemen": "MANAGEMENT",
+      "keuangan": "FINANCE",
+      "kpi": "KPI",
+      "laporan": "REPORTS",
+      "sistem": "SYSTEM"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "employees": "Employees",
+      "attendance": "Attendance",
+      "leave": "Leave",
+      "overtime": "Overtime",
+      "businessTravel": "Business Travel",
+      "payroll": "Payroll",
+      "payrollAnalytics": "Payroll Analytics",
+      "deduction": "Deduction",
+      "terManagement": "PPh21 TER Rates",
+      "buktiPotong": "Tax Slip 1721-A1",
+      "pph21Report": "PPh 21 Report",
+      "kpiManagement": "KPI Management",
+      "kpiRecap": "Employee KPI List",
+      "reports": "Reports",
+      "approvalAuditLog": "Approval Audit Log",
+      "payrollAuditLog": "Payroll Audit Log",
+      "notifications": "Notifications",
+      "announcements": "Announcements",
+      "settings": "Settings"
+    },
+    "employee": {
+      "home": "Home",
+      "kpi": "KPI",
+      "selfService": "Self Service",
+      "notifications": "Notifications",
+      "profile": "Profile"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": {
+      "totalEmployees": "Total Employees",
+      "totalEmployeesDesc": "Active employees",
+      "presentToday": "Present Today",
+      "presentTodayDesc": "{{percent}}% attendance",
+      "late": "Late",
+      "lateDesc": "{{percent}}% of total",
+      "earlyLeave": "Early Leave",
+      "earlyLeaveDesc": "Today",
+      "absent": "Absent",
+      "pending": "Pending",
+      "pendingDesc": "{{leave}} leave, {{overtime}} overtime",
+      "pendingDescWithTravel": "{{leave}} leave, {{overtime}} overtime, {{travel}} travel"
+    },
+    "charts": {
+      "weeklyTrend": "Weekly Attendance Trend",
+      "deptAttendance": "Attendance per Department",
+      "present": "Present",
+      "late": "Late",
+      "absent": "Absent",
+      "presentTooltip": "{{value}} present"
+    },
+    "recent": {
+      "title": "Recent Activity",
+      "description": "Today's employee attendance status",
+      "tabPresent": "Present ({{count}})",
+      "tabAbsent": "Absent ({{count}})",
+      "noPresent": "No employees present yet today",
+      "noAbsent": "All employees are present today",
+      "status": {
+        "onTime": "On Time",
+        "late": "Late",
+        "earlyLeave": "Early Leave",
+        "absent": "Absent"
+      },
+      "absence": {
+        "annualLeave": "Annual Leave",
+        "leave": "Leave",
+        "permit": "Permit",
+        "sick": "Sick",
+        "noAttendance": "No Check-in",
+        "default": "Absent"
+      }
+    },
+    "pending": {
+      "title": "Pending Requests",
+      "description": "Awaiting HRGA approval",
+      "tabLeave": "Leave ({{count}})",
+      "tabOvertime": "Overtime ({{count}})",
+      "tabTravel": "Travel ({{count}})",
+      "noLeave": "No pending leave requests",
+      "noOvertime": "No pending overtime requests",
+      "noTravel": "No pending business travel requests",
+      "leaveType": {
+        "cuti_tahunan": "Annual Leave",
+        "izin": "Permit",
+        "sakit": "Sick",
+        "lupa_absen": "Forgot Check-in"
+      }
+    },
+    "toast": {
+      "attendanceUpdate": "Attendance Update",
+      "checkInDesc": "An employee just Checked In",
+      "checkOutDesc": "An employee Checked Out",
+      "newLeave": "New Leave Request",
+      "newLeaveDesc": "A new leave request has arrived",
+      "newOvertime": "New Overtime Request",
+      "newOvertimeDesc": "A new overtime request has arrived",
+      "newTravel": "New Business Travel Request",
+      "newTravelDesc": "A new business travel request has arrived",
+      "leaveActivatedTitle": "Leave Auto-Activated",
+      "leaveActivatedDesc": "{{count}} employees newly eligible for leave: {{names}}"
+    }
+  },
+  "employeeHome": {
+    "greeting": "Hello,",
+    "defaultRole": "Employee",
+    "adminNoAttendance": "Admin does not need to check in",
+    "adminExcluded": "Admin accounts are excluded from daily attendance",
+    "gpsDetecting": "Detecting location...",
+    "gpsFailed": "Failed to detect location",
+    "gpsWillValidate": "GPS will be validated",
+    "workHoursToday": "Today's work hours:",
+    "lateTolerance": "(late tolerance {{minutes}} min)",
+    "checkIn": "Check-in:",
+    "checkOut": "Check-out:",
+    "checkInBtn": "Check In",
+    "checkOutBtn": "Check Out",
+    "attendanceDone": "Today's attendance is complete",
+    "stats": {
+      "leave": "Leave",
+      "attendance": "Attendance",
+      "history": "History",
+      "performance": "Performance"
+    }
+  },
+  "selfService": {
+    "title": "Self Service",
+    "subtitle": "Manage your requests and self-service tools",
+    "items": {
+      "leaveTitle": "Request Leave",
+      "leaveDesc": "Submit annual leave, permit, or sick leave",
+      "travelTitle": "Request Business Travel",
+      "travelDesc": "Submit a business travel request",
+      "overtimeTitle": "Request Overtime",
+      "overtimeDesc": "Submit overtime hours",
+      "historyTitle": "Request History",
+      "historyDesc": "View leave, overtime, and travel history",
+      "attendanceTitle": "Attendance History",
+      "attendanceDesc": "View your attendance history",
+      "performanceTitle": "My Performance",
+      "performanceDesc": "View attendance and performance stats",
+      "payslipTitle": "Payslip",
+      "payslipDesc": "View your monthly payslip history",
+      "loanTitle": "My Loans",
+      "loanDesc": "View loans and installment progress"
+    }
   }
 }
