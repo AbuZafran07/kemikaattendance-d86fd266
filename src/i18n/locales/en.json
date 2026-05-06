@@ -208,7 +208,7 @@
     }
   },
   "employeeHome": {
-    "greeting": "Hello,",
+    "greeting": "Assalamualaikum,",
     "defaultRole": "Employee",
     "adminNoAttendance": "Admin does not need to check in",
     "adminExcluded": "Admin accounts are excluded from daily attendance",
