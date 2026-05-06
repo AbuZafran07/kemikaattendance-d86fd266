@@ -100,10 +100,12 @@ const buildNavigationGroups = (t: (k: string) => string) => [
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const { t } = useTranslation();
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const navigationGroups = buildNavigationGroups(t);
 
   // Fetch signed photo URL
   useEffect(() => {
