@@ -124,8 +124,8 @@ const Dashboard = () => {
         );
 
         toast({
-          title: "Cuti Otomatis Diaktifkan",
-          description: `${activatedEmployees.length} karyawan baru memenuhi syarat cuti: ${names}`,
+          title: t("dashboard.toast.leaveActivatedTitle"),
+          description: t("dashboard.toast.leaveActivatedDesc", { count: activatedEmployees.length, names }),
         });
       }
     } catch (error) {
@@ -150,9 +150,9 @@ const Dashboard = () => {
         }
 
         toast({
-          title: "Update Absensi",
+          title: t("dashboard.toast.attendanceUpdate"),
           description:
-            payload.eventType === "INSERT" ? "Karyawan baru melakukan Check-In" : "Karyawan melakukan Check-Out",
+            payload.eventType === "INSERT" ? t("dashboard.toast.checkInDesc") : t("dashboard.toast.checkOutDesc"),
         });
 
         fetchDashboardData();
@@ -167,8 +167,8 @@ const Dashboard = () => {
         
         if (payload.eventType === "INSERT") {
           toast({
-            title: "Pengajuan Cuti Baru",
-            description: "Ada permintaan cuti baru masuk",
+            title: t("dashboard.toast.newLeave"),
+            description: t("dashboard.toast.newLeaveDesc"),
           });
         }
         
@@ -184,8 +184,8 @@ const Dashboard = () => {
         
         if (payload.eventType === "INSERT") {
           toast({
-            title: "Pengajuan Lembur Baru",
-            description: "Ada permintaan lembur baru masuk",
+            title: t("dashboard.toast.newOvertime"),
+            description: t("dashboard.toast.newOvertimeDesc"),
           });
         }
         
@@ -201,8 +201,8 @@ const Dashboard = () => {
         
         if (payload.eventType === "INSERT") {
           toast({
-            title: "Pengajuan Perjalanan Dinas Baru",
-            description: "Ada permintaan perjalanan dinas baru masuk",
+            title: t("dashboard.toast.newTravel"),
+            description: t("dashboard.toast.newTravelDesc"),
           });
         }
         
