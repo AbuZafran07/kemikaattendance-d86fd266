@@ -796,7 +796,7 @@ const EmployeeView = () => {
                   <br />
                   {profile?.full_name || "User"}!
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">{profile?.jabatan || "Karyawan"}</p>
+                <p className="text-sm text-muted-foreground mt-1">{profile?.jabatan || t("employeeHome.defaultRole")}</p>
               </div>
             </div>
           </CardHeader>
@@ -952,7 +952,7 @@ const EmployeeView = () => {
                   className="w-full h-10 font-semibold text-lg bg-primary hover:bg-primary/90"
                 >
                   <Camera className="h-5 w-5 mr-2" />
-                  {isProcessing ? "Memproses..." : "Check Out"}
+                  {isProcessing ? t("common.processing") : t("employeeHome.checkOutBtn")}
                 </Button>
               ) : (
                 <Button
@@ -964,7 +964,7 @@ const EmployeeView = () => {
                   className="w-full h-10 font-semibold bg-primary hover:bg-primary/90 text-base"
                 >
                   <Camera className="h-5 w-5 mr-2" />
-                  {isProcessing ? "Memproses..." : "Check In"}
+                  {isProcessing ? t("common.processing") : t("employeeHome.checkInBtn")}
                 </Button>
               )}
             </CardContent>
