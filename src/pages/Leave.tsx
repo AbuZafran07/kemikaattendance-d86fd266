@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +19,8 @@ import { logApprovalAction } from "@/lib/approvalAuditLog";
 import logger from "@/lib/logger";
 
 const Leave = () => {
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
   const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -56,8 +59,8 @@ const Leave = () => {
           
           if (payload.eventType === "INSERT") {
             toast({
-              title: "Pengajuan Cuti Baru",
-              description: "Ada permintaan cuti baru masuk",
+              title: t("leavePage.toast.new"),
+              description: t("leavePage.toast.newDesc"),
             });
           }
         }
@@ -81,7 +84,7 @@ const Leave = () => {
     if (leaveError) {
       logger.error("Error fetching leave requests:", leaveError);
       toast({
-        title: "Gagal Memuat Data",
+        title: t("common.loadFailed"),
         description: leaveError.message,
         variant: "destructive",
       });
@@ -146,15 +149,15 @@ const Leave = () => {
 
     if (error) {
       toast({
-        title: "Gagal Menyetujui",
+        title: t("leavePage.toast.approveFail"),
         description: error.message,
         variant: "destructive",
       });
       throw error;
     } else {
       toast({
-        title: "Berhasil",
-        description: "Permintaan cuti telah disetujui",
+        title: t("common.success"),
+        description: t("leavePage.toast.approveOk"),
       });
       
       const currentUser = (await supabase.auth.getUser()).data.user;
@@ -215,15 +218,15 @@ const Leave = () => {
 
     if (error) {
       toast({
-        title: "Gagal Menolak",
+        title: t("leavePage.toast.rejectFail"),
         description: error.message,
         variant: "destructive",
       });
       throw error;
     } else {
       toast({
-        title: "Berhasil",
-        description: "Permintaan cuti telah ditolak",
+        title: t("common.success"),
+        description: t("leavePage.toast.rejectOk"),
       });
       
       const currentUser = (await supabase.auth.getUser()).data.user;
@@ -266,11 +269,11 @@ const Leave = () => {
       const { error } = await supabase.from("leave_requests").delete().eq("id", deleteTargetId);
       if (error) throw error;
 
-      toast({ title: "Berhasil", description: "Permintaan cuti berhasil dihapus" });
+      toast({ title: t("common.success"), description: t("leavePage.toast.deleteOk") });
       fetchLeaveRequests();
     } catch (err) {
       logger.error("Failed to delete leave request:", err);
-      toast({ title: "Gagal", description: "Gagal menghapus permintaan cuti", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("leavePage.toast.deleteFail"), variant: "destructive" });
     } finally {
       setDeleteConfirmOpen(false);
       setDeleteTargetId(null);
@@ -280,24 +283,20 @@ const Leave = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-primary">Disetujui</Badge>;
+        return <Badge className="bg-primary">{t("common.approved")}</Badge>;
       case "rejected":
-        return <Badge variant="destructive">Ditolak</Badge>;
+        return <Badge variant="destructive">{t("common.rejected")}</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("common.pending")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   const formatLeaveType = (type: string) => {
-    const typeMap: Record<string, string> = {
-      cuti_tahunan: "Cuti Tahunan",
-      izin: "Izin",
-      sakit: "Sakit",
-      lupa_absen: "Lupa Absen",
-    };
-    return typeMap[type] || type;
+    const key = `leavePage.leaveType.${type}`;
+    const v = t(key);
+    return v === key ? type : v;
   };
 
   return (
@@ -305,13 +304,13 @@ const Leave = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Manajemen Cuti</h1>
-            <p className="text-muted-foreground mt-1">Kelola permintaan cuti dan izin karyawan</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("leavePage.title")}</h1>
+            <p className="text-muted-foreground mt-1">{t("leavePage.subtitle")}</p>
           </div>
           {isAdmin && (
             <Button onClick={() => setCreateDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Buat Cuti
+              {t("leavePage.createBtn")}
             </Button>
           )}
         </div>
@@ -319,7 +318,7 @@ const Leave = () => {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Permintaan</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("leavePage.stats.total")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -331,7 +330,7 @@ const Leave = () => {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("common.pending")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -343,7 +342,7 @@ const Leave = () => {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Disetujui</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("common.approved")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -358,23 +357,23 @@ const Leave = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Daftar Permintaan Cuti</CardTitle>
-            <CardDescription>Semua permintaan cuti dan izin karyawan</CardDescription>
+            <CardTitle>{t("leavePage.tableTitle")}</CardTitle>
+            <CardDescription>{t("leavePage.tableDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-auto max-h-[calc(100vh-400px)]">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>NIK</TableHead>
-                    <TableHead>Departemen</TableHead>
-                    <TableHead>Jenis</TableHead>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Durasi</TableHead>
-                    <TableHead>Alasan</TableHead>
-                    <TableHead>Status</TableHead>
-                    {isAdmin && <TableHead>Aksi</TableHead>}
+                    <TableHead>{t("leavePage.cols.name")}</TableHead>
+                    <TableHead>{t("leavePage.cols.nik")}</TableHead>
+                    <TableHead>{t("leavePage.cols.department")}</TableHead>
+                    <TableHead>{t("leavePage.cols.type")}</TableHead>
+                    <TableHead>{t("leavePage.cols.date")}</TableHead>
+                    <TableHead>{t("leavePage.cols.duration")}</TableHead>
+                    <TableHead>{t("leavePage.cols.reason")}</TableHead>
+                    <TableHead>{t("leavePage.cols.status")}</TableHead>
+                    {isAdmin && <TableHead>{t("leavePage.cols.actions")}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -386,10 +385,10 @@ const Leave = () => {
                         <TableCell>{request.profiles?.departemen}</TableCell>
                         <TableCell>{formatLeaveType(request.leave_type)}</TableCell>
                         <TableCell>
-                          {new Date(request.start_date).toLocaleDateString("id-ID")} -
-                          {new Date(request.end_date).toLocaleDateString("id-ID")}
+                          {new Date(request.start_date).toLocaleDateString(dateLocaleStr)} -
+                          {new Date(request.end_date).toLocaleDateString(dateLocaleStr)}
                         </TableCell>
-                        <TableCell>{request.total_days} hari</TableCell>
+                        <TableCell>{request.total_days} {t("common.days")}</TableCell>
                         <TableCell className="max-w-xs truncate">{request.reason}</TableCell>
                         <TableCell>{getStatusBadge(request.status)}</TableCell>
                         {isAdmin && (
@@ -421,7 +420,7 @@ const Leave = () => {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-8 text-muted-foreground">
-                        Belum ada permintaan cuti
+                        {t("leavePage.empty")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -445,7 +444,7 @@ const Leave = () => {
         onOpenChange={setDialogOpen}
         action={dialogAction}
         onConfirm={dialogAction === "approve" ? handleApprove : handleReject}
-        title="Permintaan Cuti"
+        title={t("leavePage.approvalTitle")}
       />
 
       <AdminCreateLeaveDialog
@@ -458,54 +457,54 @@ const Leave = () => {
       <Dialog open={!!detailRequest} onOpenChange={(open) => !open && setDetailRequest(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detail Permintaan Cuti</DialogTitle>
-            <DialogDescription>Informasi lengkap permohonan cuti/izin karyawan</DialogDescription>
+            <DialogTitle>{t("leavePage.detail.title")}</DialogTitle>
+            <DialogDescription>{t("leavePage.detail.desc")}</DialogDescription>
           </DialogHeader>
           {detailRequest && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Nama</p>
+                  <p className="text-sm text-muted-foreground">{t("common.name")}</p>
                   <p className="font-medium">{detailRequest.profiles?.full_name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">NIK</p>
+                  <p className="text-sm text-muted-foreground">{t("common.nik")}</p>
                   <p className="font-medium">{detailRequest.profiles?.nik || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Departemen</p>
+                  <p className="text-sm text-muted-foreground">{t("common.department")}</p>
                   <p className="font-medium">{detailRequest.profiles?.departemen || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Jenis Cuti</p>
+                  <p className="text-sm text-muted-foreground">{t("leavePage.detail.leaveType")}</p>
                   <p className="font-medium">{formatLeaveType(detailRequest.leave_type)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Tanggal Mulai</p>
-                  <p className="font-medium">{new Date(detailRequest.start_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</p>
+                  <p className="text-sm text-muted-foreground">{t("leavePage.detail.startDate")}</p>
+                  <p className="font-medium">{new Date(detailRequest.start_date).toLocaleDateString(dateLocaleStr, { day: "numeric", month: "long", year: "numeric" })}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Tanggal Selesai</p>
-                  <p className="font-medium">{new Date(detailRequest.end_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</p>
+                  <p className="text-sm text-muted-foreground">{t("leavePage.detail.endDate")}</p>
+                  <p className="font-medium">{new Date(detailRequest.end_date).toLocaleDateString(dateLocaleStr, { day: "numeric", month: "long", year: "numeric" })}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Durasi</p>
-                  <p className="font-medium">{detailRequest.total_days} hari</p>
+                  <p className="text-sm text-muted-foreground">{t("common.duration")}</p>
+                  <p className="font-medium">{detailRequest.total_days} {t("common.days")}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="text-sm text-muted-foreground">{t("common.status")}</p>
                   {getStatusBadge(detailRequest.status)}
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Alasan</p>
+                <p className="text-sm text-muted-foreground">{t("common.reason")}</p>
                 <p className="font-medium whitespace-pre-wrap">{detailRequest.reason}</p>
               </div>
               {(detailRequest.delegated_to || detailRequest.delegation_notes) && (
                 <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
-                  <p className="text-sm font-semibold">Pendelegasian Tugas</p>
+                  <p className="text-sm font-semibold">{t("leavePage.detail.delegationTitle")}</p>
                   <div>
-                    <p className="text-xs text-muted-foreground">Karyawan Pengganti</p>
+                    <p className="text-xs text-muted-foreground">{t("leavePage.detail.substitute")}</p>
                     <p className="text-sm font-medium">
                       {detailRequest.delegate_profile?.full_name || "-"}
                       {detailRequest.delegate_profile?.jabatan ? ` - ${detailRequest.delegate_profile.jabatan}` : ""}
@@ -513,7 +512,7 @@ const Leave = () => {
                   </div>
                   {detailRequest.delegation_notes && (
                     <div>
-                      <p className="text-xs text-muted-foreground">Detail Tugas</p>
+                      <p className="text-xs text-muted-foreground">{t("leavePage.detail.taskDetail")}</p>
                       <p className="text-sm whitespace-pre-wrap">{detailRequest.delegation_notes}</p>
                     </div>
                   )}
@@ -521,19 +520,19 @@ const Leave = () => {
               )}
               {detailRequest.approval_notes && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Catatan Persetujuan</p>
+                  <p className="text-sm text-muted-foreground">{t("common.approvalNotes")}</p>
                   <p className="font-medium whitespace-pre-wrap">{detailRequest.approval_notes}</p>
                 </div>
               )}
               {detailRequest.rejection_reason && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Alasan Penolakan</p>
+                  <p className="text-sm text-muted-foreground">{t("common.rejectionReason")}</p>
                   <p className="font-medium whitespace-pre-wrap text-destructive">{detailRequest.rejection_reason}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-muted-foreground">Tanggal Pengajuan</p>
-                <p className="font-medium">{new Date(detailRequest.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                <p className="text-sm text-muted-foreground">{t("common.createdAt")}</p>
+                <p className="font-medium">{new Date(detailRequest.created_at).toLocaleDateString(dateLocaleStr, { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
               </div>
             </div>
           )}
@@ -543,14 +542,14 @@ const Leave = () => {
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Permintaan Cuti</AlertDialogTitle>
+            <AlertDialogTitle>{t("leavePage.deleteDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus permintaan cuti ini? Jika cuti tahunan yang sudah disetujui, kuota cuti karyawan akan dikembalikan. Tindakan ini tidak dapat dibatalkan.
+              {t("leavePage.deleteDialog.desc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Hapus</AlertDialogAction>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{t("common.delete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
