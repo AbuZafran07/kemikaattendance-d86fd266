@@ -1,6 +1,8 @@
 import { ReactNode, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { 
   LayoutDashboard, 
   Users, 
@@ -44,64 +46,66 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const navigationGroups = [
+const buildNavigationGroups = (t: (k: string) => string) => [
   {
-    label: "RINGKASAN",
+    label: t("nav.groups.ringkasan"),
     items: [
-      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { name: t("nav.items.dashboard"), href: "/dashboard", icon: LayoutDashboard },
     ],
   },
   {
-    label: "MANAJEMEN",
+    label: t("nav.groups.manajemen"),
     items: [
-      { name: "Karyawan", href: "/dashboard/employees", icon: Users },
-      { name: "Absensi", href: "/dashboard/attendance", icon: ClipboardCheck },
-      { name: "Cuti", href: "/dashboard/leave", icon: Calendar },
-      { name: "Lembur", href: "/dashboard/overtime", icon: Clock },
-      { name: "Perjalanan Dinas", href: "/dashboard/business-travel", icon: Plane },
+      { name: t("nav.items.employees"), href: "/dashboard/employees", icon: Users },
+      { name: t("nav.items.attendance"), href: "/dashboard/attendance", icon: ClipboardCheck },
+      { name: t("nav.items.leave"), href: "/dashboard/leave", icon: Calendar },
+      { name: t("nav.items.overtime"), href: "/dashboard/overtime", icon: Clock },
+      { name: t("nav.items.businessTravel"), href: "/dashboard/business-travel", icon: Plane },
     ],
   },
   {
-    label: "KEUANGAN",
+    label: t("nav.groups.keuangan"),
     items: [
-      { name: "Payroll", href: "/dashboard/payroll", icon: DollarSign },
-      { name: "Payroll Analytics", href: "/dashboard/payroll-analytics", icon: BarChart3 },
-      { name: "Deduction", href: "/dashboard/loans", icon: CreditCard },
-      { name: "Tarif TER PPh21", href: "/dashboard/ter-management", icon: FileText },
-      { name: "Bukti Potong 1721-A1", href: "/dashboard/bukti-potong", icon: FileCheck },
-      { name: "Laporan PPh 21", href: "/dashboard/reports/pph21", icon: FileText },
+      { name: t("nav.items.payroll"), href: "/dashboard/payroll", icon: DollarSign },
+      { name: t("nav.items.payrollAnalytics"), href: "/dashboard/payroll-analytics", icon: BarChart3 },
+      { name: t("nav.items.deduction"), href: "/dashboard/loans", icon: CreditCard },
+      { name: t("nav.items.terManagement"), href: "/dashboard/ter-management", icon: FileText },
+      { name: t("nav.items.buktiPotong"), href: "/dashboard/bukti-potong", icon: FileCheck },
+      { name: t("nav.items.pph21Report"), href: "/dashboard/reports/pph21", icon: FileText },
     ],
   },
   {
-    label: "KPI",
+    label: t("nav.groups.kpi"),
     items: [
-      { name: "KPI Management", href: "/dashboard/kpi", icon: Target },
-      { name: "Daftar KPI Karyawan", href: "/dashboard/kpi-recap", icon: Trophy },
+      { name: t("nav.items.kpiManagement"), href: "/dashboard/kpi", icon: Target },
+      { name: t("nav.items.kpiRecap"), href: "/dashboard/kpi-recap", icon: Trophy },
     ],
   },
   {
-    label: "LAPORAN",
+    label: t("nav.groups.laporan"),
     items: [
-      { name: "Laporan", href: "/dashboard/reports", icon: FileText },
-      { name: "Audit Log Persetujuan", href: "/dashboard/approval-audit-log", icon: ShieldCheck },
-      { name: "Audit Log Payroll", href: "/dashboard/payroll-audit-log", icon: ShieldCheck },
-      { name: "Notifikasi", href: "/dashboard/notifications", icon: Bell },
+      { name: t("nav.items.reports"), href: "/dashboard/reports", icon: FileText },
+      { name: t("nav.items.approvalAuditLog"), href: "/dashboard/approval-audit-log", icon: ShieldCheck },
+      { name: t("nav.items.payrollAuditLog"), href: "/dashboard/payroll-audit-log", icon: ShieldCheck },
+      { name: t("nav.items.notifications"), href: "/dashboard/notifications", icon: Bell },
     ],
   },
   {
-    label: "SISTEM",
+    label: t("nav.groups.sistem"),
     items: [
-      { name: "Pengumuman", href: "/dashboard/announcements", icon: Megaphone },
-      { name: "Pengaturan", href: "/dashboard/settings", icon: Settings },
+      { name: t("nav.items.announcements"), href: "/dashboard/announcements", icon: Megaphone },
+      { name: t("nav.items.settings"), href: "/dashboard/settings", icon: Settings },
     ],
   },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const { t } = useTranslation();
   const { signOut, profile } = useAuth();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const navigationGroups = buildNavigationGroups(t);
 
   // Fetch signed photo URL
   useEffect(() => {
@@ -176,7 +180,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="text-left">
               <p className="text-sm font-semibold leading-tight">{profile?.full_name}</p>
               <span className="inline-block mt-0.5 text-[10px] font-semibold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                Admin
+                {t("common.admin")}
               </span>
             </div>
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -186,12 +190,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={() => navigate("/employee/profile")}>
           <UserCircle className="h-4 w-4 mr-2" />
-          My Profile
+          {t("common.myProfile")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="text-destructive">
           <LogOut className="h-4 w-4 mr-2" />
-          Keluar
+          {t("common.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -242,14 +246,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Kemika" className="h-9 object-contain" />
             <div>
-              <h2 className="text-sm font-bold text-foreground leading-tight">PT. KEMIKA KARYA PRATAMA</h2>
-              <p className="text-[11px] text-muted-foreground">Attendance & HR Management System</p>
+              <h2 className="text-sm font-bold text-foreground leading-tight">{t("common.appName")}</h2>
+              <p className="text-[11px] text-muted-foreground">{t("common.appTagline")}</p>
             </div>
           </div>
 
           {/* Right: Bell + User dropdown */}
           {profile && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <LanguageSwitcher variant="ghost" />
               <NotificationDropdown pendingCount={pendingCount} />
               <UserDropdown />
             </div>
@@ -264,6 +269,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <span className="text-white font-semibold text-sm">KEMIKA</span>
         </div>
         <div className="flex items-center gap-2">
+          <LanguageSwitcher variant="ghost" className="text-white hover:bg-white/10" />
           <div className="relative">
             <NotificationDropdown pendingCount={pendingCount} />
           </div>

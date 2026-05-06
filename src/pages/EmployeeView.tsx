@@ -31,6 +31,8 @@ import { format } from "date-fns";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import MyDelegatedTasks from "@/components/MyDelegatedTasks";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 // Office coordinates and work hours will be fetched from system settings
 
@@ -89,6 +91,8 @@ const EmployeeView = () => {
   const { signOut, profile, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
   useEffect(() => {
     checkAdminStatus();
     fetchOfficeLocation();
@@ -213,7 +217,7 @@ const EmployeeView = () => {
       setTodayAttendance(data);
       setIsCheckedIn(true);
       setCheckInTime(
-        new Date(data.check_in_time).toLocaleTimeString("id-ID", {
+        new Date(data.check_in_time).toLocaleTimeString(dateLocaleStr, {
           hour: "2-digit",
           minute: "2-digit",
         }),
@@ -663,7 +667,7 @@ const EmployeeView = () => {
       setIsCheckedIn(true);
       setTodayAttendance(data);
       setCheckInTime(
-        new Date(insertData.check_in_time).toLocaleTimeString("id-ID", {
+        new Date(insertData.check_in_time).toLocaleTimeString(dateLocaleStr, {
           hour: "2-digit",
           minute: "2-digit",
         }),
@@ -763,9 +767,12 @@ const EmployeeView = () => {
         <header className="bg-card border-b border-border">
           <div className="container mx-auto px-4 py-3 flex items-center justify-between">
             <img src={logo} alt="Kemika" className="h-10 object-contain" />
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <LanguageSwitcher variant="ghost" />
+              <Button variant="ghost" size="icon" onClick={signOut}>
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </header>
       </div>
@@ -788,11 +795,11 @@ const EmployeeView = () => {
               </Avatar>
               <div className="flex-1">
                 <CardTitle className="text-xl">
-                  Assalamualaikum,
+                  {t("employeeHome.greeting")}
                   <br />
                   {profile?.full_name || "User"}!
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">{profile?.jabatan || "Karyawan"}</p>
+                <p className="text-sm text-muted-foreground mt-1">{profile?.jabatan || t("employeeHome.defaultRole")}</p>
               </div>
             </div>
           </CardHeader>
@@ -810,7 +817,7 @@ const EmployeeView = () => {
                   {currentTime.getMinutes().toString().padStart(2, "0")}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentTime.toLocaleDateString("id-ID", {
+                  {currentTime.toLocaleDateString(dateLocaleStr, {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
@@ -823,11 +830,11 @@ const EmployeeView = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg">
                   <CheckCircle2 className="h-5 w-5 text-primary" />
                   <span className="text-sm font-medium text-primary">
-                    Admin tidak perlu melakukan absensi
+                    {t("employeeHome.adminNoAttendance")}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Akun admin dikecualikan dari sistem absensi harian
+                  {t("employeeHome.adminExcluded")}
                 </p>
               </div>
             </CardContent>
@@ -843,7 +850,7 @@ const EmployeeView = () => {
                   {currentTime.getMinutes().toString().padStart(2, "0")}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentTime.toLocaleDateString("id-ID", {
+                  {currentTime.toLocaleDateString(dateLocaleStr, {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
@@ -857,7 +864,7 @@ const EmployeeView = () => {
                 {gpsStatus === "loading" && (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    <span className="text-muted-foreground">Mendeteksi lokasi...</span>
+                    <span className="text-muted-foreground">{t("employeeHome.gpsDetecting")}</span>
                   </>
                 )}
                 {gpsStatus === "success" && nearestOffice && (
@@ -874,13 +881,13 @@ const EmployeeView = () => {
                 {gpsStatus === "error" && (
                   <>
                     <XCircle className="h-4 w-4 text-destructive" />
-                    <span className="text-destructive">Gagal mendeteksi lokasi</span>
+                    <span className="text-destructive">{t("employeeHome.gpsFailed")}</span>
                   </>
                 )}
                 {gpsStatus === "idle" && (
                   <>
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">GPS akan divalidasi</span>
+                    <span className="text-muted-foreground">{t("employeeHome.gpsWillValidate")}</span>
                   </>
                 )}
               </div>
@@ -890,12 +897,12 @@ const EmployeeView = () => {
                 <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-accent/50 border border-border">
                   <Clock className="h-4 w-4 text-primary shrink-0" />
                   <span className="text-xs text-muted-foreground">
-                    Jam kerja hari ini:{" "}
+                    {t("employeeHome.workHoursToday")}{" "}
                     <span className="font-semibold text-foreground">
                       {workHours.check_in_start || "08:00"} - {workHours.check_out_end || "17:00"}
                     </span>
                     <span className="ml-1 text-muted-foreground">
-                      (toleransi terlambat {workHours.late_tolerance_minutes || 0} menit)
+                      {t("employeeHome.lateTolerance", { minutes: workHours.late_tolerance_minutes || 0 })}
                     </span>
                   </span>
                 </div>
@@ -908,7 +915,7 @@ const EmployeeView = () => {
                     Check-in:{" "}
                     {todayAttendance?.check_in_time ? (
                       <span className="text-primary font-semibold">
-                        {new Date(todayAttendance.check_in_time).toLocaleTimeString("id-ID", {
+                        {new Date(todayAttendance.check_in_time).toLocaleTimeString(dateLocaleStr, {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
@@ -923,7 +930,7 @@ const EmployeeView = () => {
                     Check-out:{" "}
                     {todayAttendance?.check_out_time ? (
                       <span className="text-primary font-semibold">
-                        {new Date(todayAttendance.check_out_time).toLocaleTimeString("id-ID", {
+                        {new Date(todayAttendance.check_out_time).toLocaleTimeString(dateLocaleStr, {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
@@ -937,7 +944,7 @@ const EmployeeView = () => {
 
               {/* Action Button */}
               {todayAttendance?.check_out_time ? (
-                <div className="text-center py-3 text-muted-foreground">Absensi hari ini selesai</div>
+                <div className="text-center py-3 text-muted-foreground">{t("employeeHome.attendanceDone")}</div>
               ) : todayAttendance ? (
                 <Button
                   onClick={() => {
@@ -948,7 +955,7 @@ const EmployeeView = () => {
                   className="w-full h-10 font-semibold text-lg bg-primary hover:bg-primary/90"
                 >
                   <Camera className="h-5 w-5 mr-2" />
-                  {isProcessing ? "Memproses..." : "Check Out"}
+                  {isProcessing ? t("common.processing") : t("employeeHome.checkOutBtn")}
                 </Button>
               ) : (
                 <Button
@@ -960,7 +967,7 @@ const EmployeeView = () => {
                   className="w-full h-10 font-semibold bg-primary hover:bg-primary/90 text-base"
                 >
                   <Camera className="h-5 w-5 mr-2" />
-                  {isProcessing ? "Memproses..." : "Check In"}
+                  {isProcessing ? t("common.processing") : t("employeeHome.checkInBtn")}
                 </Button>
               )}
             </CardContent>

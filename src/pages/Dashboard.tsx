@@ -10,7 +10,9 @@ import PendingRequests from "@/components/dashboard/PendingRequests";
 import CompanyCalendar from "@/components/dashboard/CompanyCalendar";
 import { format, subDays, isWeekend, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import logger from "@/lib/logger";
 import { isAttendanceExempt } from "@/lib/employeeFilters";
 
@@ -43,6 +45,8 @@ const getSignedPhotoUrl = async (filePath: string | null): Promise<string | null
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage?.startsWith("en") ? enUS : id;
 
   const [stats, setStats] = useState({
     totalEmployees: 0,
@@ -120,8 +124,8 @@ const Dashboard = () => {
         );
 
         toast({
-          title: "Cuti Otomatis Diaktifkan",
-          description: `${activatedEmployees.length} karyawan baru memenuhi syarat cuti: ${names}`,
+          title: t("dashboard.toast.leaveActivatedTitle"),
+          description: t("dashboard.toast.leaveActivatedDesc", { count: activatedEmployees.length, names }),
         });
       }
     } catch (error) {
@@ -146,9 +150,9 @@ const Dashboard = () => {
         }
 
         toast({
-          title: "Update Absensi",
+          title: t("dashboard.toast.attendanceUpdate"),
           description:
-            payload.eventType === "INSERT" ? "Karyawan baru melakukan Check-In" : "Karyawan melakukan Check-Out",
+            payload.eventType === "INSERT" ? t("dashboard.toast.checkInDesc") : t("dashboard.toast.checkOutDesc"),
         });
 
         fetchDashboardData();
@@ -163,8 +167,8 @@ const Dashboard = () => {
         
         if (payload.eventType === "INSERT") {
           toast({
-            title: "Pengajuan Cuti Baru",
-            description: "Ada permintaan cuti baru masuk",
+            title: t("dashboard.toast.newLeave"),
+            description: t("dashboard.toast.newLeaveDesc"),
           });
         }
         
@@ -180,8 +184,8 @@ const Dashboard = () => {
         
         if (payload.eventType === "INSERT") {
           toast({
-            title: "Pengajuan Lembur Baru",
-            description: "Ada permintaan lembur baru masuk",
+            title: t("dashboard.toast.newOvertime"),
+            description: t("dashboard.toast.newOvertimeDesc"),
           });
         }
         
@@ -197,8 +201,8 @@ const Dashboard = () => {
         
         if (payload.eventType === "INSERT") {
           toast({
-            title: "Pengajuan Perjalanan Dinas Baru",
-            description: "Ada permintaan perjalanan dinas baru masuk",
+            title: t("dashboard.toast.newTravel"),
+            description: t("dashboard.toast.newTravelDesc"),
           });
         }
         
@@ -408,7 +412,7 @@ const Dashboard = () => {
     });
 
     const chartData = Object.entries(weeklyStats).map(([date, d]) => ({
-      day: format(new Date(date), "EEE dd/MM", { locale: id }),
+      day: format(new Date(date), "EEE dd/MM", { locale: dateLocale }),
       ...d,
       tidak_hadir: Math.max(0, (employeeCount || 0) - d.hadir - d.terlambat),
     }));
@@ -444,10 +448,10 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">Dashboard</h1>
-              <span className="text-xs font-medium bg-primary/10 text-primary px-2.5 py-1 rounded-full">Admin</span>
+              <h1 className="text-2xl font-bold">{t("dashboard.title")}</h1>
+              <span className="text-xs font-medium bg-primary/10 text-primary px-2.5 py-1 rounded-full">{t("common.admin")}</span>
             </div>
-            <p className="text-sm text-muted-foreground mt-0.5">{format(new Date(), "EEEE, d MMMM yyyy", { locale: id })}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{format(new Date(), "EEEE, d MMMM yyyy", { locale: dateLocale })}</p>
           </div>
         </div>
 

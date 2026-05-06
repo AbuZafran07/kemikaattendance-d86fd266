@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, UserCheck, UserX, Clock, Timer, CalendarOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface StatsCardsProps {
   stats: {
@@ -16,55 +17,59 @@ interface StatsCardsProps {
 }
 
 const StatsCards = ({ stats }: StatsCardsProps) => {
+  const { t } = useTranslation();
   const pendingTravel = stats.pendingTravel || 0;
   const totalPending = stats.pendingLeave + stats.pendingOvertime + pendingTravel;
-  
+  const pct = (n: number) => stats.totalEmployees > 0 ? Math.round((n / stats.totalEmployees) * 100) : 0;
+
   const statsData = [
     {
-      title: "Total Karyawan",
+      title: t("dashboard.stats.totalEmployees"),
       value: stats.totalEmployees.toString(),
       icon: Users,
-      description: "Karyawan aktif",
+      description: t("dashboard.stats.totalEmployeesDesc"),
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
     },
     {
-      title: "Hadir Hari Ini",
+      title: t("dashboard.stats.presentToday"),
       value: stats.presentToday.toString(),
       icon: UserCheck,
-      description: `${stats.totalEmployees > 0 ? Math.round((stats.presentToday / stats.totalEmployees) * 100) : 0}% kehadiran`,
+      description: t("dashboard.stats.presentTodayDesc", { percent: pct(stats.presentToday) }),
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
     },
     {
-      title: "Terlambat",
+      title: t("dashboard.stats.late"),
       value: stats.lateToday.toString(),
       icon: Clock,
-      description: `${stats.totalEmployees > 0 ? Math.round((stats.lateToday / stats.totalEmployees) * 100) : 0}% dari total`,
+      description: t("dashboard.stats.lateDesc", { percent: pct(stats.lateToday) }),
       iconBg: "bg-accent",
       iconColor: "text-accent-foreground",
     },
     {
-      title: "Pulang Cepat",
+      title: t("dashboard.stats.earlyLeave"),
       value: stats.earlyLeaveToday.toString(),
       icon: Timer,
-      description: "Hari ini",
+      description: t("dashboard.stats.earlyLeaveDesc"),
       iconBg: "bg-accent",
       iconColor: "text-accent-foreground",
     },
     {
-      title: "Tidak Hadir",
+      title: t("dashboard.stats.absent"),
       value: stats.absentToday.toString(),
       icon: UserX,
-      description: `${stats.totalEmployees > 0 ? Math.round((stats.absentToday / stats.totalEmployees) * 100) : 0}% dari total`,
+      description: t("dashboard.stats.lateDesc", { percent: pct(stats.absentToday) }),
       iconBg: "bg-destructive/10",
       iconColor: "text-destructive",
     },
     {
-      title: "Pending",
+      title: t("dashboard.stats.pending"),
       value: totalPending.toString(),
       icon: CalendarOff,
-      description: `${stats.pendingLeave} cuti, ${stats.pendingOvertime} lembur${pendingTravel > 0 ? `, ${pendingTravel} dinas` : ''}`,
+      description: pendingTravel > 0
+        ? t("dashboard.stats.pendingDescWithTravel", { leave: stats.pendingLeave, overtime: stats.pendingOvertime, travel: pendingTravel })
+        : t("dashboard.stats.pendingDesc", { leave: stats.pendingLeave, overtime: stats.pendingOvertime }),
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
     },

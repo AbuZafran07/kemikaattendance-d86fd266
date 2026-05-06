@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useTranslation } from "react-i18next";
 
 interface AttendanceChartProps {
   data: {
@@ -11,10 +12,11 @@ interface AttendanceChartProps {
 }
 
 const AttendanceChart = ({ data }: AttendanceChartProps) => {
+  const { t } = useTranslation();
   return (
     <Card className="lg:col-span-2">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">Tren Kehadiran Mingguan</CardTitle>
+        <CardTitle className="text-base font-semibold">{t("dashboard.charts.weeklyTrend")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[320px]">
@@ -47,9 +49,9 @@ const AttendanceChart = ({ data }: AttendanceChartProps) => {
                 iconSize={8}
                 wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
               />
-              <Bar dataKey="hadir" name="Hadir" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="terlambat" name="Terlambat" fill="#f59e0b" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="tidak_hadir" name="Tidak Hadir" fill="hsl(var(--destructive))" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="hadir" name={t("dashboard.charts.present")} fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="terlambat" name={t("dashboard.charts.late")} fill="#f59e0b" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="tidak_hadir" name={t("dashboard.charts.absent")} fill="hsl(var(--destructive))" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

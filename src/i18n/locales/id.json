@@ -14,7 +14,16 @@
     "password": "Password",
     "language": "Bahasa",
     "languageId": "Indonesia",
-    "languageEn": "English"
+    "languageEn": "English",
+    "logout": "Keluar",
+    "myProfile": "My Profile",
+    "admin": "Admin",
+    "employee": "Karyawan",
+    "processing": "Memproses...",
+    "view": "Lihat",
+    "days": "hari",
+    "hours": "jam",
+    "minutes": "menit"
   },
   "landing": {
     "tagline": "Spreading Solutions",
@@ -82,5 +91,164 @@
     "successTitle": "Password Berhasil Diubah",
     "successDesc": "Silakan login dengan password baru Anda",
     "failedTitle": "Gagal Mengubah Password"
+  },
+  "nav": {
+    "groups": {
+      "ringkasan": "RINGKASAN",
+      "manajemen": "MANAJEMEN",
+      "keuangan": "KEUANGAN",
+      "kpi": "KPI",
+      "laporan": "LAPORAN",
+      "sistem": "SISTEM"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "employees": "Karyawan",
+      "attendance": "Absensi",
+      "leave": "Cuti",
+      "overtime": "Lembur",
+      "businessTravel": "Perjalanan Dinas",
+      "payroll": "Payroll",
+      "payrollAnalytics": "Payroll Analytics",
+      "deduction": "Deduction",
+      "terManagement": "Tarif TER PPh21",
+      "buktiPotong": "Bukti Potong 1721-A1",
+      "pph21Report": "Laporan PPh 21",
+      "kpiManagement": "KPI Management",
+      "kpiRecap": "Daftar KPI Karyawan",
+      "reports": "Laporan",
+      "approvalAuditLog": "Audit Log Persetujuan",
+      "payrollAuditLog": "Audit Log Payroll",
+      "notifications": "Notifikasi",
+      "announcements": "Pengumuman",
+      "settings": "Pengaturan"
+    },
+    "employee": {
+      "home": "Beranda",
+      "kpi": "KPI",
+      "selfService": "Self Service",
+      "notifications": "Notifikasi",
+      "profile": "Profil"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": {
+      "totalEmployees": "Total Karyawan",
+      "totalEmployeesDesc": "Karyawan aktif",
+      "presentToday": "Hadir Hari Ini",
+      "presentTodayDesc": "{{percent}}% kehadiran",
+      "late": "Terlambat",
+      "lateDesc": "{{percent}}% dari total",
+      "earlyLeave": "Pulang Cepat",
+      "earlyLeaveDesc": "Hari ini",
+      "absent": "Tidak Hadir",
+      "pending": "Pending",
+      "pendingDesc": "{{leave}} cuti, {{overtime}} lembur",
+      "pendingDescWithTravel": "{{leave}} cuti, {{overtime}} lembur, {{travel}} dinas"
+    },
+    "charts": {
+      "weeklyTrend": "Tren Kehadiran Mingguan",
+      "deptAttendance": "Kehadiran per Departemen",
+      "present": "Hadir",
+      "late": "Terlambat",
+      "absent": "Tidak Hadir",
+      "presentTooltip": "{{value}} hadir"
+    },
+    "recent": {
+      "title": "Aktivitas Terbaru",
+      "description": "Status kehadiran karyawan hari ini",
+      "tabPresent": "Hadir ({{count}})",
+      "tabAbsent": "Tidak Masuk ({{count}})",
+      "noPresent": "Belum ada karyawan hadir hari ini",
+      "noAbsent": "Semua karyawan hadir hari ini",
+      "status": {
+        "onTime": "Tepat Waktu",
+        "late": "Terlambat",
+        "earlyLeave": "Pulang Cepat",
+        "absent": "Tidak Hadir"
+      },
+      "absence": {
+        "annualLeave": "Cuti Tahunan",
+        "leave": "Cuti",
+        "permit": "Izin",
+        "sick": "Sakit",
+        "noAttendance": "Tidak Absen",
+        "default": "Tidak Masuk"
+      }
+    },
+    "pending": {
+      "title": "Permintaan Pending",
+      "description": "Menunggu approval HRGA",
+      "tabLeave": "Cuti ({{count}})",
+      "tabOvertime": "Lembur ({{count}})",
+      "tabTravel": "Dinas ({{count}})",
+      "noLeave": "Tidak ada permintaan cuti pending",
+      "noOvertime": "Tidak ada permintaan lembur pending",
+      "noTravel": "Tidak ada permintaan perjalanan dinas pending",
+      "leaveType": {
+        "cuti_tahunan": "Cuti Tahunan",
+        "izin": "Izin",
+        "sakit": "Sakit",
+        "lupa_absen": "Lupa Absen"
+      }
+    },
+    "toast": {
+      "attendanceUpdate": "Update Absensi",
+      "checkInDesc": "Karyawan baru melakukan Check-In",
+      "checkOutDesc": "Karyawan melakukan Check-Out",
+      "newLeave": "Pengajuan Cuti Baru",
+      "newLeaveDesc": "Ada permintaan cuti baru masuk",
+      "newOvertime": "Pengajuan Lembur Baru",
+      "newOvertimeDesc": "Ada permintaan lembur baru masuk",
+      "newTravel": "Pengajuan Perjalanan Dinas Baru",
+      "newTravelDesc": "Ada permintaan perjalanan dinas baru masuk",
+      "leaveActivatedTitle": "Cuti Otomatis Diaktifkan",
+      "leaveActivatedDesc": "{{count}} karyawan baru memenuhi syarat cuti: {{names}}"
+    }
+  },
+  "employeeHome": {
+    "greeting": "Assalamualaikum,",
+    "defaultRole": "Karyawan",
+    "adminNoAttendance": "Admin tidak perlu melakukan absensi",
+    "adminExcluded": "Akun admin dikecualikan dari sistem absensi harian",
+    "gpsDetecting": "Mendeteksi lokasi...",
+    "gpsFailed": "Gagal mendeteksi lokasi",
+    "gpsWillValidate": "GPS akan divalidasi",
+    "workHoursToday": "Jam kerja hari ini:",
+    "lateTolerance": "(toleransi terlambat {{minutes}} menit)",
+    "checkIn": "Check-in:",
+    "checkOut": "Check-out:",
+    "checkInBtn": "Check In",
+    "checkOutBtn": "Check Out",
+    "attendanceDone": "Absensi hari ini selesai",
+    "stats": {
+      "leave": "Cuti",
+      "attendance": "Kehadiran",
+      "history": "Riwayat",
+      "performance": "Performa"
+    }
+  },
+  "selfService": {
+    "title": "Self Service",
+    "subtitle": "Kelola pengajuan dan layanan mandiri",
+    "items": {
+      "leaveTitle": "Ajukan Cuti",
+      "leaveDesc": "Buat pengajuan cuti tahunan, izin, atau sakit",
+      "travelTitle": "Ajukan Perjalanan Dinas",
+      "travelDesc": "Buat pengajuan perjalanan dinas luar",
+      "overtimeTitle": "Ajukan Lembur",
+      "overtimeDesc": "Buat pengajuan jam lembur",
+      "historyTitle": "Riwayat Pengajuan",
+      "historyDesc": "Lihat riwayat cuti, lembur, dan perjalanan dinas",
+      "attendanceTitle": "Riwayat Absensi",
+      "attendanceDesc": "Lihat riwayat absensi Anda",
+      "performanceTitle": "Performa Saya",
+      "performanceDesc": "Lihat statistik kehadiran dan performa",
+      "payslipTitle": "Slip Gaji",
+      "payslipDesc": "Lihat riwayat slip gaji bulanan Anda",
+      "loanTitle": "Pinjaman Saya",
+      "loanDesc": "Lihat daftar pinjaman dan progress cicilan"
+    }
   }
 }

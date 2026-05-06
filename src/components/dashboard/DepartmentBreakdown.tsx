@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useTranslation } from "react-i18next";
 
 interface DepartmentBreakdownProps {
   data: {
@@ -12,10 +13,11 @@ interface DepartmentBreakdownProps {
 const COLORS = ['hsl(var(--primary))', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444', '#06b6d4'];
 
 const DepartmentBreakdown = ({ data }: DepartmentBreakdownProps) => {
+  const { t } = useTranslation();
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">Kehadiran per Departemen</CardTitle>
+        <CardTitle className="text-base font-semibold">{t("dashboard.charts.deptAttendance")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[200px]">
@@ -42,7 +44,7 @@ const DepartmentBreakdown = ({ data }: DepartmentBreakdownProps) => {
                   borderRadius: '8px',
                   fontSize: '12px'
                 }}
-                formatter={(value: number, name: string) => [`${value} hadir`, name]}
+                formatter={(value: number, name: string) => [t("dashboard.charts.presentTooltip", { value }), name]}
               />
             </PieChart>
           </ResponsiveContainer>

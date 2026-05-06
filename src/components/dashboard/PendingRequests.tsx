@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Clock, Plane, MapPin } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "react-i18next";
 
 interface LeaveRequest {
   id: string;
@@ -43,33 +44,30 @@ interface PendingRequestsProps {
 }
 
 const PendingRequests = ({ leaveRequests, overtimeRequests, businessTravelRequests = [] }: PendingRequestsProps) => {
+  const { t } = useTranslation();
   const formatLeaveType = (type: string) => {
-    const types: Record<string, string> = {
-      cuti_tahunan: "Cuti Tahunan",
-      izin: "Izin",
-      sakit: "Sakit",
-      lupa_absen: "Lupa Absen",
-    };
-    return types[type] || type;
+    const key = `dashboard.pending.leaveType.${type}`;
+    const translated = t(key);
+    return translated === key ? type : translated;
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Permintaan Pending</CardTitle>
-        <CardDescription>Menunggu approval HRGA</CardDescription>
+        <CardTitle>{t("dashboard.pending.title")}</CardTitle>
+        <CardDescription>{t("dashboard.pending.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="leave" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="leave" className="text-xs">
-              Cuti ({leaveRequests.length})
+              {t("dashboard.pending.tabLeave", { count: leaveRequests.length })}
             </TabsTrigger>
             <TabsTrigger value="overtime" className="text-xs">
-              Lembur ({overtimeRequests.length})
+              {t("dashboard.pending.tabOvertime", { count: overtimeRequests.length })}
             </TabsTrigger>
             <TabsTrigger value="travel" className="text-xs">
-              Dinas ({businessTravelRequests.length})
+              {t("dashboard.pending.tabTravel", { count: businessTravelRequests.length })}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="leave" className="mt-4">
