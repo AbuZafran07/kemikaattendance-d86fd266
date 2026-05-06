@@ -1,6 +1,8 @@
 import { ReactNode, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { 
   LayoutDashboard, 
   Users, 
