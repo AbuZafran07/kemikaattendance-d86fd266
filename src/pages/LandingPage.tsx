@@ -96,13 +96,16 @@ const LandingPage = () => {
             <div className="flex items-center gap-3">
               <img src={logo} alt="Kemika Logo" className="h-10 object-contain" />
               <div>
-                <p className="text-sm font-bold leading-tight text-foreground">PT KEMIKA KARYA PRATAMA</p>
-                <p className="text-xs text-muted-foreground">Spreading Solutions</p>
+                <p className="text-sm font-bold leading-tight text-foreground">{t("common.appName")}</p>
+                <p className="text-xs text-muted-foreground">{t("landing.tagline")}</p>
               </div>
             </div>
-            <Button onClick={() => navigate("/login")} size="sm" className="gap-2">
-              <LogIn className="h-4 w-4" /> Masuk
-            </Button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher variant="ghost" />
+              <Button onClick={() => navigate("/login")} size="sm" className="gap-2">
+                <LogIn className="h-4 w-4" /> {t("landing.loginButton")}
+              </Button>
+            </div>
           </div>
         </header>
       </div>
@@ -116,17 +119,17 @@ const LandingPage = () => {
         <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
           <div className="text-center max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl tracking-tight animate-[fadeInUp_0.8s_ease-out_0.2s_both]">
-              PT KEMIKA KARYA PRATAMA
+              {t("landing.heroTitle")}
             </h1>
             <p className="mt-1 text-lg font-medium text-muted-foreground sm:text-xl animate-[fadeInUp_0.8s_ease-out_0.4s_both]">
-              Attendance & HR Management System
+              {t("landing.heroSubtitle")}
             </p>
             <p className="mt-3 text-muted-foreground text-base sm:text-lg max-w-lg mx-auto animate-[fadeInUp_0.8s_ease-out_0.6s_both]">
-              Kelola absensi, cuti, lembur, dan payroll Anda dalam satu platform terpadu.
+              {t("landing.heroDescription")}
             </p>
             <div className="mt-6 animate-[fadeInUp_0.8s_ease-out_0.8s_both]">
               <Button size="lg" onClick={() => navigate("/login")} className="gap-2 px-8">
-                <LogIn className="h-4 w-4" /> Masuk ke Sistem
+                <LogIn className="h-4 w-4" /> {t("landing.loginToSystem")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
@@ -141,7 +144,7 @@ const LandingPage = () => {
           <section className="mb-10">
             <div className="flex items-center gap-2 mb-5">
               <div className="h-1 w-1 rounded-full bg-primary" />
-              <h2 className="text-lg font-semibold text-foreground">Akses Cepat</h2>
+              <h2 className="text-lg font-semibold text-foreground">{t("landing.quickAccess")}</h2>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 sm:gap-4">
               {quickLinks.map((item) => (
@@ -166,12 +169,12 @@ const LandingPage = () => {
           <section>
             <div className="flex items-center gap-2 mb-5">
               <Megaphone className="h-4 w-4 text-primary" />
-              <h2 className="text-lg font-semibold text-foreground">Pengumuman & Informasi</h2>
+              <h2 className="text-lg font-semibold text-foreground">{t("landing.announcements")}</h2>
             </div>
             {announcements.length === 0 ? (
               <Card className="border-border/60">
                 <CardContent className="p-6 text-center text-muted-foreground text-sm">
-                  Tidak ada pengumuman saat ini.
+                  {t("landing.noAnnouncements")}
                 </CardContent>
               </Card>
             ) : (
@@ -203,7 +206,7 @@ const LandingPage = () => {
       <footer className="border-t border-border/50 bg-card/50 py-5">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 text-center space-y-1">
           <p className="text-xs text-muted-foreground font-medium">PT Kemika Karya Pratama</p>
-          <p className="text-[11px] text-muted-foreground/70">© {new Date().getFullYear()} — App Version {APP_VERSION}</p>
+          <p className="text-[11px] text-muted-foreground/70">© {new Date().getFullYear()} — {t("common.appVersion")} {APP_VERSION}</p>
         </div>
       </footer>
 
