@@ -269,6 +269,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <span className="text-white font-semibold text-sm">KEMIKA</span>
         </div>
         <div className="flex items-center gap-2">
+          <LanguageSwitcher variant="ghost" className="text-white hover:bg-white/10" />
           <div className="relative">
             <NotificationDropdown pendingCount={pendingCount} />
           </div>
