@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,6 +85,8 @@ interface BusinessTravelNotification {
 }
 
 const Notifications = () => {
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
   const [attendanceNotifications, setAttendanceNotifications] = useState<AttendanceNotification[]>([]);
   const [leaveNotifications, setLeaveNotifications] = useState<RequestNotification[]>([]);
   const [overtimeNotifications, setOvertimeNotifications] = useState<RequestNotification[]>([]);
@@ -322,13 +325,13 @@ const Notifications = () => {
 
           if (payload.eventType === "INSERT") {
             toast({
-              title: "Check-In Baru",
-              description: "Seorang karyawan baru saja check-in",
+              title: t("notifPage.toast.checkInTitle"),
+              description: t("notifPage.toast.checkInDesc"),
             });
           } else if (payload.eventType === "UPDATE" && payload.new.check_out_time) {
             toast({
-              title: "Check-Out Baru",
-              description: "Seorang karyawan baru saja check-out",
+              title: t("notifPage.toast.checkOutTitle"),
+              description: t("notifPage.toast.checkOutDesc"),
             });
           }
         },
@@ -351,8 +354,8 @@ const Notifications = () => {
 
           if (payload.eventType === "INSERT") {
             toast({
-              title: "Pengajuan Cuti Baru",
-              description: "Ada pengajuan cuti yang memerlukan persetujuan",
+              title: t("notifPage.toast.newLeave"),
+              description: t("notifPage.toast.newLeaveDesc"),
             });
           }
         },
@@ -375,8 +378,8 @@ const Notifications = () => {
 
           if (payload.eventType === "INSERT") {
             toast({
-              title: "Pengajuan Lembur Baru",
-              description: "Ada pengajuan lembur yang memerlukan persetujuan",
+              title: t("notifPage.toast.newOvertime"),
+              description: t("notifPage.toast.newOvertimeDesc"),
             });
           }
         },
@@ -399,8 +402,8 @@ const Notifications = () => {
 
           if (payload.eventType === "INSERT") {
             toast({
-              title: "Pengajuan Perjalanan Dinas Baru",
-              description: "Ada pengajuan perjalanan dinas yang memerlukan persetujuan",
+              title: t("notifPage.toast.newTravel"),
+              description: t("notifPage.toast.newTravelDesc"),
             });
           }
         },
@@ -416,14 +419,14 @@ const Notifications = () => {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("id-ID", {
+    return new Date(dateString).toLocaleTimeString(dateLocaleStr, {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
+    return new Date(dateString).toLocaleDateString(dateLocaleStr, {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -433,13 +436,13 @@ const Notifications = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "hadir":
-        return <Badge className="bg-primary">Hadir</Badge>;
+        return <Badge className="bg-primary">{t("common.present")}</Badge>;
       case "terlambat":
-        return <Badge variant="destructive">Terlambat</Badge>;
+        return <Badge variant="destructive">{t("common.late")}</Badge>;
       case "pulang_cepat":
-        return <Badge variant="destructive">Pulang Cepat</Badge>;
+        return <Badge variant="destructive">{t("common.earlyLeave")}</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("common.pending")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -450,10 +453,10 @@ const Notifications = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Pusat Notifikasi</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("notifPage.title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Aktivitas real-time hari ini -{" "}
-              {new Date().toLocaleDateString("id-ID", {
+              {t("notifPage.subtitle")}{" "}
+              {new Date().toLocaleDateString(dateLocaleStr, {
                 weekday: "long",
                 day: "numeric",
                 month: "long",
@@ -469,7 +472,7 @@ const Notifications = () => {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Aktivitas Absensi</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("notifPage.stats.attendance")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -484,7 +487,7 @@ const Notifications = () => {
             onClick={() => navigate("/dashboard/leave")}
           >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Cuti Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("notifPage.stats.leavePending")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -499,7 +502,7 @@ const Notifications = () => {
             onClick={() => navigate("/dashboard/overtime")}
           >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Lembur Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("notifPage.stats.overtimePending")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -514,7 +517,7 @@ const Notifications = () => {
             onClick={() => navigate("/dashboard/business-travel")}
           >
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Perjalanan Dinas Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("notifPage.stats.travelPending")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -527,18 +530,18 @@ const Notifications = () => {
 
         <Tabs defaultValue="attendance" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="attendance">Aktivitas Absensi ({attendanceNotifications.length})</TabsTrigger>
-            <TabsTrigger value="leave">Cuti Pending ({leaveNotifications.length})</TabsTrigger>
-            <TabsTrigger value="overtime">Lembur Pending ({overtimeNotifications.length})</TabsTrigger>
-            <TabsTrigger value="travel">Perjalanan Dinas ({businessTravelNotifications.length})</TabsTrigger>
+            <TabsTrigger value="attendance">{t("notifPage.tabs.attendance")} ({attendanceNotifications.length})</TabsTrigger>
+            <TabsTrigger value="leave">{t("notifPage.tabs.leave")} ({leaveNotifications.length})</TabsTrigger>
+            <TabsTrigger value="overtime">{t("notifPage.tabs.overtime")} ({overtimeNotifications.length})</TabsTrigger>
+            <TabsTrigger value="travel">{t("notifPage.tabs.travel")} ({businessTravelNotifications.length})</TabsTrigger>
           </TabsList>
 
           {/* ✅ TAB AKTIVITAS ABSENSI – SUDAH ADA TANGGAL */}
           <TabsContent value="attendance" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Aktivitas Absensi</CardTitle>
-                <CardDescription>Check-in dan check-out karyawan</CardDescription>
+                <CardTitle>{t("notifPage.stats.attendance")}</CardTitle>
+                <CardDescription>{t("notifPage.card.attendanceDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 max-h-[calc(100vh-400px)] overflow-auto">
@@ -584,7 +587,7 @@ const Notifications = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">Belum ada aktivitas absensi hari ini</div>
+                    <div className="text-center py-8 text-muted-foreground">{t("notifPage.empty.attendance")}</div>
                   )}
                 </div>
                 <DataTablePagination
@@ -601,8 +604,8 @@ const Notifications = () => {
           <TabsContent value="leave" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Pengajuan Cuti Menunggu Persetujuan</CardTitle>
-                <CardDescription>Tinjau dan setujui pengajuan cuti karyawan</CardDescription>
+                <CardTitle>{t("notifPage.card.leaveTitle")}</CardTitle>
+                <CardDescription>{t("notifPage.card.leaveDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 max-h-[calc(100vh-400px)] overflow-auto">
@@ -631,7 +634,7 @@ const Notifications = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">Tidak ada pengajuan cuti yang pending</div>
+                    <div className="text-center py-8 text-muted-foreground">{t("notifPage.empty.leave")}</div>
                   )}
                 </div>
                 <DataTablePagination
@@ -648,8 +651,8 @@ const Notifications = () => {
           <TabsContent value="overtime" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Pengajuan Lembur Menunggu Persetujuan</CardTitle>
-                <CardDescription>Tinjau dan setujui pengajuan lembur karyawan</CardDescription>
+                <CardTitle>{t("notifPage.card.overtimeTitle")}</CardTitle>
+                <CardDescription>{t("notifPage.card.overtimeDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 max-h-[calc(100vh-400px)] overflow-auto">
@@ -679,7 +682,7 @@ const Notifications = () => {
                     ))
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      Tidak ada pengajuan lembur yang pending
+                      {t("notifPage.empty.overtime")}
                     </div>
                   )}
                 </div>
@@ -697,8 +700,8 @@ const Notifications = () => {
           <TabsContent value="travel" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Pengajuan Perjalanan Dinas Menunggu Persetujuan</CardTitle>
-                <CardDescription>Tinjau dan setujui pengajuan perjalanan dinas karyawan</CardDescription>
+                <CardTitle>{t("notifPage.card.travelTitle")}</CardTitle>
+                <CardDescription>{t("notifPage.card.travelDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 max-h-[calc(100vh-400px)] overflow-auto">
@@ -726,24 +729,24 @@ const Notifications = () => {
                         </div>
                         <div className="text-right space-y-1">
                           <p className="text-sm text-muted-foreground">
-                            {new Date(notification.start_date).toLocaleDateString("id-ID", {
+                            {new Date(notification.start_date).toLocaleDateString(dateLocaleStr, {
                               day: "numeric",
                               month: "short",
                             })}{" "}
                             -{" "}
-                            {new Date(notification.end_date).toLocaleDateString("id-ID", {
+                            {new Date(notification.end_date).toLocaleDateString(dateLocaleStr, {
                               day: "numeric",
                               month: "short",
                             })}
                           </p>
-                          <Badge variant="secondary">{notification.total_days} hari</Badge>
+                          <Badge variant="secondary">{notification.total_days} {t("common.days")}</Badge>
                           {getStatusBadge(notification.status)}
                         </div>
                       </div>
                     ))
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      Tidak ada pengajuan perjalanan dinas yang pending
+                      {t("notifPage.empty.travel")}
                     </div>
                   )}
                 </div>
