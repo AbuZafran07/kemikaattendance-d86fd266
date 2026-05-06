@@ -19,11 +19,13 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-f
 import logo from "@/assets/logo.png";
 import { EmployeeBottomNav } from "@/components/EmployeeBottomNav";
 import { notifyAdmins, NotificationTemplates, formatDateForNotification } from "@/lib/notifications";
+import { useTranslation } from "react-i18next";
 
 const OvertimeRequest = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { policy, isLoading: isPolicyLoading } = useOvertimePolicy();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingHours, setExistingHours] = useState({ week: 0, month: 0 });
@@ -43,7 +45,6 @@ const OvertimeRequest = () => {
   const endTime = form.watch("endTime");
   const overtimeDate = form.watch("overtimeDate");
 
-  // Fetch existing overtime hours for validation
   useEffect(() => {
     const fetchExistingHours = async () => {
       if (!profile?.id || !overtimeDate) return;
@@ -55,7 +56,6 @@ const OvertimeRequest = () => {
       const monthEnd = format(endOfMonth(selectedDate), "yyyy-MM-dd");
 
       try {
-        // Get weekly hours
         const { data: weekData } = await supabase
           .from("overtime_requests")
           .select("hours")
@@ -64,7 +64,6 @@ const OvertimeRequest = () => {
           .gte("overtime_date", weekStart)
           .lte("overtime_date", weekEnd);
 
-        // Get monthly hours
         const { data: monthData } = await supabase
           .from("overtime_requests")
           .select("hours")
@@ -87,135 +86,67 @@ const OvertimeRequest = () => {
 
   const totalHours = useMemo(() => {
     if (!startTime || !endTime) return 0;
-
     const [startHour, startMinute] = startTime.split(":").map(Number);
     const [endHour, endMinute] = endTime.split(":").map(Number);
-
     const startTotalMinutes = startHour * 60 + startMinute;
     const endTotalMinutes = endHour * 60 + endMinute;
-
     let diffMinutes = endTotalMinutes - startTotalMinutes;
-
-    if (diffMinutes < 0) {
-      diffMinutes += 24 * 60;
-    }
-
+    if (diffMinutes < 0) diffMinutes += 24 * 60;
     return Math.round((diffMinutes / 60) * 10) / 10;
   }, [startTime, endTime]);
 
-  // Validate based on policy settings
   useEffect(() => {
     const errors: string[] = [];
+    if (!overtimeDate || totalHours <= 0) { setValidationErrors([]); return; }
 
-    if (!overtimeDate || totalHours <= 0) {
-      setValidationErrors([]);
-      return;
-    }
-
-    // Check minimum hours
-    if (totalHours < policy.min_hours) {
-      errors.push(`Minimal lembur adalah ${policy.min_hours} jam`);
-    }
-
-    // Check maximum hours per day
-    if (totalHours > policy.max_hours_per_day) {
-      errors.push(`Maksimal lembur per hari adalah ${policy.max_hours_per_day} jam`);
-    }
-
-    // Check weekly limit
+    if (totalHours < policy.min_hours) errors.push(t("overtimeRequest.errMin", { n: policy.min_hours }));
+    if (totalHours > policy.max_hours_per_day) errors.push(t("overtimeRequest.errMaxDay", { n: policy.max_hours_per_day }));
     if (existingHours.week + totalHours > policy.max_hours_per_week) {
-      errors.push(
-        `Melebihi batas lembur mingguan (${policy.max_hours_per_week} jam). Sisa kuota: ${Math.max(0, policy.max_hours_per_week - existingHours.week)} jam`
-      );
+      errors.push(t("overtimeRequest.errWeek", { max: policy.max_hours_per_week, left: Math.max(0, policy.max_hours_per_week - existingHours.week) }));
     }
-
-    // Check monthly limit
     if (existingHours.month + totalHours > policy.max_hours_per_month) {
-      errors.push(
-        `Melebihi batas lembur bulanan (${policy.max_hours_per_month} jam). Sisa kuota: ${Math.max(0, policy.max_hours_per_month - existingHours.month)} jam`
-      );
+      errors.push(t("overtimeRequest.errMonth", { max: policy.max_hours_per_month, left: Math.max(0, policy.max_hours_per_month - existingHours.month) }));
     }
-
-    // Check advance request days
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
     const selectedDate = new Date(overtimeDate);
     const daysDiff = Math.floor((selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysDiff < policy.min_days_advance_request) {
-      errors.push(`Pengajuan lembur harus minimal ${policy.min_days_advance_request} hari sebelumnya`);
-    }
-
-    // Check weekend restriction
-    if (isWeekend(overtimeDate) && !policy.allow_weekend_overtime) {
-      errors.push("Lembur di hari weekend tidak diperbolehkan");
-    }
-
-    // Check holiday restriction
-    if (isHoliday(overtimeDate, policy.holidays) && !policy.allow_holiday_overtime) {
-      errors.push("Lembur di hari libur nasional tidak diperbolehkan");
-    }
+    if (daysDiff < policy.min_days_advance_request) errors.push(t("overtimeRequest.errAdvance", { n: policy.min_days_advance_request }));
+    if (isWeekend(overtimeDate) && !policy.allow_weekend_overtime) errors.push(t("overtimeRequest.errWeekend"));
+    if (isHoliday(overtimeDate, policy.holidays) && !policy.allow_holiday_overtime) errors.push(t("overtimeRequest.errHoliday"));
 
     setValidationErrors(errors);
-  }, [overtimeDate, totalHours, policy, existingHours]);
+  }, [overtimeDate, totalHours, policy, existingHours, t]);
 
   const onSubmit = async (data: OvertimeRequestFormData) => {
     if (totalHours <= 0) {
-      toast({
-        title: "Jam tidak valid",
-        description: "Jam selesai harus lebih besar dari jam mulai.",
-        variant: "destructive",
-      });
+      toast({ title: t("overtimeRequest.invalidHoursTitle"), description: t("overtimeRequest.invalidHoursDesc"), variant: "destructive" });
       return;
     }
-
     if (validationErrors.length > 0) {
-      toast({
-        title: "Validasi Gagal",
-        description: validationErrors[0],
-        variant: "destructive",
-      });
+      toast({ title: t("overtimeRequest.validationFail"), description: validationErrors[0], variant: "destructive" });
       return;
     }
-
     setIsSubmitting(true);
-
     try {
-      const { error } = await supabase.from("overtime_requests").insert([
-        {
-          user_id: profile?.id,
-          overtime_date: data.overtimeDate,
-          hours: totalHours,
-          reason: data.reason,
-          status: "pending",
-          created_at: new Date().toISOString(),
-        },
-      ]);
-
+      const { error } = await supabase.from("overtime_requests").insert([{
+        user_id: profile?.id,
+        overtime_date: data.overtimeDate,
+        hours: totalHours,
+        reason: data.reason,
+        status: "pending",
+        created_at: new Date().toISOString(),
+      }]);
       if (error) throw error;
 
-      // Send notification to admins
       const formattedDate = formatDateForNotification(data.overtimeDate);
-      const notification = NotificationTemplates.overtimeRequestSubmitted(
-        profile?.full_name || 'Karyawan',
-        totalHours,
-        formattedDate
-      );
+      const notification = NotificationTemplates.overtimeRequestSubmitted(profile?.full_name || 'Karyawan', totalHours, formattedDate);
       notifyAdmins(notification.title, notification.body, { type: 'overtime_request' });
 
-      toast({
-        title: "Berhasil",
-        description: "Pengajuan lembur berhasil dikirim dan menunggu persetujuan HRGA.",
-      });
-
+      toast({ title: t("overtimeRequest.successTitle"), description: t("overtimeRequest.successDesc") });
       navigate("/employee");
     } catch (error: any) {
       console.error("Error submitting overtime:", error);
-      toast({
-        title: "Gagal mengirim pengajuan",
-        description: error.message || "Terjadi kesalahan saat mengirim data.",
-        variant: "destructive",
-      });
+      toast({ title: t("overtimeRequest.failTitle"), description: error.message || "", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -223,27 +154,24 @@ const OvertimeRequest = () => {
 
   const getDateTypeLabel = () => {
     if (!overtimeDate) return null;
-    
     if (isHoliday(overtimeDate, policy.holidays)) {
       const holiday = policy.holidays.find(h => h.date === overtimeDate);
       return (
         <span className="text-orange-600 dark:text-orange-400">
-          Hari Libur: {holiday?.name} (Multiplier: {policy.holiday_rate_multiplier}x)
+          {t("overtimeRequest.holidayLabel", { name: holiday?.name, x: policy.holiday_rate_multiplier })}
         </span>
       );
     }
-    
     if (isWeekend(overtimeDate)) {
       return (
         <span className="text-blue-600 dark:text-blue-400">
-          Weekend (Multiplier: {policy.weekend_rate_multiplier}x)
+          {t("overtimeRequest.weekendLabel", { x: policy.weekend_rate_multiplier })}
         </span>
       );
     }
-    
     return (
       <span className="text-muted-foreground">
-        Hari Kerja (Multiplier: {policy.weekday_rate_multiplier}x)
+        {t("overtimeRequest.weekdayLabel", { x: policy.weekday_rate_multiplier })}
       </span>
     );
   };
@@ -264,20 +192,19 @@ const OvertimeRequest = () => {
       <div className="container mx-auto px-4 py-6 max-w-lg">
         <Card>
           <CardHeader>
-            <CardTitle>Ajukan Lembur</CardTitle>
-            <CardDescription>Isi formulir pengajuan lembur</CardDescription>
+            <CardTitle>{t("overtimeRequest.title")}</CardTitle>
+            <CardDescription>{t("overtimeRequest.subtitle")}</CardDescription>
           </CardHeader>
 
           <CardContent>
             {isPolicyLoading ? (
-              <p className="text-muted-foreground">Memuat kebijakan...</p>
+              <p className="text-muted-foreground">{t("overtimeRequest.loadingPolicy")}</p>
             ) : (
               <>
-                {/* Policy Info */}
                 <Alert className="mb-4">
                   <Info className="h-4 w-4" />
                   <AlertDescription className="text-xs">
-                    Batas lembur: Maks. {policy.max_hours_per_day} jam/hari, {policy.max_hours_per_week} jam/minggu, {policy.max_hours_per_month} jam/bulan
+                    {t("overtimeRequest.limitInfo", { day: policy.max_hours_per_day, week: policy.max_hours_per_week, month: policy.max_hours_per_month })}
                   </AlertDescription>
                 </Alert>
 
@@ -288,7 +215,7 @@ const OvertimeRequest = () => {
                       name="overtimeDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Tanggal Lembur</FormLabel>
+                          <FormLabel>{t("overtimeRequest.overtimeDate")}</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
@@ -306,7 +233,7 @@ const OvertimeRequest = () => {
                         name="startTime"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Jam Mulai</FormLabel>
+                            <FormLabel>{t("overtimeRequest.startTime")}</FormLabel>
                             <FormControl>
                               <Input type="time" {...field} />
                             </FormControl>
@@ -320,7 +247,7 @@ const OvertimeRequest = () => {
                         name="endTime"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Jam Selesai</FormLabel>
+                            <FormLabel>{t("overtimeRequest.endTime")}</FormLabel>
                             <FormControl>
                               <Input type="time" {...field} />
                             </FormControl>
@@ -331,15 +258,14 @@ const OvertimeRequest = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Jumlah Jam</Label>
+                      <Label>{t("overtimeRequest.totalHours")}</Label>
                       <div className="flex items-center h-10 px-3 py-2 rounded-md border border-input bg-muted">
                         <span className="text-sm text-muted-foreground">
-                          {totalHours > 0 ? `${totalHours} jam` : "Isi jam mulai dan selesai"}
+                          {totalHours > 0 ? t("overtimeRequest.hoursValue", { n: totalHours }) : t("overtimeRequest.fillTimes")}
                         </span>
                       </div>
                     </div>
 
-                    {/* Validation Errors */}
                     {validationErrors.length > 0 && (
                       <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
@@ -358,10 +284,10 @@ const OvertimeRequest = () => {
                       name="reason"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Alasan / Deskripsi Pekerjaan</FormLabel>
+                          <FormLabel>{t("overtimeRequest.reason")}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Jelaskan pekerjaan yang akan dilakukan saat lembur..."
+                              placeholder={t("overtimeRequest.reasonPlaceholder")}
                               rows={4}
                               {...field}
                             />
@@ -376,7 +302,7 @@ const OvertimeRequest = () => {
                       className="w-full"
                       disabled={isSubmitting || totalHours <= 0 || validationErrors.length > 0}
                     >
-                      {isSubmitting ? "Mengirim..." : "Kirim Pengajuan"}
+                      {isSubmitting ? t("overtimeRequest.submitting") : t("overtimeRequest.submit")}
                     </Button>
                   </form>
                 </Form>

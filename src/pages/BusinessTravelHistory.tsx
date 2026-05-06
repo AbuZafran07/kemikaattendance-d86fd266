@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { id as idLocale, enUS } from "date-fns/locale";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { EditBusinessTravelDialog } from "@/components/EditBusinessTravelDialog";
+import { useTranslation } from "react-i18next";
 
 interface BusinessTravelRequest {
   id: string;
@@ -44,6 +45,8 @@ type StatusFilter = "all" | "pending" | "approved" | "rejected";
 const BusinessTravelHistory = () => {
   const navigate = useNavigate();
   const { signOut, profile } = useAuth();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage?.startsWith("en") ? enUS : idLocale;
   const [requests, setRequests] = useState<BusinessTravelRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -52,9 +55,7 @@ const BusinessTravelHistory = () => {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (profile?.id) {
-      fetchRequests();
-    }
+    if (profile?.id) fetchRequests();
   }, [profile?.id]);
 
   const fetchRequests = async () => {
@@ -82,14 +83,12 @@ const BusinessTravelHistory = () => {
         .from("business_travel_requests")
         .delete()
         .eq("id", id);
-
       if (error) throw error;
-
       setRequests((prev) => prev.filter((r) => r.id !== id));
-      toast.success("Pengajuan perjalanan dinas berhasil dibatalkan");
+      toast.success(t("travelHistory.cancelOk"));
     } catch (error) {
       console.error("Error cancelling request:", error);
-      toast.error("Gagal membatalkan pengajuan");
+      toast.error(t("travelHistory.cancelFail"));
     } finally {
       setCancellingId(null);
     }
@@ -97,14 +96,13 @@ const BusinessTravelHistory = () => {
 
   const handleDownloadDocument = async (request: BusinessTravelRequest) => {
     if (!request.document_url) {
-      toast.error("Dokumen belum tersedia");
+      toast.error(t("travelHistory.docNotAvailable"));
       return;
     }
 
     setDownloadingId(request.id);
     try {
-      // Extract the path from the URL
-      const path = request.document_url.includes('business-travel-docs/') 
+      const path = request.document_url.includes('business-travel-docs/')
         ? request.document_url.split('business-travel-docs/')[1]
         : request.document_url;
 
@@ -114,7 +112,6 @@ const BusinessTravelHistory = () => {
 
       if (error) throw error;
 
-      // Create download link
       const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
@@ -124,10 +121,10 @@ const BusinessTravelHistory = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success("Dokumen berhasil diunduh");
+      toast.success(t("travelHistory.docSuccess"));
     } catch (error) {
       console.error("Error downloading document:", error);
-      toast.error("Gagal mengunduh dokumen");
+      toast.error(t("travelHistory.docFail"));
     } finally {
       setDownloadingId(null);
     }
@@ -136,11 +133,11 @@ const BusinessTravelHistory = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">Disetujui</Badge>;
+        return <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">{t("travelHistory.approved")}</Badge>;
       case "rejected":
-        return <Badge variant="destructive">Ditolak</Badge>;
+        return <Badge variant="destructive">{t("travelHistory.rejected")}</Badge>;
       default:
-        return <Badge variant="secondary">Menunggu</Badge>;
+        return <Badge variant="secondary">{t("travelHistory.pending")}</Badge>;
     }
   };
 
@@ -153,7 +150,6 @@ const BusinessTravelHistory = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/10 pb-24">
-      {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -171,31 +167,30 @@ const BusinessTravelHistory = () => {
       <div className="container mx-auto px-4 py-6 max-w-lg space-y-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Riwayat Perjalanan Dinas</h1>
-            <p className="text-muted-foreground">Riwayat pengajuan perjalanan dinas luar</p>
+            <h1 className="text-2xl font-bold">{t("travelHistory.title")}</h1>
+            <p className="text-muted-foreground">{t("travelHistory.subtitle")}</p>
           </div>
         </div>
 
-        {/* Status Filter */}
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Filter Status" />
+            <SelectValue placeholder={t("travelHistory.filterStatus")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Semua Status</SelectItem>
-            <SelectItem value="pending">Menunggu</SelectItem>
-            <SelectItem value="approved">Disetujui</SelectItem>
-            <SelectItem value="rejected">Ditolak</SelectItem>
+            <SelectItem value="all">{t("travelHistory.allStatus")}</SelectItem>
+            <SelectItem value="pending">{t("travelHistory.pending")}</SelectItem>
+            <SelectItem value="approved">{t("travelHistory.approved")}</SelectItem>
+            <SelectItem value="rejected">{t("travelHistory.rejected")}</SelectItem>
           </SelectContent>
         </Select>
 
         <div className="space-y-3">
           {loading ? (
-            <div className="text-center py-8 text-muted-foreground">Memuat...</div>
+            <div className="text-center py-8 text-muted-foreground">{t("travelHistory.loading")}</div>
           ) : filteredRequests.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                {statusFilter === "all" ? "Belum ada pengajuan perjalanan dinas" : "Tidak ada pengajuan dengan status ini"}
+                {statusFilter === "all" ? t("travelHistory.empty") : t("travelHistory.emptyFiltered")}
               </CardContent>
             </Card>
           ) : (
@@ -209,9 +204,9 @@ const BusinessTravelHistory = () => {
                         <h3 className="font-semibold">{request.destination}</h3>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {format(new Date(request.start_date), "d MMM yyyy", { locale: id })}
+                        {format(new Date(request.start_date), "d MMM yyyy", { locale: dateLocale })}
                         {request.start_date !== request.end_date &&
-                          ` - ${format(new Date(request.end_date), "d MMM yyyy", { locale: id })}`}
+                          ` - ${format(new Date(request.end_date), "d MMM yyyy", { locale: dateLocale })}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -239,18 +234,18 @@ const BusinessTravelHistory = () => {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Batalkan Pengajuan?</AlertDialogTitle>
+                                <AlertDialogTitle>{t("travelHistory.cancelTitle")}</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Apakah Anda yakin ingin membatalkan pengajuan perjalanan dinas ini? Tindakan ini tidak dapat dibatalkan.
+                                  {t("travelHistory.cancelDesc")}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>Tidak</AlertDialogCancel>
+                                <AlertDialogCancel>{t("travelHistory.cancelNo")}</AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleCancel(request.id)}
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                  Ya, Batalkan
+                                  {t("travelHistory.cancelYes")}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -259,18 +254,17 @@ const BusinessTravelHistory = () => {
                       )}
                     </div>
                   </div>
-                  
+
                   <p className="text-sm mb-2">{request.purpose}</p>
                   {request.notes && (
-                    <p className="text-sm text-muted-foreground mb-2">Catatan: {request.notes}</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t("travelHistory.notes", { n: request.notes })}</p>
                   )}
-                  
+
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{request.total_days} hari</span>
-                    <span>Diajukan: {format(new Date(request.created_at), "d MMM yyyy", { locale: id })}</span>
+                    <span>{t("travelHistory.days", { n: request.total_days })}</span>
+                    <span>{t("travelHistory.submittedAt", { date: format(new Date(request.created_at), "d MMM yyyy", { locale: dateLocale }) })}</span>
                   </div>
 
-                  {/* Download Document Button */}
                   {request.status === "approved" && request.document_url && (
                     <Button
                       variant="outline"
@@ -280,11 +274,11 @@ const BusinessTravelHistory = () => {
                       disabled={downloadingId === request.id}
                     >
                       {downloadingId === request.id ? (
-                        "Mengunduh..."
+                        t("travelHistory.downloading")
                       ) : (
                         <>
                           <Download className="h-4 w-4 mr-2" />
-                          Unduh Surat Dinas
+                          {t("travelHistory.downloadDoc")}
                         </>
                       )}
                     </Button>
@@ -293,7 +287,7 @@ const BusinessTravelHistory = () => {
                   {request.status === "approved" && !request.document_url && (
                     <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground bg-muted p-2 rounded">
                       <FileText className="h-4 w-4" />
-                      <span>Surat dinas sedang diproses oleh admin</span>
+                      <span>{t("travelHistory.docProcessing")}</span>
                     </div>
                   )}
                 </CardContent>
@@ -303,7 +297,6 @@ const BusinessTravelHistory = () => {
         </div>
       </div>
 
-      {/* Edit Dialog */}
       {editRequest && (
         <EditBusinessTravelDialog
           open={!!editRequest}
