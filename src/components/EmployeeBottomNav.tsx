@@ -1,10 +1,11 @@
 import { Home, Bell, User, LayoutGrid, Target } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useNotificationBadge } from "@/hooks/useNotificationBadge";
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: React.ElementType;
   path: string;
   isCenter?: boolean;
@@ -12,16 +13,17 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Beranda", icon: Home, path: "/employee" },
-  { label: "KPI", icon: Target, path: "/employee/kpi" },
-  { label: "Self Service", icon: LayoutGrid, path: "/employee/self-service", isCenter: true },
-  { label: "Notifikasi", icon: Bell, path: "/employee/notifications", showBadge: true },
-  { label: "Profil", icon: User, path: "/employee/profile" },
+  { labelKey: "nav.employee.home", icon: Home, path: "/employee" },
+  { labelKey: "nav.employee.kpi", icon: Target, path: "/employee/kpi" },
+  { labelKey: "nav.employee.selfService", icon: LayoutGrid, path: "/employee/self-service", isCenter: true },
+  { labelKey: "nav.employee.notifications", icon: Bell, path: "/employee/notifications", showBadge: true },
+  { labelKey: "nav.employee.profile", icon: User, path: "/employee/profile" },
 ];
 
 export const EmployeeBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { badgeCount } = useNotificationBadge();
 
   return (
