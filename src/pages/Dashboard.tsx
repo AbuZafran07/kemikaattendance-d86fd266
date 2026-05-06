@@ -10,7 +10,9 @@ import PendingRequests from "@/components/dashboard/PendingRequests";
 import CompanyCalendar from "@/components/dashboard/CompanyCalendar";
 import { format, subDays, isWeekend, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import logger from "@/lib/logger";
 import { isAttendanceExempt } from "@/lib/employeeFilters";
 
@@ -43,6 +45,8 @@ const getSignedPhotoUrl = async (filePath: string | null): Promise<string | null
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage?.startsWith("en") ? enUS : id;
 
   const [stats, setStats] = useState({
     totalEmployees: 0,
