@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.png";
 import { EmployeeBottomNav } from "@/components/EmployeeBottomNav";
 import { notifyAdmins, NotificationTemplates } from "@/lib/notifications";
+import { useTranslation } from "react-i18next";
 
 const businessTravelSchema = z.object({
   destination: z.string().trim().min(1, "Tujuan harus diisi").max(200, "Tujuan maksimal 200 karakter"),
@@ -33,6 +34,7 @@ const BusinessTravelRequest = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BusinessTravelFormData>({
@@ -79,7 +81,6 @@ const BusinessTravelRequest = () => {
 
       if (error) throw error;
 
-      // Send notification to admins
       const notification = NotificationTemplates.businessTravelSubmitted(
         profile?.full_name || 'Karyawan',
         data.destination,
@@ -88,15 +89,15 @@ const BusinessTravelRequest = () => {
       notifyAdmins(notification.title, notification.body, { type: 'business_travel' });
 
       toast({
-        title: "Berhasil",
-        description: "Pengajuan perjalanan dinas berhasil dikirim dan menunggu persetujuan.",
+        title: t("travelRequest.successTitle"),
+        description: t("travelRequest.successDesc"),
       });
 
       navigate("/employee");
     } catch (error: any) {
       toast({
-        title: "Gagal Mengirim",
-        description: error.message || "Terjadi kesalahan.",
+        title: t("travelRequest.failTitle"),
+        description: error.message || "",
         variant: "destructive",
       });
     } finally {
@@ -118,8 +119,8 @@ const BusinessTravelRequest = () => {
       <div className="container mx-auto px-4 py-6 max-w-lg">
         <Card>
           <CardHeader>
-            <CardTitle>Ajukan Perjalanan Dinas</CardTitle>
-            <CardDescription>Isi formulir pengajuan perjalanan dinas luar</CardDescription>
+            <CardTitle>{t("travelRequest.title")}</CardTitle>
+            <CardDescription>{t("travelRequest.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -129,11 +130,11 @@ const BusinessTravelRequest = () => {
                   name="destination"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tujuan</FormLabel>
+                      <FormLabel>{t("travelRequest.destination")}</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="Contoh: Surabaya, Jakarta, dll" 
-                          {...field} 
+                        <Input
+                          placeholder={t("travelRequest.destinationPlaceholder")}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -146,11 +147,11 @@ const BusinessTravelRequest = () => {
                   name="purpose"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Keperluan</FormLabel>
+                      <FormLabel>{t("travelRequest.purpose")}</FormLabel>
                       <FormControl>
                         <Textarea
                           rows={3}
-                          placeholder="Jelaskan keperluan perjalanan dinas..."
+                          placeholder={t("travelRequest.purposePlaceholder")}
                           {...field}
                         />
                       </FormControl>
@@ -164,7 +165,7 @@ const BusinessTravelRequest = () => {
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tanggal Mulai</FormLabel>
+                      <FormLabel>{t("travelRequest.startDate")}</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -178,13 +179,13 @@ const BusinessTravelRequest = () => {
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tanggal Selesai</FormLabel>
+                      <FormLabel>{t("travelRequest.endDate")}</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
                       {totalDays > 0 && (
                         <p className="text-xs text-muted-foreground">
-                          Total: {totalDays} hari
+                          {t("travelRequest.totalDays", { n: totalDays })}
                         </p>
                       )}
                       <FormMessage />
@@ -197,11 +198,11 @@ const BusinessTravelRequest = () => {
                   name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Catatan Tambahan (Opsional)</FormLabel>
+                      <FormLabel>{t("travelRequest.notes")}</FormLabel>
                       <FormControl>
                         <Textarea
                           rows={3}
-                          placeholder="Catatan tambahan jika ada..."
+                          placeholder={t("travelRequest.notesPlaceholder")}
                           {...field}
                         />
                       </FormControl>
@@ -215,7 +216,7 @@ const BusinessTravelRequest = () => {
                   className="w-full"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Mengirim..." : "Kirim Pengajuan"}
+                  {isSubmitting ? t("travelRequest.submitting") : t("travelRequest.submit")}
                 </Button>
               </form>
             </Form>
