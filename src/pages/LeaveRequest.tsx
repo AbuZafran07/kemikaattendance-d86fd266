@@ -18,7 +18,6 @@ import { useLeavePolicy } from "@/hooks/usePolicySettings";
 import logo from "@/assets/logo.png";
 import { EmployeeBottomNav } from "@/components/EmployeeBottomNav";
 import { notifyAdmins, NotificationTemplates, formatLeaveTypeForNotification } from "@/lib/notifications";
-import { useTranslation } from "react-i18next";
 
 interface Holiday {
   id: string;
