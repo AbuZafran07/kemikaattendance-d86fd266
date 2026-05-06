@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ const loadImageAsBase64 = (src: string): Promise<string> => {
 };
 
 export default function Reports() {
+  const { t } = useTranslation();
   const { departments: DEPARTMENT_OPTIONS } = useDepartmentJabatan();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -502,9 +504,9 @@ export default function Reports() {
 
       await exportToExcelFile(data, "Report", filename);
 
-      toast({ title: "Berhasil", description: "Laporan berhasil diekspor ke Excel" });
+      toast({ title: t("common.success"), description: t("reportsPage.toast.excelOk") });
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -934,9 +936,9 @@ export default function Reports() {
       });
 
       doc.save(`${reportType}_report_${format(new Date(), "yyyy-MM-dd")}.pdf`);
-      toast({ title: "Berhasil", description: "Laporan berhasil diekspor ke PDF" });
+      toast({ title: t("common.success"), description: t("reportsPage.toast.pdfOk") });
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -946,19 +948,19 @@ export default function Reports() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Laporan & Analytics</h1>
-          <p className="text-muted-foreground mt-1">Buat dan ekspor laporan absensi, cuti, dan data karyawan</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("reportsPage.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("reportsPage.subtitle")}</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Laporan Umum</CardTitle>
-              <CardDescription>Export laporan absensi, cuti, dan database karyawan</CardDescription>
+              <CardTitle>{t("reportsPage.general.title")}</CardTitle>
+              <CardDescription>{t("reportsPage.general.desc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Gunakan form di bawah untuk menghasilkan laporan berdasarkan rentang tanggal dan departemen
+                {t("reportsPage.general.hint")}
               </p>
             </CardContent>
           </Card>
@@ -970,16 +972,16 @@ export default function Reports() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5 text-primary" />
-                <CardTitle>Laporan Per Karyawan</CardTitle>
+                <CardTitle>{t("reportsPage.perEmployee.title")}</CardTitle>
               </div>
-              <CardDescription>Export data kehadiran untuk karyawan individual</CardDescription>
+              <CardDescription>{t("reportsPage.perEmployee.desc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Pilih karyawan tertentu dan hasilkan laporan kehadiran mereka dalam format Excel atau PDF
+                {t("reportsPage.perEmployee.hint")}
               </p>
               <Button variant="link" className="mt-2 p-0 h-auto">
-                Buka Laporan Per Karyawan →
+                {t("reportsPage.perEmployee.cta")}
               </Button>
             </CardContent>
           </Card>
@@ -991,16 +993,16 @@ export default function Reports() {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Coins className="h-5 w-5 text-primary" />
-                <CardTitle>Tunjangan Kehadiran</CardTitle>
+                <CardTitle>{t("reportsPage.allowance.title")}</CardTitle>
               </div>
-              <CardDescription>Perhitungan tunjangan kehadiran bulanan</CardDescription>
+              <CardDescription>{t("reportsPage.allowance.desc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Hitung tunjangan kehadiran berdasarkan data absensi dengan potongan keterlambatan otomatis
+                {t("reportsPage.allowance.hint")}
               </p>
               <Button variant="link" className="mt-2 p-0 h-auto">
-                Buka Laporan Tunjangan →
+                {t("reportsPage.allowance.cta")}
               </Button>
             </CardContent>
           </Card>
@@ -1008,35 +1010,35 @@ export default function Reports() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Konfigurasi Laporan</CardTitle>
-            <CardDescription>Pilih jenis laporan dan filter</CardDescription>
+            <CardTitle>{t("reportsPage.config.title")}</CardTitle>
+            <CardDescription>{t("reportsPage.config.desc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="reportType">Jenis Laporan</Label>
+                <Label htmlFor="reportType">{t("reportsPage.config.reportType")}</Label>
                 <Select value={reportType} onValueChange={(value: any) => setReportType(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="attendance">Laporan Absensi</SelectItem>
-                    <SelectItem value="leave">Laporan Cuti</SelectItem>
-                    <SelectItem value="overtime">Laporan Lembur</SelectItem>
-                    <SelectItem value="business_travel">Laporan Perjalanan Dinas</SelectItem>
-                    <SelectItem value="payroll">Laporan Payroll (Absensi + Tunjangan)</SelectItem>
-                    <SelectItem value="employees">Database Karyawan</SelectItem>
+                    <SelectItem value="attendance">{t("reportsPage.types.attendance")}</SelectItem>
+                    <SelectItem value="leave">{t("reportsPage.types.leave")}</SelectItem>
+                    <SelectItem value="overtime">{t("reportsPage.types.overtime")}</SelectItem>
+                    <SelectItem value="business_travel">{t("reportsPage.types.business_travel")}</SelectItem>
+                    <SelectItem value="payroll">{t("reportsPage.types.payroll")}</SelectItem>
+                    <SelectItem value="employees">{t("reportsPage.types.employees")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="department">Departemen</Label>
+                <Label htmlFor="department">{t("reportsPage.config.department")}</Label>
                 <Select value={department} onValueChange={setDepartment}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Semua Departemen</SelectItem>
+                    <SelectItem value="all">{t("reportsPage.config.allDept")}</SelectItem>
                     {DEPARTMENT_OPTIONS.map((dept) => (
                       <SelectItem key={dept} value={dept}>
                         {dept}
@@ -1050,11 +1052,11 @@ export default function Reports() {
             {reportType !== "employees" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate">Tanggal Mulai</Label>
+                  <Label htmlFor="startDate">{t("common.startDate")}</Label>
                   <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="endDate">Tanggal Akhir</Label>
+                  <Label htmlFor="endDate">{t("common.endDate")}</Label>
                   <Input id="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                 </div>
               </div>
@@ -1071,12 +1073,12 @@ export default function Reports() {
                 ) : (
                   <FileSpreadsheet className="mr-2 h-4 w-4" />
                 )}
-                Export ke Excel
+                {t("reportsPage.btn.excel")}
               </Button>
               {reportType !== "employees" && (
                 <Button onClick={exportToPDF} disabled={loading || !startDate || !endDate} variant="outline">
                   {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-                  Export ke PDF
+                  {t("reportsPage.btn.pdf")}
                 </Button>
               )}
             </div>

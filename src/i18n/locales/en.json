@@ -23,7 +23,50 @@
     "view": "View",
     "days": "days",
     "hours": "hours",
-    "minutes": "minutes"
+    "minutes": "minutes",
+    "name": "Name",
+    "nik": "Employee ID",
+    "department": "Department",
+    "date": "Date",
+    "status": "Status",
+    "reason": "Reason",
+    "actions": "Actions",
+    "duration": "Duration",
+    "notes": "Notes",
+    "success": "Success",
+    "error": "Error",
+    "saving": "Saving...",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "edit": "Edit",
+    "detail": "Detail",
+    "close": "Close",
+    "apply": "Apply",
+    "reset": "Reset",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "pending": "Pending",
+    "present": "Present",
+    "late": "Late",
+    "earlyLeave": "Early Leave",
+    "absent": "Absent",
+    "valid": "Valid",
+    "invalid": "Invalid",
+    "search": "Search...",
+    "loadFailed": "Failed to Load Data",
+    "noData": "No data",
+    "required": "is required",
+    "createdAt": "Submitted At",
+    "approvalNotes": "Approval Notes",
+    "rejectionReason": "Rejection Reason",
+    "period": "Period",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "total": "Total",
+    "yes": "Yes",
+    "no": "No"
   },
   "landing": {
     "tagline": "Spreading Solutions",
@@ -249,6 +292,314 @@
       "payslipDesc": "View your monthly payslip history",
       "loanTitle": "My Loans",
       "loanDesc": "View loans and installment progress"
+    }
+  },
+  "settingsPage": {
+    "title": "System Settings",
+    "subtitle": "Configure system and application settings",
+    "items": {
+      "office": {
+        "title": "Office Location",
+        "desc": "Manage office locations and GPS coordinates"
+      },
+      "workHours": {
+        "title": "Work Hours",
+        "desc": "Set work hours and late tolerance"
+      },
+      "specialHours": {
+        "title": "Special Work Hours",
+        "desc": "Set work hours for special periods (Ramadan, events, etc.)"
+      },
+      "leave": {
+        "title": "Leave Policy",
+        "desc": "Manage leave quotas and rules"
+      },
+      "overtime": {
+        "title": "Overtime Policy",
+        "desc": "Set overtime rules and compensation"
+      },
+      "holidays": {
+        "title": "Holidays & Office Events",
+        "desc": "Manage national holidays and office event lists"
+      },
+      "allowance": {
+        "title": "Attendance Allowance",
+        "desc": "Configure attendance allowance calculation"
+      },
+      "bank": {
+        "title": "Company Bank",
+        "desc": "Set up company account for e-Payroll bank"
+      },
+      "bpjs": {
+        "title": "BPJS Settings",
+        "desc": "Configure BPJS Employment & Health rates"
+      },
+      "ptkp": {
+        "title": "PTKP Settings",
+        "desc": "Manage Non-Taxable Income values"
+      },
+      "biayaJabatan": {
+        "title": "Position Allowance",
+        "desc": "Configure rate and max limit for PPh 21 position allowance"
+      },
+      "pph21": {
+        "title": "PPh 21 Progressive Rates",
+        "desc": "Configure progressive income tax brackets"
+      },
+      "notif": {
+        "title": "Notification Settings",
+        "desc": "Manage push notifications for admin"
+      },
+      "backup": {
+        "title": "Backup & Restore",
+        "desc": "System data backup and restore"
+      },
+      "deptJab": {
+        "title": "Departments & Positions",
+        "desc": "Manage company departments and positions"
+      }
+    }
+  },
+  "notifPage": {
+    "title": "Notification Center",
+    "subtitle": "Real-time activity today -",
+    "stats": {
+      "attendance": "Attendance Activity",
+      "leavePending": "Pending Leave",
+      "overtimePending": "Pending Overtime",
+      "travelPending": "Pending Travel"
+    },
+    "tabs": {
+      "attendance": "Attendance Activity",
+      "leave": "Pending Leave",
+      "overtime": "Pending Overtime",
+      "travel": "Business Travel"
+    },
+    "card": {
+      "attendanceTitle": "Attendance Activity",
+      "attendanceDesc": "Employee check-ins and check-outs",
+      "leaveTitle": "Leave Requests Awaiting Approval",
+      "leaveDesc": "Review and approve employee leave requests",
+      "overtimeTitle": "Overtime Requests Awaiting Approval",
+      "overtimeDesc": "Review and approve employee overtime requests",
+      "travelTitle": "Business Travel Requests Awaiting Approval",
+      "travelDesc": "Review and approve employee business travel requests"
+    },
+    "empty": {
+      "attendance": "No attendance activity today yet",
+      "leave": "No pending leave requests",
+      "overtime": "No pending overtime requests",
+      "travel": "No pending business travel requests"
+    },
+    "toast": {
+      "checkInTitle": "New Check-In",
+      "checkInDesc": "An employee just checked in",
+      "checkOutTitle": "New Check-Out",
+      "checkOutDesc": "An employee just checked out",
+      "newLeave": "New Leave Request",
+      "newLeaveDesc": "A new leave request requires approval",
+      "newOvertime": "New Overtime Request",
+      "newOvertimeDesc": "A new overtime request requires approval",
+      "newTravel": "New Business Travel Request",
+      "newTravelDesc": "A new business travel request requires approval"
+    }
+  },
+  "attendancePage": {
+    "title": "Attendance Report",
+    "subtitle": "Attendance recap data for all employees",
+    "btn": {
+      "manualInput": "Manual Input",
+      "auditLog": "Audit Log",
+      "recalculate": "Recalculate Status"
+    },
+    "filterTitle": "Date Filter",
+    "stats": {
+      "total": "Total Attendance",
+      "onTime": "On Time",
+      "late": "Late"
+    },
+    "tableTitle": "Attendance Recap",
+    "searchPlaceholder": "Search name or date...",
+    "cols": {
+      "employee": "Employee",
+      "date": "Date",
+      "checkIn": "Check-In",
+      "checkOut": "Check-Out",
+      "duration": "Duration",
+      "photo": "Photo",
+      "location": "Location",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "noData": "No attendance data in this period",
+    "photoDialog": {
+      "title": "Photo",
+      "desc": "Employee attendance photo"
+    },
+    "editDialog": {
+      "title": "Edit Attendance Time",
+      "reasonLabel": "Change Reason",
+      "reasonPlaceholder": "E.g.: Correcting check-in time because employee forgot",
+      "reasonRequired": "Change reason is required",
+      "successUpdated": "Attendance updated. Status: ",
+      "failUpdate": "Failed to update data"
+    },
+    "deleteDialog": {
+      "title": "Delete Attendance",
+      "desc": "Are you sure you want to delete attendance for",
+      "onDate": "on",
+      "irreversible": "This action cannot be undone.",
+      "successDeleted": "Attendance deleted successfully",
+      "failDelete": "Failed to delete data",
+      "auditReason": "Deleted by admin"
+    },
+    "recalc": {
+      "successCount": "records had their status updated",
+      "fail": "Failed to recalculate"
+    },
+    "loadFailDesc": "Failed to load attendance data"
+  },
+  "leavePage": {
+    "title": "Leave Management",
+    "subtitle": "Manage employee leave and permit requests",
+    "createBtn": "Create Leave",
+    "stats": {
+      "total": "Total Requests",
+      "pending": "Pending",
+      "approved": "Approved"
+    },
+    "tableTitle": "Leave Requests",
+    "tableDesc": "All employee leave and permit requests",
+    "cols": {
+      "name": "Name",
+      "nik": "Employee ID",
+      "department": "Department",
+      "type": "Type",
+      "date": "Date",
+      "duration": "Duration",
+      "reason": "Reason",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No leave requests yet",
+    "approvalTitle": "Leave Request",
+    "leaveType": {
+      "cuti_tahunan": "Annual Leave",
+      "izin": "Permit",
+      "sakit": "Sick",
+      "lupa_absen": "Forgot Check-in"
+    },
+    "toast": {
+      "new": "New Leave Request",
+      "newDesc": "A new leave request arrived",
+      "approveOk": "Leave request approved",
+      "rejectOk": "Leave request rejected",
+      "approveFail": "Failed to Approve",
+      "rejectFail": "Failed to Reject",
+      "deleteOk": "Leave request deleted",
+      "deleteFail": "Failed to delete leave request"
+    },
+    "detail": {
+      "title": "Leave Request Detail",
+      "desc": "Complete leave/permit request information",
+      "leaveType": "Leave Type",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "delegationTitle": "Task Delegation",
+      "substitute": "Substitute Employee",
+      "taskDetail": "Task Detail"
+    },
+    "deleteDialog": {
+      "title": "Delete Leave Request",
+      "desc": "Are you sure you want to delete this leave request? If approved annual leave, the employee's quota will be restored. This action cannot be undone."
+    }
+  },
+  "overtimePage": {
+    "title": "Overtime Management",
+    "subtitle": "Manage employee overtime requests",
+    "createBtn": "Create Overtime",
+    "stats": {
+      "total": "Total Requests",
+      "pending": "Pending",
+      "approved": "Approved"
+    },
+    "tableTitle": "Overtime Requests",
+    "tableDesc": "All employee overtime requests",
+    "cols": {
+      "name": "Name",
+      "nik": "Employee ID",
+      "department": "Department",
+      "date": "Date",
+      "hours": "Hours",
+      "reason": "Reason",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No overtime requests yet",
+    "approvalTitle": "Overtime Request",
+    "toast": {
+      "new": "New Overtime Request",
+      "newDesc": "A new overtime request arrived",
+      "approveOk": "Overtime request approved",
+      "rejectOk": "Overtime request rejected",
+      "approveFail": "Failed to Approve",
+      "rejectFail": "Failed to Reject",
+      "deleteOk": "Overtime request deleted",
+      "deleteFail": "Failed to delete overtime request"
+    },
+    "detail": {
+      "title": "Overtime Request Detail",
+      "desc": "Complete overtime request information",
+      "date": "Overtime Date",
+      "hours": "Total Hours"
+    },
+    "deleteDialog": {
+      "title": "Delete Overtime Request",
+      "desc": "Are you sure you want to delete this overtime request? This action cannot be undone."
+    }
+  },
+  "reportsPage": {
+    "title": "Reports & Analytics",
+    "subtitle": "Create and export attendance, leave, and employee reports",
+    "general": {
+      "title": "General Reports",
+      "desc": "Export attendance, leave, and employee database reports",
+      "hint": "Use the form below to generate reports based on date range and department"
+    },
+    "perEmployee": {
+      "title": "Per-Employee Report",
+      "desc": "Export attendance data for individual employees",
+      "hint": "Pick a specific employee and generate their attendance report in Excel or PDF",
+      "cta": "Open Per-Employee Report →"
+    },
+    "allowance": {
+      "title": "Attendance Allowance",
+      "desc": "Monthly attendance allowance calculation",
+      "hint": "Calculate attendance allowance based on attendance data with automatic late deductions",
+      "cta": "Open Allowance Report →"
+    },
+    "config": {
+      "title": "Report Configuration",
+      "desc": "Choose report type and filters",
+      "reportType": "Report Type",
+      "department": "Department",
+      "allDept": "All Departments"
+    },
+    "types": {
+      "attendance": "Attendance Report",
+      "leave": "Leave Report",
+      "overtime": "Overtime Report",
+      "business_travel": "Business Travel Report",
+      "payroll": "Payroll Report (Attendance + Allowance)",
+      "employees": "Employee Database"
+    },
+    "btn": {
+      "excel": "Export to Excel",
+      "pdf": "Export to PDF"
+    },
+    "toast": {
+      "excelOk": "Report exported to Excel",
+      "pdfOk": "Report exported to PDF"
     }
   }
 }

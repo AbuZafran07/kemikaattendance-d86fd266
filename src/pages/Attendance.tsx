@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +44,8 @@ interface Profile {
 }
 
 const Attendance = () => {
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
   const navigate = useNavigate();
   const { user, userRole } = useAuth();
   const isAdmin = userRole === 'admin';
@@ -117,7 +120,7 @@ const Attendance = () => {
       console.error("Error fetching attendance:", attendanceError);
       toast({
         title: "Error",
-        description: "Gagal memuat data absensi",
+        description: t("attendancePage.loadFailDesc"),
         variant: "destructive",
       });
       setIsRefreshing(false);
@@ -178,14 +181,14 @@ const Attendance = () => {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("id-ID", {
+    return new Date(dateString).toLocaleTimeString(dateLocaleStr, {
       hour: "2-digit",
       minute: "2-digit",
     });
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
+    return new Date(dateString).toLocaleDateString(dateLocaleStr, {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -224,12 +227,12 @@ const Attendance = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "hadir":
-        return <Badge className="bg-primary text-white">Hadir</Badge>;
+        return <Badge className="bg-primary text-white">{t("common.present")}</Badge>;
       case "terlambat":
-        return <Badge variant="destructive">Terlambat</Badge>;
+        return <Badge variant="destructive">{t("common.late")}</Badge>;
       case "pulang cepat":
       case "pulang_cepat":
-        return <Badge variant="destructive">Pulang Cepat</Badge>; // ✅ warna merah seperti "Terlambat"
+        return <Badge variant="destructive">{t("common.earlyLeave")}</Badge>;
       default:
         return <Badge variant="outline">{status.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}</Badge>;
     }
@@ -359,7 +362,7 @@ const Attendance = () => {
 
   const handleSaveEdit = async () => {
     if (!editRecord || !editReason.trim()) {
-      toast({ title: "Error", description: "Alasan perubahan wajib diisi", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("attendancePage.editDialog.reasonRequired"), variant: "destructive" });
       return;
     }
     setIsSavingEdit(true);
@@ -401,11 +404,11 @@ const Attendance = () => {
         reason: editReason.trim(),
       });
 
-      toast({ title: "Berhasil", description: `Data absensi berhasil diperbarui. Status: ${newStatus === 'hadir' ? 'Hadir' : newStatus === 'terlambat' ? 'Terlambat' : 'Pulang Cepat'}` });
+      toast({ title: t("common.success"), description: t("attendancePage.editDialog.successUpdated") + (newStatus === 'hadir' ? t("common.present") : newStatus === 'terlambat' ? t("common.late") : t("common.earlyLeave")) });
       setEditRecord(null);
       fetchAttendanceData();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Gagal memperbarui data", variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message || t("attendancePage.editDialog.failUpdate"), variant: "destructive" });
     } finally {
       setIsSavingEdit(false);
     }
@@ -431,18 +434,18 @@ const Attendance = () => {
         changed_by: user!.id,
         old_data: oldData,
         new_data: null,
-        reason: `Dihapus oleh admin`,
+        reason: t("attendancePage.deleteDialog.auditReason"),
       });
 
       // Delete the record
       const { error } = await supabase.from("attendance").delete().eq("id", deleteRecord.id);
       if (error) throw error;
 
-      toast({ title: "Berhasil", description: "Data absensi berhasil dihapus" });
+      toast({ title: t("common.success"), description: t("attendancePage.deleteDialog.successDeleted") });
       setDeleteRecord(null);
       fetchAttendanceData();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Gagal menghapus data", variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message || t("attendancePage.deleteDialog.failDelete"), variant: "destructive" });
     } finally {
       setIsDeletingRecord(false);
     }
@@ -467,10 +470,10 @@ const Attendance = () => {
           if (!error) updated++;
         }
       }
-      toast({ title: "Berhasil", description: `${updated} record diperbarui statusnya` });
+      toast({ title: t("common.success"), description: `${updated} ${t("attendancePage.recalc.successCount")}` });
       fetchAttendanceData();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Gagal menghitung ulang", variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message || t("attendancePage.recalc.fail"), variant: "destructive" });
     } finally {
       setIsRecalculating(false);
     }
@@ -481,26 +484,26 @@ const Attendance = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Rekap Absensi</h1>
-            <p className="text-muted-foreground mt-1">Data rekap absensi seluruh karyawan</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("attendancePage.title")}</h1>
+            <p className="text-muted-foreground mt-1">{t("attendancePage.subtitle")}</p>
           </div>
           <div className="flex items-center gap-2">
             {isAdmin && (
               <Button variant="default" size="sm" onClick={() => setShowManualInput(true)}>
                 <UserPlus className="h-4 w-4 mr-1" />
-                Input Manual
+                {t("attendancePage.btn.manualInput")}
               </Button>
             )}
             {isAdmin && (
               <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/attendance/audit-log")}>
                 <Calendar className="h-4 w-4 mr-1" />
-                Audit Log
+                {t("attendancePage.btn.auditLog")}
               </Button>
             )}
             {isAdmin && (
               <Button variant="outline" size="sm" onClick={handleRecalculateAll} disabled={isRecalculating || attendanceData.length === 0}>
                 <RotateCcw className={`h-4 w-4 mr-1 ${isRecalculating ? "animate-spin" : ""}`} />
-                Hitung Ulang Status
+                {t("attendancePage.btn.recalculate")}
               </Button>
             )}
             <Button variant="outline" size="icon" onClick={fetchAttendanceData} disabled={isRefreshing}>
@@ -514,17 +517,17 @@ const Attendance = () => {
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Filter Tanggal
+              {t("attendancePage.filterTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row items-end gap-4">
               <div className="space-y-2">
-                <Label>Tanggal Mulai</Label>
+                <Label>{t("common.startDate")}</Label>
                 <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Tanggal Akhir</Label>
+                <Label>{t("common.endDate")}</Label>
                 <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
               </div>
 
@@ -535,7 +538,7 @@ const Attendance = () => {
                   onClick={fetchAttendanceData}
                   disabled={!startDate || !endDate || isRefreshing}
                 >
-                  Tampilkan
+                  {t("common.apply")}
                 </Button>
               </div>
             </div>
@@ -545,7 +548,7 @@ const Attendance = () => {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Absensi</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("attendancePage.stats.total")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -557,7 +560,7 @@ const Attendance = () => {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Tepat Waktu</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("attendancePage.stats.onTime")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -569,7 +572,7 @@ const Attendance = () => {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Terlambat</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("attendancePage.stats.late")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -584,15 +587,15 @@ const Attendance = () => {
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <CardTitle>Data Rekap Absensi</CardTitle>
+                <CardTitle>{t("attendancePage.tableTitle")}</CardTitle>
                 <CardDescription>
-                  Periode: {startDate && formatDate(startDate)} - {endDate && formatDate(endDate)}
+                  {t("common.period")}: {startDate && formatDate(startDate)} - {endDate && formatDate(endDate)}
                 </CardDescription>
               </div>
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Cari nama atau tanggal..."
+                  placeholder={t("attendancePage.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -610,15 +613,15 @@ const Attendance = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Karyawan</TableHead>
-                        <TableHead>Tanggal</TableHead>
-                        <TableHead>Check-In</TableHead>
-                        <TableHead>Check-Out</TableHead>
-                        <TableHead>Durasi</TableHead>
-                        <TableHead>Foto Absen</TableHead>
-                        <TableHead>Lokasi</TableHead>
-                        <TableHead>Status</TableHead>
-                        {isAdmin && <TableHead>Aksi</TableHead>}
+                        <TableHead>{t("attendancePage.cols.employee")}</TableHead>
+                        <TableHead>{t("attendancePage.cols.date")}</TableHead>
+                        <TableHead>{t("attendancePage.cols.checkIn")}</TableHead>
+                        <TableHead>{t("attendancePage.cols.checkOut")}</TableHead>
+                        <TableHead>{t("attendancePage.cols.duration")}</TableHead>
+                        <TableHead>{t("attendancePage.cols.photo")}</TableHead>
+                        <TableHead>{t("attendancePage.cols.location")}</TableHead>
+                        <TableHead>{t("attendancePage.cols.status")}</TableHead>
+                        {isAdmin && <TableHead>{t("attendancePage.cols.actions")}</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -677,7 +680,7 @@ const Attendance = () => {
                               <MapPin
                                 className={`h-4 w-4 ${record.gps_validated ? "text-primary" : "text-destructive"}`}
                               />
-                              <span className="text-sm">{record.gps_validated ? "Valid" : "Invalid"}</span>
+                              <span className="text-sm">{record.gps_validated ? t("common.valid") : t("common.invalid")}</span>
                             </div>
                           </TableCell>
                           <TableCell>{getStatusBadge(record.status)}</TableCell>
@@ -708,7 +711,7 @@ const Attendance = () => {
                 />
               </>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">Tidak ada data absensi pada periode ini</div>
+              <div className="text-center py-8 text-muted-foreground">{t("attendancePage.noData")}</div>
             )}
           </CardContent>
         </Card>
@@ -718,8 +721,8 @@ const Attendance = () => {
       <Dialog open={!!selectedPhoto} onOpenChange={() => setSelectedPhoto(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Foto {selectedPhoto?.type}</DialogTitle>
-            <DialogDescription>Foto absensi karyawan</DialogDescription>
+            <DialogTitle>{t("attendancePage.photoDialog.title")} {selectedPhoto?.type}</DialogTitle>
+            <DialogDescription>{t("attendancePage.photoDialog.desc")}</DialogDescription>
           </DialogHeader>
           {selectedPhoto && (
             <div className="flex justify-center">
@@ -737,29 +740,29 @@ const Attendance = () => {
       <Dialog open={!!editRecord} onOpenChange={(open) => !open && setEditRecord(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Waktu Absensi</DialogTitle>
+            <DialogTitle>{t("attendancePage.editDialog.title")}</DialogTitle>
             <DialogDescription>
               {editRecord?.full_name} - {editRecord && formatDate(editRecord.check_in_time)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Check-In</Label>
+              <Label>{t("attendancePage.cols.checkIn")}</Label>
               <Input type="datetime-local" value={editCheckIn} onChange={(e) => setEditCheckIn(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Check-Out</Label>
+              <Label>{t("attendancePage.cols.checkOut")}</Label>
               <Input type="datetime-local" value={editCheckOut} onChange={(e) => setEditCheckOut(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>Alasan Perubahan <span className="text-destructive">*</span></Label>
-              <Textarea placeholder="Contoh: Koreksi waktu check-in karena lupa absen" value={editReason} onChange={(e) => setEditReason(e.target.value)} />
+              <Label>{t("attendancePage.editDialog.reasonLabel")} <span className="text-destructive">*</span></Label>
+              <Textarea placeholder={t("attendancePage.editDialog.reasonPlaceholder")} value={editReason} onChange={(e) => setEditReason(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditRecord(null)} disabled={isSavingEdit}>Batal</Button>
+            <Button variant="outline" onClick={() => setEditRecord(null)} disabled={isSavingEdit}>{t("common.cancel")}</Button>
             <Button onClick={handleSaveEdit} disabled={isSavingEdit || !editReason.trim()}>
-              {isSavingEdit ? "Menyimpan..." : "Simpan"}
+              {isSavingEdit ? t("common.saving") : t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -769,15 +772,15 @@ const Attendance = () => {
       <AlertDialog open={!!deleteRecord} onOpenChange={(open) => !open && setDeleteRecord(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Data Absensi</AlertDialogTitle>
+            <AlertDialogTitle>{t("attendancePage.deleteDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus data absensi <strong>{deleteRecord?.full_name}</strong> pada tanggal <strong>{deleteRecord && formatDate(deleteRecord.check_in_time)}</strong>? Tindakan ini tidak dapat dibatalkan.
+              {t("attendancePage.deleteDialog.desc")} <strong>{deleteRecord?.full_name}</strong> {t("attendancePage.deleteDialog.onDate")} <strong>{deleteRecord && formatDate(deleteRecord.check_in_time)}</strong>? {t("attendancePage.deleteDialog.irreversible")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeletingRecord}>Batal</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeletingRecord}>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRecord} disabled={isDeletingRecord} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {isDeletingRecord ? "Menghapus..." : "Hapus"}
+              {isDeletingRecord ? t("common.deleting") : t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
