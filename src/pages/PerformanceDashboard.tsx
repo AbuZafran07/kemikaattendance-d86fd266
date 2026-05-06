@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 import { format } from "date-fns";
-import { id as localeId } from "date-fns/locale";
+import { id as idLocale, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 interface LeaveRequest {
   id: string;
@@ -32,6 +33,8 @@ interface OvertimeRequest {
 const PerformanceDashboard = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { t, i18n } = useTranslation();
+  const localeId = i18n.resolvedLanguage?.startsWith("en") ? enUS : idLocale;
   const [stats, setStats] = useState({
     totalPresent: 0,
     totalLate: 0,
@@ -112,10 +115,10 @@ const PerformanceDashboard = () => {
 
   const formatLeaveType = (type: string) => {
     const types: Record<string, string> = {
-      cuti_tahunan: 'Cuti Tahunan',
-      izin: 'Izin',
-      sakit: 'Sakit',
-      lupa_absen: 'Lupa Absen'
+      cuti_tahunan: t("leavePage.leaveType.cuti_tahunan"),
+      izin: t("leavePage.leaveType.izin"),
+      sakit: t("leavePage.leaveType.sakit"),
+      lupa_absen: t("leavePage.leaveType.lupa_absen"),
     };
     return types[type] || type;
   };
@@ -123,11 +126,11 @@ const PerformanceDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30">Menunggu</Badge>;
+        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30">{t("performance.waiting")}</Badge>;
       case 'approved':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30">Disetujui</Badge>;
+        return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30">{t("performance.approved")}</Badge>;
       case 'rejected':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/30">Ditolak</Badge>;
+        return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/30">{t("performance.rejected")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -149,10 +152,8 @@ const PerformanceDashboard = () => {
       <div className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Dashboard Performa</CardTitle>
-            <CardDescription>
-              Ringkasan performa Anda bulan ini
-            </CardDescription>
+            <CardTitle>{t("performance.title")}</CardTitle>
+            <CardDescription>{t("performance.subtitle")}</CardDescription>
           </CardHeader>
         </Card>
 
@@ -164,18 +165,18 @@ const PerformanceDashboard = () => {
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Tingkat Kehadiran</p>
+                <p className="text-sm text-muted-foreground">{t("performance.attendanceRate")}</p>
                 <p className="text-3xl font-bold text-primary">{stats.attendanceRate}%</p>
               </div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-4">
               <div className="text-center p-3 bg-muted/50 rounded-lg">
                 <p className="text-2xl font-bold">{stats.totalPresent}</p>
-                <p className="text-sm text-muted-foreground">Hadir Tepat Waktu</p>
+                <p className="text-sm text-muted-foreground">{t("performance.presentOnTime")}</p>
               </div>
               <div className="text-center p-3 bg-muted/50 rounded-lg">
                 <p className="text-2xl font-bold">{stats.totalLate}</p>
-                <p className="text-sm text-muted-foreground">Terlambat</p>
+                <p className="text-sm text-muted-foreground">{t("performance.late")}</p>
               </div>
             </div>
           </CardContent>
@@ -189,9 +190,9 @@ const PerformanceDashboard = () => {
                 <Clock className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Total Jam Lembur</p>
+                <p className="text-sm text-muted-foreground">{t("performance.totalOvertimeHours")}</p>
                 <p className="text-3xl font-bold text-primary">{stats.totalOvertimeHours}</p>
-                <p className="text-xs text-muted-foreground">jam bulan ini</p>
+                <p className="text-xs text-muted-foreground">{t("performance.monthHoursSuffix")}</p>
               </div>
             </div>
           </CardContent>
@@ -205,9 +206,9 @@ const PerformanceDashboard = () => {
                 <Calendar className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Saldo Cuti Tahunan</p>
+                <p className="text-sm text-muted-foreground">{t("performance.annualLeaveBalance")}</p>
                 <p className="text-3xl font-bold text-primary">{stats.remainingLeave}</p>
-                <p className="text-xs text-muted-foreground">hari tersisa dari {profile?.annual_leave_quota || 12} hari</p>
+                <p className="text-xs text-muted-foreground">{t("performance.daysRemaining", { total: profile?.annual_leave_quota || 12 })}</p>
               </div>
             </div>
             <div className="mt-4">
@@ -218,7 +219,7 @@ const PerformanceDashboard = () => {
                 />
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                Terpakai: {stats.usedLeave} hari
+                {t("performance.used", { n: stats.usedLeave })}
               </p>
             </div>
           </CardContent>
@@ -232,14 +233,14 @@ const PerformanceDashboard = () => {
                 <Award className="h-8 w-8 text-primary" />
               </div>
               <h3 className="font-semibold text-lg mb-1">
-                {stats.attendanceRate >= 95 ? 'Karyawan Teladan' : 
-                 stats.attendanceRate >= 85 ? 'Karyawan Baik' : 
-                 'Tingkatkan Kehadiran'}
+                {stats.attendanceRate >= 95 ? t("performance.achTeladan") :
+                 stats.attendanceRate >= 85 ? t("performance.achGood") :
+                 t("performance.achImprove")}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {stats.attendanceRate >= 95 ? 'Luar biasa! Anda memiliki tingkat kehadiran sempurna!' : 
-                 stats.attendanceRate >= 85 ? 'Bagus! Pertahankan tingkat kehadiran Anda!' : 
-                 'Tingkatkan kehadiran Anda untuk performa yang lebih baik'}
+                {stats.attendanceRate >= 95 ? t("performance.achTeladanDesc") :
+                 stats.attendanceRate >= 85 ? t("performance.achGoodDesc") :
+                 t("performance.achImproveDesc")}
               </p>
             </div>
           </CardContent>
@@ -250,12 +251,12 @@ const PerformanceDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Riwayat Pengajuan Cuti/Izin
+              {t("performance.leaveHistoryTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {leaveRequests.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">Belum ada pengajuan cuti/izin</p>
+              <p className="text-sm text-muted-foreground text-center py-4">{t("performance.noLeave")}</p>
             ) : (
               <div className="space-y-3">
                 {leaveRequests.map((request) => (
@@ -267,7 +268,7 @@ const PerformanceDashboard = () => {
                         {request.start_date !== request.end_date && (
                           <> - {format(new Date(request.end_date), 'd MMM yyyy', { locale: localeId })}</>
                         )}
-                        {' '}({request.total_days} hari)
+                        {' '}{t("performance.daysShort", { n: request.total_days })}
                       </p>
                     </div>
                     {getStatusBadge(request.status)}
@@ -283,12 +284,12 @@ const PerformanceDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
-              Riwayat Pengajuan Lembur
+              {t("performance.overtimeHistoryTitle")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {overtimeRequests.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">Belum ada pengajuan lembur</p>
+              <p className="text-sm text-muted-foreground text-center py-4">{t("performance.noOvertime")}</p>
             ) : (
               <div className="space-y-3">
                 {overtimeRequests.map((request) => (
@@ -298,7 +299,7 @@ const PerformanceDashboard = () => {
                         {format(new Date(request.overtime_date), 'd MMM yyyy', { locale: localeId })}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {request.hours} jam - {request.reason.length > 30 ? request.reason.substring(0, 30) + '...' : request.reason}
+                        {t("performance.hoursReason", { n: request.hours, reason: request.reason.length > 30 ? request.reason.substring(0, 30) + '...' : request.reason })}
                       </p>
                     </div>
                     {getStatusBadge(request.status)}
