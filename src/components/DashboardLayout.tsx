@@ -180,7 +180,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="text-left">
               <p className="text-sm font-semibold leading-tight">{profile?.full_name}</p>
               <span className="inline-block mt-0.5 text-[10px] font-semibold bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                Admin
+                {t("common.admin")}
               </span>
             </div>
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -190,12 +190,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={() => navigate("/employee/profile")}>
           <UserCircle className="h-4 w-4 mr-2" />
-          My Profile
+          {t("common.myProfile")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="text-destructive">
           <LogOut className="h-4 w-4 mr-2" />
-          Keluar
+          {t("common.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
