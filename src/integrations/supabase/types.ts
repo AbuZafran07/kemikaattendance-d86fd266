@@ -1181,6 +1181,14 @@ export type Database = {
       }
       get_biaya_jabatan_config: { Args: never; Returns: Json }
       get_bpjs_config: { Args: never; Returns: Json }
+      get_delegation_colleagues: {
+        Args: never
+        Returns: {
+          full_name: string
+          id: string
+          jabatan: string
+        }[]
+      }
       get_effective_work_hours: { Args: never; Returns: Json }
       get_low_leave_quota_employees: {
         Args: { threshold?: number }
