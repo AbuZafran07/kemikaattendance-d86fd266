@@ -767,9 +767,12 @@ const EmployeeView = () => {
         <header className="bg-card border-b border-border">
           <div className="container mx-auto px-4 py-3 flex items-center justify-between">
             <img src={logo} alt="Kemika" className="h-10 object-contain" />
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <LanguageSwitcher variant="ghost" />
+              <Button variant="ghost" size="icon" onClick={signOut}>
+                <LogOut className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </header>
       </div>
