@@ -205,12 +205,12 @@ const EmployeePayrollHistory = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold">{MONTHS[p.month - 1].label} {p.year}</p>
-                      <p className="text-sm text-muted-foreground">Gaji Pokok: {formatRupiah(p.basic_salary)}</p>
+                      <p className="font-semibold">{monthsLong[p.month - 1]} {p.year}</p>
+                      <p className="text-sm text-muted-foreground">{t("empPayroll.basicSalary")}: {formatRupiah(p.basic_salary)}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-primary">{formatRupiah(p.take_home_pay)}</p>
-                      <Badge variant="outline" className="text-[10px]">THP</Badge>
+                      <Badge variant="outline" className="text-[10px]">{t("empPayroll.thp")}</Badge>
                     </div>
                   </div>
                 </CardContent>
