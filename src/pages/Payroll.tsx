@@ -38,6 +38,7 @@ import { UnlockPayrollDialog } from "@/components/UnlockPayrollDialog";
 import { logPayrollAction, snapshotPayrollRow } from "@/lib/payrollAuditLog";
 import { useAuth } from "@/contexts/AuthContext";
 import { Unlock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 /** Parse "YYYY-MM-DD" as local date (avoids UTC-shift timezone bug) */
 const parseLocalDate = (s: string): Date => {
@@ -129,6 +130,8 @@ const currentYear = currentDate.getFullYear();
 
 
 const Payroll = () => {
+  const { t } = useTranslation();
+  const monthLabel = (m: number) => t(`payrollPage.months.${m}`);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [period, setPeriod] = useState<PayrollPeriod | null>(null);
@@ -302,12 +305,12 @@ const Payroll = () => {
       }
 
       toast({
-        title: "Data Tersimpan",
-        description: `Override ${MONTHS[selectedMonth - 1].label} ${selectedYear} berhasil disimpan. Catatan: total Take Home Pay & PPh21 tetap nilai lama sampai Generate Payroll dijalankan ulang.`,
+        title: t("payrollPage.toast.savedTitle"),
+        description: t("payrollPage.toast.savedDesc", { month: monthLabel(selectedMonth), year: selectedYear }),
       });
     } catch (error: any) {
       console.error("Error saving overrides:", error);
-      toast({ title: "Gagal Simpan", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.saveFailed"), description: error.message, variant: "destructive" });
     }
   };
 
@@ -599,8 +602,8 @@ const Payroll = () => {
 
       if (idulFitriHolidays.length === 0) {
         toast({
-          title: "Tanggal Idul Fitri Tidak Ditemukan",
-          description: "Tambahkan hari libur Idul Fitri di Pengaturan Lembur > Hari Libur Nasional terlebih dahulu.",
+          title: t("payrollPage.toast.thrNotFoundTitle"),
+          description: t("payrollPage.toast.thrNotFoundDesc"),
           variant: "destructive",
         });
         return;
@@ -621,7 +624,7 @@ const Payroll = () => {
       const cutoffDay = (cutoffResult.data?.value as any)?.cutoff_day || 21;
 
       if (!profiles || profiles.length === 0) {
-        toast({ title: "Gagal", description: "Data karyawan tidak ditemukan.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.failed"), description: t("payrollPage.toast.employeeNotFound"), variant: "destructive" });
         return;
       }
 
@@ -643,7 +646,7 @@ const Payroll = () => {
         .filter(Boolean) as { id: string; full_name: string; join_date: string; basic_salary: number }[];
 
       if (eligibleProfiles.length === 0) {
-        toast({ title: "Tidak Ada Karyawan Berhak", description: "Semua karyawan memiliki masa kerja < 1 bulan sebelum Idul Fitri.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.noEligibleTitle"), description: t("payrollPage.toast.noEligibleDesc"), variant: "destructive" });
         return;
       }
 
@@ -655,7 +658,7 @@ const Payroll = () => {
       });
     } catch (error: any) {
       console.error("Error fetching THR data:", error);
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     } finally {
       setCalculatingThr(false);
     }
@@ -699,8 +702,8 @@ const Payroll = () => {
 
     const formattedDate = format(refDate, "dd MMM yyyy");
     toast({
-      title: "THR Berhasil Dihitung",
-      description: `${updatedCount} karyawan dihitung berdasarkan ${thrConfirmData.idulFitriName} (${formattedDate}). Basis: Gaji Pokok.`,
+      title: t("payrollPage.toast.thrCalculatedTitle"),
+      description: t("payrollPage.toast.thrCalculatedDesc", { count: updatedCount, name: thrConfirmData.idulFitriName, date: formattedDate }),
     });
     setThrConfirmData(null);
   };
@@ -727,7 +730,7 @@ const Payroll = () => {
         .eq("month", selectedMonth).eq("year", selectedYear).maybeSingle();
 
       if (existingPeriod?.status === "finalized") {
-        toast({ title: "Payroll Terkunci", description: "Payroll periode ini sudah difinalisasi.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.lockedTitle"), description: t("payrollPage.toast.lockedDesc"), variant: "destructive" });
         setGenerating(false); return;
       }
 
@@ -810,7 +813,7 @@ const Payroll = () => {
       const emps = (empsRaw || []).filter(e => !adminIds.has(e.id));
 
       if (!emps || emps.length === 0) {
-        toast({ title: "Tidak ada karyawan", description: "Tidak ditemukan karyawan aktif.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.noEmployeesTitle"), description: t("payrollPage.toast.noEmployeesDesc"), variant: "destructive" });
         setGenerating(false); return;
       }
 
@@ -867,7 +870,7 @@ const Payroll = () => {
         if (!periodCheck.valid) {
           console.error("Medical reimbursement period mismatch:", periodCheck.reason);
           toast({
-            title: "Periode klaim tidak sinkron",
+            title: t("payrollPage.toast.claimMismatch"),
             description: periodCheck.reason,
             variant: "destructive",
           });
@@ -953,8 +956,8 @@ const Payroll = () => {
             }
 
             toast({
-              title: "Medical Reimbursement Disinkronkan",
-              description: `${medicalMap.size} karyawan menerima total ${[...medicalMap.values()].reduce((s, v) => s + v.count, 0)} klaim dari Budget Expense.`,
+              title: t("payrollPage.toast.medicalSyncedTitle"),
+              description: t("payrollPage.toast.medicalSyncedDesc", { count: medicalMap.size, claims: [...medicalMap.values()].reduce((s, v) => s + v.count, 0) }),
             });
           }
         }
@@ -1195,8 +1198,8 @@ const Payroll = () => {
         }
       }
       toast({
-        title: "Payroll Berhasil Di-generate",
-        description: `${payrollRecords.length} karyawan dihitung untuk ${MONTHS[selectedMonth - 1].label} ${selectedYear}.`,
+        title: t("payrollPage.toast.generateSuccessTitle"),
+        description: t("payrollPage.toast.generateSuccessDesc", { count: payrollRecords.length, month: monthLabel(selectedMonth), year: selectedYear }),
       });
 
       // === AUDIT LOG: regenerate after unlock ===
@@ -1252,7 +1255,7 @@ const Payroll = () => {
       fetchPayrollData();
     } catch (error: any) {
       console.error("Error generating payroll:", error);
-      toast({ title: "Gagal Generate Payroll", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.generateFailed"), description: error.message, variant: "destructive" });
     } finally {
       setGenerating(false);
     }
@@ -1334,13 +1337,13 @@ const Payroll = () => {
       });
 
       toast({
-        title: "Payroll Berhasil Dibuka",
-        description: "Periode kembali ke Draft. Lakukan revisi lalu Generate ulang & Finalisasi.",
+        title: t("payrollPage.toast.unlockSuccessTitle"),
+        description: t("payrollPage.toast.unlockSuccessDesc"),
       });
       fetchPayrollData();
     } catch (error: any) {
       console.error("Error unlocking payroll:", error);
-      toast({ title: "Gagal Membuka Kunci", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.unlockFailed"), description: error.message, variant: "destructive" });
       throw error;
     }
   };
@@ -1413,10 +1416,10 @@ const Payroll = () => {
         });
       }
 
-      toast({ title: "Payroll Difinalisasi", description: "Payroll periode ini sudah dikunci." });
+      toast({ title: t("payrollPage.toast.finalizedTitle"), description: t("payrollPage.toast.finalizedDesc") });
       fetchPayrollData();
     } catch (error: any) {
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     }
   };
 
@@ -1546,18 +1549,18 @@ const Payroll = () => {
       "JKK Perusahaan (0.24%)": item.bpjs_jkk_employer,
       "JKM Perusahaan (0.3%)": item.bpjs_jkm_employer,
     }));
-    const monthLabel = MONTHS[selectedMonth - 1].label;
+    const mLabel = monthLabel(selectedMonth);
     await exportToExcelFile(
       data,
-      `Payroll ${monthLabel} ${selectedYear}`,
-      `Payroll_${monthLabel}_${selectedYear}.xlsx`,
+      `Payroll ${mLabel} ${selectedYear}`,
+      `Payroll_${mLabel}_${selectedYear}.xlsx`,
       [
         ["PT. KEMIKA KARYA PRATAMA"],
-        [`Data Payroll — ${monthLabel} ${selectedYear}`],
+        [`Data Payroll — ${mLabel} ${selectedYear}`],
         [`Digenerate: ${new Date().toLocaleString("id-ID")}`],
       ]
     );
-    toast({ title: "Export Berhasil", description: `Data payroll ${monthLabel} ${selectedYear} berhasil diexport ke Excel.` });
+    toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.exportPayrollDesc", { month: mLabel, year: selectedYear }) });
   };
 
   const [downloadingAllPDF, setDownloadingAllPDF] = useState(false);
@@ -1569,9 +1572,9 @@ const Payroll = () => {
         await generateSlipPDF(item);
         await new Promise(r => setTimeout(r, 300));
       }
-      toast({ title: "Download Selesai", description: `${payrollData.length} slip gaji berhasil di-download.` });
+      toast({ title: t("payrollPage.toast.downloadDoneTitle"), description: t("payrollPage.toast.downloadDoneDesc", { count: payrollData.length }) });
     } catch (error: any) {
-      toast({ title: "Gagal Download", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.downloadFailed"), description: error.message, variant: "destructive" });
     } finally {
       setDownloadingAllPDF(false);
     }
@@ -1598,8 +1601,8 @@ const Payroll = () => {
       const companyConfig = settingsData?.value as any;
       if (!companyConfig?.account_number) {
         toast({
-          title: "Konfigurasi Belum Lengkap",
-          description: "Silakan atur nomor rekening perusahaan di menu Settings > Pengaturan Bank Perusahaan terlebih dahulu.",
+          title: t("payrollPage.toast.configIncompleteTitle"),
+          description: t("payrollPage.toast.configIncompleteDesc"),
           variant: "destructive",
         });
         return;
@@ -1631,7 +1634,7 @@ const Payroll = () => {
       setBankPreviewData(employees);
       setShowBankPreview(true);
     } catch (error: any) {
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     } finally {
       setLoadingBankPreview(false);
     }
@@ -1651,10 +1654,10 @@ const Payroll = () => {
         selectedYear
       );
       downloadBankPayrollFile(csvContent, selectedMonth, selectedYear);
-      toast({ title: "Export Berhasil", description: "File e-Payroll bank berhasil di-download." });
+      toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.bankExportSuccessDesc") });
       setShowBankPreview(false);
     } catch (error: any) {
-      toast({ title: "Gagal Export", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.exportFailed"), description: error.message, variant: "destructive" });
     } finally {
       setExportingBankPayroll(false);
     }
@@ -1671,7 +1674,7 @@ const Payroll = () => {
     if (payrollData.length === 0) return;
     const thrRecipients = payrollData.filter(p => (p.thr || 0) > 0);
     if (thrRecipients.length === 0) {
-      toast({ title: "Tidak Ada Data THR", description: "Belum ada karyawan yang memiliki THR pada periode ini.", variant: "destructive" });
+      toast({ title: t("payrollPage.toast.noThrTitle"), description: t("payrollPage.toast.noThrDesc"), variant: "destructive" });
       return;
     }
     setLoadingThrBankPreview(true);
@@ -1680,7 +1683,7 @@ const Payroll = () => {
         .from("system_settings").select("value").eq("key", "company_bank_config").single();
       const companyConfig = settingsData?.value as any;
       if (!companyConfig?.account_number) {
-        toast({ title: "Konfigurasi Belum Lengkap", description: "Silakan atur nomor rekening perusahaan di menu Settings > Pengaturan Bank Perusahaan terlebih dahulu.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.configIncompleteTitle"), description: t("payrollPage.toast.configIncompleteDesc"), variant: "destructive" });
         return;
       }
       setThrBankCompanyConfig(companyConfig);
@@ -1706,7 +1709,7 @@ const Payroll = () => {
       setThrBankPreviewData(employees);
       setShowThrBankPreview(true);
     } catch (error: any) {
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     } finally {
       setLoadingThrBankPreview(false);
     }
@@ -1727,10 +1730,10 @@ const Payroll = () => {
         'THR'
       );
       downloadBankPayrollFile(csvContent, selectedMonth, selectedYear, 'e-payroll-THR');
-      toast({ title: "Export Berhasil", description: "File e-Payroll THR berhasil di-download." });
+      toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.thrBankExportDesc") });
       setShowThrBankPreview(false);
     } catch (error: any) {
-      toast({ title: "Gagal Export", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.exportFailed"), description: error.message, variant: "destructive" });
     } finally {
       setExportingThrBank(false);
     }
@@ -1742,7 +1745,7 @@ const Payroll = () => {
     // Check if any employee has THR > 0
     const thrRecipients = payrollData.filter(p => (p.thr || 0) > 0);
     if (thrRecipients.length === 0) {
-      toast({ title: "Tidak Ada Data THR", description: "Belum ada karyawan yang memiliki THR pada periode ini. Hitung THR terlebih dahulu melalui Tambahan Penghasilan.", variant: "destructive" });
+      toast({ title: t("payrollPage.toast.noThrTitle"), description: t("payrollPage.toast.noThrAddDesc"), variant: "destructive" });
       return;
     }
     setGeneratingThrPdf(true);
@@ -1796,10 +1799,10 @@ const Payroll = () => {
       });
 
       await generateThrDisbursementPDF(thrEmployees, selectedMonth, selectedYear, idulFitriDate, idulFitriName, logo);
-      toast({ title: "PDF THR Berhasil", description: "Dokumen pengajuan pembayaran THR berhasil di-download." });
+      toast({ title: t("payrollPage.toast.thrPdfTitle"), description: t("payrollPage.toast.thrPdfDesc") });
     } catch (error: any) {
       console.error("Error generating THR PDF:", error);
-      toast({ title: "Gagal Generate PDF", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.thrPdfFailed"), description: error.message, variant: "destructive" });
     } finally {
       setGeneratingThrPdf(false);
     }
@@ -1852,9 +1855,9 @@ const Payroll = () => {
         selectedYear,
         logo
       );
-      toast({ title: "Export Berhasil", description: "Laporan payroll detail berhasil di-download." });
+      toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.reportSuccessDesc") });
     } catch (error: any) {
-      toast({ title: "Gagal Export", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.exportFailed"), description: error.message, variant: "destructive" });
     } finally {
       setGeneratingReport(false);
     }
@@ -1866,14 +1869,14 @@ const Payroll = () => {
         <div className="space-y-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <DollarSign className="h-7 w-7 text-primary" /> Payroll
+              <DollarSign className="h-7 w-7 text-primary" /> {t("payrollPage.title")}
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Kelola penggajian karyawan dengan perhitungan PPh 21 & tunjangan kehadiran otomatis
+              {t("payrollPage.subtitle")}
             </p>
             <TabsList className="mt-3">
-              <TabsTrigger value="payroll">Payroll</TabsTrigger>
-              <TabsTrigger value="overrides">Riwayat Override</TabsTrigger>
+              <TabsTrigger value="payroll">{t("payrollPage.tabs.payroll")}</TabsTrigger>
+              <TabsTrigger value="overrides">{t("payrollPage.tabs.overrides")}</TabsTrigger>
             </TabsList>
           </div>
 
@@ -1881,7 +1884,7 @@ const Payroll = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <Select value={String(selectedMonth)} onValueChange={(v) => setSelectedMonth(Number(v))}>
               <SelectTrigger className="w-[130px] h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>{MONTHS.map((m) => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}</SelectContent>
+              <SelectContent>{MONTHS.map((m) => <SelectItem key={m.value} value={String(m.value)}>{monthLabel(m.value)}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
               <SelectTrigger className="w-[90px] h-9"><SelectValue /></SelectTrigger>
@@ -1889,17 +1892,17 @@ const Payroll = () => {
             </Select>
             <Button size="sm" onClick={handleGenerate} disabled={generating || period?.status === "finalized"} className="gap-1.5">
               {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calculator className="h-3.5 w-3.5" />}
-              Generate
+              {t("payrollPage.actions.generate")}
             </Button>
             <Button variant="outline" size="sm" onClick={openDeductionDialog} disabled={period?.status === "finalized"} className="gap-1.5">
-              <FileText className="h-3.5 w-3.5" /> Potongan
+              <FileText className="h-3.5 w-3.5" /> {t("payrollPage.actions.deductions")}
             </Button>
             <Button variant="outline" size="sm" onClick={openIncomeDialog} disabled={period?.status === "finalized"} className="gap-1.5">
-              <TrendingUp className="h-3.5 w-3.5" /> Tambahan Penghasilan
+              <TrendingUp className="h-3.5 w-3.5" /> {t("payrollPage.actions.incomeAdditions")}
             </Button>
             {period?.status === "draft" && payrollData.length > 0 && (
               <Button variant="outline" size="sm" onClick={handleFinalize} className="gap-1.5">
-                <Lock className="h-3.5 w-3.5" /> Finalisasi
+                <Lock className="h-3.5 w-3.5" /> {t("payrollPage.actions.finalize")}
               </Button>
             )}
             {period?.status === "finalized" && (
@@ -1909,39 +1912,39 @@ const Payroll = () => {
                 onClick={() => setShowUnlockDialog(true)}
                 className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
               >
-                <Unlock className="h-3.5 w-3.5" /> Buka Kunci untuk Revisi
+                <Unlock className="h-3.5 w-3.5" /> {t("payrollPage.actions.unlock")}
               </Button>
             )}
             {payrollData.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5">
-                    <Download className="h-3.5 w-3.5" /> Export
+                    <Download className="h-3.5 w-3.5" /> {t("payrollPage.actions.export")}
                     <ChevronDown className="h-3 w-3 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem onClick={handleExportExcel} className="gap-2">
-                    <FileSpreadsheet className="h-4 w-4" /> Export Excel
+                    <FileSpreadsheet className="h-4 w-4" /> {t("payrollPage.actions.exportExcel")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportPayrollReport} disabled={generatingReport} className="gap-2">
-                    <Printer className="h-4 w-4" /> Laporan PDF
+                    <Printer className="h-4 w-4" /> {t("payrollPage.actions.reportPdf")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleDownloadAllPDF} disabled={downloadingAllPDF} className="gap-2">
-                    <Download className="h-4 w-4" /> Semua Slip PDF
+                    <Download className="h-4 w-4" /> {t("payrollPage.actions.allSlipPdf")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleOpenBankPreview} disabled={loadingBankPreview} className="gap-2">
-                    <Landmark className="h-4 w-4" /> e-Payroll Bank
+                    <Landmark className="h-4 w-4" /> {t("payrollPage.actions.ePayrollBank")}
                   </DropdownMenuItem>
                   {hasIdulFitriInPeriod && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleExportThrPDF} disabled={generatingThrPdf} className="gap-2">
-                        <Gift className="h-4 w-4" /> PDF THR
+                        <Gift className="h-4 w-4" /> {t("payrollPage.actions.thrPdf")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleOpenThrBankPreview} disabled={loadingThrBankPreview} className="gap-2">
-                        <Landmark className="h-4 w-4" /> e-Payroll THR
+                        <Landmark className="h-4 w-4" /> {t("payrollPage.actions.ePayrollThr")}
                       </DropdownMenuItem>
                     </>
                   )}
@@ -1954,20 +1957,20 @@ const Payroll = () => {
         <TabsContent value="payroll" className="space-y-6 mt-0">
         {period && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Status Periode:</span>
+            <span className="text-sm text-muted-foreground">{t("payrollPage.status.label")}</span>
             <Badge variant={period.status === "finalized" ? "default" : "secondary"}>
-              {period.status === "finalized" ? "🔒 Finalized" : "📝 Draft"}
+              {period.status === "finalized" ? t("payrollPage.status.finalized") : t("payrollPage.status.draft")}
             </Badge>
           </div>
         )}
 
         {payrollData.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Users className="h-8 w-8 text-primary/60" /><div><p className="text-2xl font-bold">{payrollData.length}</p><p className="text-xs text-muted-foreground">Total Karyawan</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalBruto)}</p><p className="text-xs text-muted-foreground">Total Bruto</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><FileText className="h-8 w-8 text-destructive/40" /><div><p className="text-lg font-bold">{formatRupiah(totalPPh)}</p><p className="text-xs text-muted-foreground">Total PPh 21</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><DollarSign className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalTHP)}</p><p className="text-xs text-muted-foreground">Total THP</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Building2 className="h-8 w-8 text-muted-foreground/40" /><div><p className="text-lg font-bold">{formatRupiah(totalEmployerBpjs)}</p><p className="text-xs text-muted-foreground">BPJS Perusahaan</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Users className="h-8 w-8 text-primary/60" /><div><p className="text-2xl font-bold">{payrollData.length}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalEmployees")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalBruto)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalBruto")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><FileText className="h-8 w-8 text-destructive/40" /><div><p className="text-lg font-bold">{formatRupiah(totalPPh)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalPph")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><DollarSign className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalTHP)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalThp")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Building2 className="h-8 w-8 text-muted-foreground/40" /><div><p className="text-lg font-bold">{formatRupiah(totalEmployerBpjs)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.employerBpjs")}</p></div></div></CardContent></Card>
           </div>
         )}
 
@@ -1975,14 +1978,14 @@ const Payroll = () => {
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <CardTitle className="text-lg">Data Payroll — {MONTHS[selectedMonth - 1].label} {selectedYear}</CardTitle>
-                <CardDescription>Daftar penggajian karyawan beserta tunjangan, potongan, dan pajak</CardDescription>
+                <CardTitle className="text-lg">{t("payrollPage.card.dataTitle", { month: monthLabel(selectedMonth), year: selectedYear })}</CardTitle>
+                <CardDescription>{t("payrollPage.card.dataDesc")}</CardDescription>
               </div>
               {payrollData.length > 0 && (
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Cari nama, NIK, dept..."
+                    placeholder={t("payrollPage.card.searchPlaceholder")}
                     value={payrollSearch}
                     onChange={(e) => { setPayrollSearch(e.target.value); setPayrollPage(1); }}
                     className="pl-9"
@@ -1997,14 +2000,14 @@ const Payroll = () => {
             ) : payrollData.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Calculator className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Belum ada data payroll</p>
-                <p className="text-sm mt-1">Klik "Generate Payroll" untuk menghitung gaji periode ini</p>
+                <p className="font-medium">{t("payrollPage.card.emptyTitle")}</p>
+                <p className="text-sm mt-1">{t("payrollPage.card.emptyHint")}</p>
               </div>
             ) : filteredPayroll.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Search className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Tidak ada hasil</p>
-                <p className="text-sm mt-1">Coba kata kunci lain</p>
+                <p className="font-medium">{t("payrollPage.card.noResultsTitle")}</p>
+                <p className="text-sm mt-1">{t("payrollPage.card.noResultsHint")}</p>
               </div>
             ) : (
               <>
@@ -2012,18 +2015,18 @@ const Payroll = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[40px]">No</TableHead>
-                        <TableHead>Nama</TableHead>
-                        <TableHead>Dept</TableHead>
-                        <TableHead className="text-right">Gaji Pokok</TableHead>
-                        <TableHead className="text-right">Tunjangan</TableHead>
-                        <TableHead className="text-right">Lembur</TableHead>
-                        <TableHead className="text-right">Bruto</TableHead>
-                        <TableHead className="text-right">BPJS</TableHead>
-                        <TableHead className="text-right">Potongan</TableHead>
-                        <TableHead className="text-center">PPh 21 Mode</TableHead>
-                        <TableHead className="text-right">PPh 21</TableHead>
-                        <TableHead className="text-right">THP</TableHead>
+                        <TableHead className="w-[40px]">{t("payrollPage.table.no")}</TableHead>
+                        <TableHead>{t("payrollPage.table.name")}</TableHead>
+                        <TableHead>{t("payrollPage.table.dept")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.basicSalary")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.allowance")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.overtime")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.bruto")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.bpjs")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.deduction")}</TableHead>
+                        <TableHead className="text-center">{t("payrollPage.table.pphMode")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.pph")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.thp")}</TableHead>
                         <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -2035,7 +2038,7 @@ const Payroll = () => {
                           <TableCell><Badge variant="outline" className="text-[10px]">{item.departemen}</Badge></TableCell>
                           <TableCell className="text-right text-sm">{formatRupiah(item.basic_salary)}</TableCell>
                           <TableCell className="text-right text-sm">{item.allowance > 0 ? formatRupiah(item.allowance) : <span className="text-muted-foreground">-</span>}</TableCell>
-                          <TableCell className="text-right text-sm">{item.overtime_hours > 0 ? <span title={`${item.overtime_hours} jam`}>{formatRupiah(item.overtime_total)}</span> : <span className="text-muted-foreground">-</span>}</TableCell>
+                          <TableCell className="text-right text-sm">{item.overtime_hours > 0 ? <span title={t("payrollPage.table.hoursTooltip", { count: item.overtime_hours })}>{formatRupiah(item.overtime_total)}</span> : <span className="text-muted-foreground">-</span>}</TableCell>
                           <TableCell className="text-right text-sm font-medium">{formatRupiah(item.bruto_income)}</TableCell>
                           <TableCell className="text-right text-sm text-muted-foreground">{formatRupiah(item.bpjs_kesehatan + item.bpjs_ketenagakerjaan)}</TableCell>
                           <TableCell className="text-right text-sm text-muted-foreground">
@@ -2045,7 +2048,7 @@ const Payroll = () => {
                             {item.pph21_mode === "TER" && item.pph21_ter_rate != null ? (
                               <Badge variant="outline" className="text-[10px]">TER {item.pph21_ter_rate.toFixed(2)}%</Badge>
                             ) : item.pph21_mode === "REKONSILIASI" ? (
-                              <Badge variant="secondary" className="text-[10px]">Rekonsiliasi</Badge>
+                              <Badge variant="secondary" className="text-[10px]">{t("payrollPage.table.rekonsiliasi")}</Badge>
                             ) : (
                               <span className="text-muted-foreground">{item.pph21_mode}</span>
                             )}
@@ -2054,8 +2057,8 @@ const Payroll = () => {
                           <TableCell className="text-right text-sm font-bold text-primary">{formatRupiah(item.take_home_pay)}</TableCell>
                           <TableCell>
                             <div className="flex gap-1">
-                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); setDetailItem(item); }}>Detail</Button>
-                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); generateSlipPDF(item); }} title="Download Slip PDF">
+                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); setDetailItem(item); }}>{t("payrollPage.table.detail")}</Button>
+                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); generateSlipPDF(item); }} title={t("payrollPage.table.downloadSlipTitle")}>
                                 <Download className="h-3.5 w-3.5" />
                               </Button>
                             </div>
@@ -2063,7 +2066,7 @@ const Payroll = () => {
                         </TableRow>
                       ))}
                       <TableRow className="bg-muted/50 font-semibold">
-                        <TableCell colSpan={3}>Total ({filteredPayroll.length} karyawan)</TableCell>
+                        <TableCell colSpan={3}>{t("payrollPage.table.totalEmployees", { count: filteredPayroll.length })}</TableCell>
                         <TableCell className="text-right">{formatRupiah(filteredPayroll.reduce((s, p) => s + p.basic_salary, 0))}</TableCell>
                         <TableCell className="text-right">{formatRupiah(filteredPayroll.reduce((s, p) => s + p.allowance, 0))}</TableCell>
                         <TableCell className="text-right">{formatRupiah(filteredPayroll.reduce((s, p) => s + p.overtime_total, 0))}</TableCell>
@@ -2082,7 +2085,7 @@ const Payroll = () => {
                 {payrollTotalPages > 1 && (
                   <div className="flex items-center justify-between mt-4">
                     <p className="text-sm text-muted-foreground">
-                      Menampilkan {(safePage - 1) * payrollPerPage + 1}–{Math.min(safePage * payrollPerPage, filteredPayroll.length)} dari {filteredPayroll.length}
+                      {t("payrollPage.table.showing", { from: (safePage - 1) * payrollPerPage + 1, to: Math.min(safePage * payrollPerPage, filteredPayroll.length), total: filteredPayroll.length })}
                     </p>
                     <div className="flex items-center gap-1">
                       <Button variant="outline" size="sm" disabled={safePage <= 1} onClick={() => setPayrollPage(safePage - 1)}>
@@ -2119,131 +2122,128 @@ const Payroll = () => {
         <Dialog open={!!detailItem} onOpenChange={(open) => !open && setDetailItem(null)}>
           <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Detail Slip Gaji</DialogTitle>
-              <DialogDescription>{detailItem?.employee_name} — {MONTHS[selectedMonth - 1].label} {selectedYear}</DialogDescription>
+              <DialogTitle>{t("payrollPage.detail.title")}</DialogTitle>
+              <DialogDescription>{detailItem?.employee_name} — {monthLabel(selectedMonth)} {selectedYear}</DialogDescription>
             </DialogHeader>
             {detailItem && (
               <div className="space-y-3 text-sm">
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="text-muted-foreground">Gaji Pokok</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.basicSalary")}</span>
                   <span className="text-right font-medium">{formatRupiah(detailItem.basic_salary)}</span>
-                  <span className="text-muted-foreground">Tunjangan Kehadiran</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.attendanceAllowance")}</span>
                   <span className="text-right">{formatRupiah(detailItem.allowance - (detailItem.tunjangan_komunikasi || 0) - (detailItem.tunjangan_jabatan || 0) - (detailItem.tunjangan_operasional || 0) - (detailItem.tunjangan_kesehatan || 0) - (detailItem.bonus_tahunan || 0) - (detailItem.thr || 0) - (detailItem.insentif_kinerja || 0) - (detailItem.bonus_lainnya || 0) - (detailItem.pengembalian_employee || 0) - (detailItem.insentif_penjualan || 0))}</span>
-                  <span className="text-muted-foreground">Lembur ({detailItem.overtime_hours} jam)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.overtimeWithHours", { hours: detailItem.overtime_hours })}</span>
                   <span className="text-right">{formatRupiah(detailItem.overtime_total)}</span>
                 </div>
-                {/* Fixed Allowances Breakdown */}
                 {((detailItem.tunjangan_komunikasi || 0) + (detailItem.tunjangan_jabatan || 0) + (detailItem.tunjangan_operasional || 0)) > 0 && (
                   <div className="grid grid-cols-2 gap-2 border-b border-border pb-3 bg-muted/30 rounded p-2">
-                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">📋 Tunjangan Tetap</span>
+                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">{t("payrollPage.detail.fixedAllowances")}</span>
                     {(detailItem.tunjangan_komunikasi || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Komunikasi</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjKomunikasi")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_komunikasi!)}</span>
                     </>}
                     {(detailItem.tunjangan_jabatan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Jabatan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjJabatan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_jabatan!)}</span>
                     </>}
                     {(detailItem.tunjangan_operasional || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Operasional</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjOperasional")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_operasional!)}</span>
                     </>}
                   </div>
                 )}
-                {/* Incidental Income Breakdown */}
                 {((detailItem.tunjangan_kesehatan || 0) + (detailItem.bonus_tahunan || 0) + (detailItem.thr || 0) + (detailItem.insentif_kinerja || 0) + (detailItem.bonus_lainnya || 0) + (detailItem.pengembalian_employee || 0) + (detailItem.insentif_penjualan || 0)) > 0 && (
                   <div className="grid grid-cols-2 gap-2 border-b border-border pb-3 bg-primary/5 rounded p-2">
-                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">💰 Penghasilan Insidental</span>
+                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">{t("payrollPage.detail.incidentalIncome")}</span>
                     {(detailItem.tunjangan_kesehatan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Kesehatan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjKesehatan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_kesehatan!)}</span>
                     </>}
                     {(detailItem.bonus_tahunan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Bonus Tahunan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.bonusTahunan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.bonus_tahunan!)}</span>
                     </>}
                     {(detailItem.thr || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">THR</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.thr")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.thr!)}</span>
                     </>}
                     {(detailItem.insentif_kinerja || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Insentif Kinerja</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.insentifKinerja")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.insentif_kinerja!)}</span>
                     </>}
                     {(detailItem.bonus_lainnya || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Bonus Lainnya</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.bonusLainnya")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.bonus_lainnya!)}</span>
                     </>}
                     {(detailItem.pengembalian_employee || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Pengembalian Employee</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.pengembalian")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.pengembalian_employee!)}</span>
                     </>}
                     {(detailItem.insentif_penjualan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Insentif Penjualan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.insentifPenjualan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.insentif_penjualan!)}</span>
                     </>}
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="font-semibold">Bruto</span>
+                  <span className="font-semibold">{t("payrollPage.detail.bruto")}</span>
                   <span className="text-right font-semibold">{formatRupiah(detailItem.bruto_income)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="text-muted-foreground">BPJS Kesehatan (1%)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.bpjsKes")}</span>
                   <span className="text-right text-destructive">-{formatRupiah(detailItem.bpjs_kesehatan)}</span>
-                  <span className="text-muted-foreground">BPJS TK + JP (3%)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.bpjsTk")}</span>
                   <span className="text-right text-destructive">-{formatRupiah(detailItem.bpjs_ketenagakerjaan)}</span>
                   {detailItem.loan_deduction > 0 && <>
-                    <span className="text-muted-foreground">Pinjaman/Kasbon</span>
+                    <span className="text-muted-foreground">{t("payrollPage.detail.loan")}</span>
                     <span className="text-right text-destructive">-{formatRupiah(detailItem.loan_deduction)}</span>
                   </>}
                   {detailItem.other_deduction > 0 && <>
-                    <span className="text-muted-foreground">Potongan Lain</span>
+                    <span className="text-muted-foreground">{t("payrollPage.detail.otherDeduction")}</span>
                     <span className="text-right text-destructive">-{formatRupiah(detailItem.other_deduction)}</span>
                   </>}
                   {detailItem.deduction_notes && (
-                    <span className="col-span-2 text-xs text-muted-foreground italic">Catatan: {detailItem.deduction_notes}</span>
+                    <span className="col-span-2 text-xs text-muted-foreground italic">{t("payrollPage.detail.noteLabel", { note: detailItem.deduction_notes })}</span>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="font-semibold">Netto</span>
+                  <span className="font-semibold">{t("payrollPage.detail.netto")}</span>
                   <span className="text-right font-semibold">{formatRupiah(detailItem.netto_income)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="text-muted-foreground">PTKP ({detailItem.ptkp_status})</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.ptkpLabel", { status: detailItem.ptkp_status })}</span>
                   <span className="text-right">{formatRupiah(detailItem.ptkp_value)}</span>
-                  <span className="text-muted-foreground">PKP (Tahunan)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.pkpYearly")}</span>
                   <span className="text-right">{formatRupiah(detailItem.pkp)}</span>
                   <span className="text-muted-foreground">
-                    PPh 21 / bulan
+                    {t("payrollPage.detail.pphMonthly")}
                     {detailItem.pph21_mode === "TER" && <Badge variant="outline" className="ml-1 text-[9px]">TER {detailItem.pph21_ter_rate}%</Badge>}
-                    {detailItem.pph21_mode === "REKONSILIASI" && <Badge variant="secondary" className="ml-1 text-[9px]">Rekonsiliasi</Badge>}
+                    {detailItem.pph21_mode === "REKONSILIASI" && <Badge variant="secondary" className="ml-1 text-[9px]">{t("payrollPage.detail.rekonsiliasi")}</Badge>}
                   </span>
                   <span className="text-right text-destructive font-medium">-{formatRupiah(detailItem.pph21_monthly)}</span>
                 </div>
 
-                {/* Employer BPJS */}
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3 bg-muted/30 rounded p-2">
-                  <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">Kontribusi Perusahaan</span>
-                  <span className="text-muted-foreground text-xs">BPJS Kes (4%)</span>
+                  <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">{t("payrollPage.detail.companyContribution")}</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.bpjsKes4")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_kes_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JHT (3.7%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jht")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jht_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JP (2%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jp")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jp_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JKK (0.24%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jkk")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jkk_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JKM (0.3%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jkm")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jkm_employer)}</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <span className="text-base font-bold">Take Home Pay</span>
+                  <span className="text-base font-bold">{t("payrollPage.detail.thp")}</span>
                   <span className="text-right text-base font-bold text-primary">{formatRupiah(detailItem.take_home_pay)}</span>
                 </div>
                 <div className="pt-3 border-t border-border">
                   <Button onClick={() => generateSlipPDF(detailItem)} className="w-full gap-2">
-                    <Download className="h-4 w-4" /> Download Slip Gaji PDF
+                    <Download className="h-4 w-4" /> {t("payrollPage.detail.downloadPdf")}
                   </Button>
                 </div>
               </div>
@@ -2255,11 +2255,11 @@ const Payroll = () => {
         <Dialog open={showDeductionDialog} onOpenChange={(open) => { setShowDeductionDialog(open); if (!open) { setDeductionSearch(""); setSelectedDeductionEmp(null); } }}>
           <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
             <DialogHeader>
-              <DialogTitle>Potongan Tambahan Karyawan</DialogTitle>
-              <DialogDescription>Klik nama karyawan untuk mengisi potongan. Karyawan dengan potongan akan ditandai.</DialogDescription>
+              <DialogTitle>{t("payrollPage.deductionDialog.title")}</DialogTitle>
+              <DialogDescription>{t("payrollPage.deductionDialog.desc")}</DialogDescription>
             </DialogHeader>
             <Input
-              placeholder="🔍 Cari karyawan..."
+              placeholder={t("payrollPage.deductionDialog.search")}
               value={deductionSearch}
               onChange={(e) => setDeductionSearch(e.target.value)}
               className="mb-2"
@@ -2293,7 +2293,7 @@ const Payroll = () => {
                       >
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-sm">{emp.full_name}</span>
-                          {hasValue && <Badge variant="outline" className="text-[10px]">Ada potongan</Badge>}
+                          {hasValue && <Badge variant="outline" className="text-[10px]">{t("payrollPage.deductionDialog.hasDeduction")}</Badge>}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {hasValue && (
@@ -2306,44 +2306,44 @@ const Payroll = () => {
                         <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
                           <div className="grid grid-cols-3 gap-2">
                             <div>
-                              <Label className="text-xs">Pinjaman/Kasbon</Label>
+                              <Label className="text-xs">{t("payrollPage.deductionDialog.loanLabel")}</Label>
                               <Input
                                 type="text"
-                                value={autoLoan > 0 ? formatRupiah(autoLoan) : "Tidak ada cicilan"}
+                                value={autoLoan > 0 ? formatRupiah(autoLoan) : t("payrollPage.deductionDialog.noInstallment")}
                                 readOnly
                                 disabled
                                 className="bg-muted/50 cursor-not-allowed"
-                                title="Otomatis dari modul Deduction (Pinjaman/Kasbon)."
+                                title={t("payrollPage.deductionDialog.loanTooltip")}
                               />
                             </div>
                             <div>
-                              <Label className="text-xs">Potongan Lain (Auto)</Label>
+                              <Label className="text-xs">{t("payrollPage.deductionDialog.otherAuto")}</Label>
                               <Input
                                 type="text"
-                                value={autoOther > 0 ? formatRupiah(autoOther) : "Tidak ada"}
+                                value={autoOther > 0 ? formatRupiah(autoOther) : t("payrollPage.deductionDialog.none")}
                                 readOnly
                                 disabled
                                 className="bg-muted/50 cursor-not-allowed"
-                                title="Otomatis dari modul Deduction (jenis: Potongan Lain)."
+                                title={t("payrollPage.deductionDialog.otherAutoTooltip")}
                               />
                             </div>
                             <div>
-                              <Label className="text-xs">Potongan Lain (Manual)</Label>
+                              <Label className="text-xs">{t("payrollPage.deductionDialog.otherManual")}</Label>
                               <Input type="number" value={ded.other_deduction || ""} placeholder="0"
                                 onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
                             </div>
                           </div>
                           <p className="text-[11px] text-muted-foreground italic">
-                            ℹ️ Kolom <strong>Auto</strong> diambil otomatis dari modul <strong>Deduction</strong> (read-only). Catatan otomatis tersinkron dari deskripsi potongan. Tambahkan <strong>Potongan Lain (Manual)</strong> hanya jika ada potongan tambahan di luar modul Deduction.
+                            {t("payrollPage.deductionDialog.info")}
                           </p>
                           {autoNotesMap.get(emp.id) && (
                             <div className="text-[11px] text-muted-foreground">
-                              <span className="font-medium">Catatan tersinkron:</span> {autoNotesMap.get(emp.id)}
+                              <span className="font-medium">{t("payrollPage.deductionDialog.syncedNote")}</span> {autoNotesMap.get(emp.id)}
                             </div>
                           )}
                           <div>
-                            <Label className="text-xs">Catatan Manual (Tambahan)</Label>
-                            <Textarea rows={1} value={ded.deduction_notes} placeholder="Catatan tambahan untuk potongan manual..."
+                            <Label className="text-xs">{t("payrollPage.deductionDialog.manualNote")}</Label>
+                            <Textarea rows={1} value={ded.deduction_notes} placeholder={t("payrollPage.deductionDialog.manualNotePlaceholder")}
                               onChange={(e) => updateDeduction(emp.id, "deduction_notes", e.target.value)} />
                           </div>
                         </div>
@@ -2353,7 +2353,7 @@ const Payroll = () => {
                 });
               })()}
             </div>
-            <Button onClick={async () => { await saveOverridesToDB('deduction'); setShowDeductionDialog(false); }} className="w-full mt-2">Simpan & Tutup</Button>
+            <Button onClick={async () => { await saveOverridesToDB('deduction'); setShowDeductionDialog(false); }} className="w-full mt-2">{t("payrollPage.deductionDialog.saveClose")}</Button>
           </DialogContent>
         </Dialog>
 
@@ -2361,8 +2361,8 @@ const Payroll = () => {
         <Dialog open={showIncomeDialog} onOpenChange={(open) => { setShowIncomeDialog(open); if (!open) { setIncomeSearch(""); setSelectedIncomeEmp(null); } }}>
           <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
             <DialogHeader>
-              <DialogTitle>Tambahan Penghasilan Insidental</DialogTitle>
-              <DialogDescription>Klik nama karyawan untuk mengisi tambahan penghasilan. Tunjangan tetap diambil otomatis dari data karyawan.</DialogDescription>
+              <DialogTitle>{t("payrollPage.incomeDialog.title")}</DialogTitle>
+              <DialogDescription>{t("payrollPage.incomeDialog.desc")}</DialogDescription>
             </DialogHeader>
             {hasIdulFitriInPeriod && (
               <Button
@@ -2373,11 +2373,11 @@ const Payroll = () => {
                 onClick={handleAutoCalculateTHR}
               >
                 {calculatingThr ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gift className="h-4 w-4" />}
-                Hitung THR Otomatis (Permenaker No.6/2016)
+                {t("payrollPage.incomeDialog.thrAuto")}
               </Button>
             )}
             <Input
-              placeholder="🔍 Cari karyawan..."
+              placeholder={t("payrollPage.incomeDialog.search")}
               value={incomeSearch}
               onChange={(e) => setIncomeSearch(e.target.value)}
               className="mb-2"
@@ -2399,7 +2399,7 @@ const Payroll = () => {
                       >
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-sm">{emp.full_name}</span>
-                          {hasValue && <Badge variant="outline" className="text-[10px]">Ada tambahan</Badge>}
+                          {hasValue && <Badge variant="outline" className="text-[10px]">{t("payrollPage.incomeDialog.hasAddition")}</Badge>}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {hasValue && (
