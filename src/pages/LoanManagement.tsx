@@ -789,7 +789,13 @@ const LoanManagement = () => {
               <AlertDialogTitle>{t("loanMgmt.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription asChild>
                 <div className="space-y-2">
-                  <p dangerouslySetInnerHTML={{ __html: t("loanMgmt.delete.warning1", { name: loanToDelete?.employee_name || "", amount: loanToDelete ? formatRupiah(loanToDelete.total_amount) : "" }) }} />
+                  <p>
+                    {t("loanMgmt.delete.warning1Prefix")}
+                    <strong>{loanToDelete?.employee_name}</strong>
+                    {t("loanMgmt.delete.warning1Middle")}
+                    <strong>{loanToDelete ? formatRupiah(loanToDelete.total_amount) : ""}</strong>
+                    {t("loanMgmt.delete.warning1Suffix")}
+                  </p>
                   <p className="text-destructive font-medium">
                     {t("loanMgmt.delete.warning2")}
                   </p>
