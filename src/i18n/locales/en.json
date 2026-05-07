@@ -749,7 +749,15 @@
     "submitting": "Submitting...",
     "successTitle": "Success",
     "successDesc": "Business travel request submitted successfully and pending approval.",
-    "failTitle": "Submission Failed"
+    "failTitle": "Submission Failed",
+    "errDestRequired": "Destination is required",
+    "errDestMax": "Destination must be at most 200 characters",
+    "errPurposeRequired": "Purpose is required",
+    "errPurposeMax": "Purpose must be at most 500 characters",
+    "errStartRequired": "Start date is required",
+    "errEndRequired": "End date is required",
+    "errNotesMax": "Notes must be at most 1000 characters",
+    "errEndAfterStart": "End date must be on or after start date"
   },
   "travelHistory": {
     "title": "Business Travel History",

@@ -749,7 +749,15 @@
     "submitting": "Mengirim...",
     "successTitle": "Berhasil",
     "successDesc": "Pengajuan perjalanan dinas berhasil dikirim dan menunggu persetujuan.",
-    "failTitle": "Gagal Mengirim"
+    "failTitle": "Gagal Mengirim",
+    "errDestRequired": "Tujuan harus diisi",
+    "errDestMax": "Tujuan maksimal 200 karakter",
+    "errPurposeRequired": "Keperluan harus diisi",
+    "errPurposeMax": "Keperluan maksimal 500 karakter",
+    "errStartRequired": "Tanggal mulai harus diisi",
+    "errEndRequired": "Tanggal selesai harus diisi",
+    "errNotesMax": "Catatan maksimal 1000 karakter",
+    "errEndAfterStart": "Tanggal selesai harus setelah tanggal mulai"
   },
   "travelHistory": {
     "title": "Riwayat Perjalanan Dinas",
