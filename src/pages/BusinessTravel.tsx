@@ -662,68 +662,68 @@ const BusinessTravel = () => {
       <Dialog open={!!detailRequest} onOpenChange={(open) => !open && setDetailRequest(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detail Perjalanan Dinas</DialogTitle>
-            <DialogDescription>Informasi lengkap permohonan perjalanan dinas karyawan</DialogDescription>
+            <DialogTitle>{t("travelAdmin.detailTitle")}</DialogTitle>
+            <DialogDescription>{t("travelAdmin.detailDesc")}</DialogDescription>
           </DialogHeader>
           {detailRequest && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Nama</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fName")}</p>
                   <p className="font-medium">{detailRequest.profiles?.full_name || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">NIK</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.colNik")}</p>
                   <p className="font-medium">{detailRequest.profiles?.nik || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Departemen</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.colDept")}</p>
                   <p className="font-medium">{detailRequest.profiles?.departemen || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Tujuan</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fDestination")}</p>
                   <p className="font-medium">{detailRequest.destination}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Tanggal Mulai</p>
-                  <p className="font-medium">{format(new Date(detailRequest.start_date), "d MMMM yyyy", { locale: id })}</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fStartDate")}</p>
+                  <p className="font-medium">{format(new Date(detailRequest.start_date), "d MMMM yyyy", { locale: dateLocale })}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Tanggal Selesai</p>
-                  <p className="font-medium">{format(new Date(detailRequest.end_date), "d MMMM yyyy", { locale: id })}</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fEndDate")}</p>
+                  <p className="font-medium">{format(new Date(detailRequest.end_date), "d MMMM yyyy", { locale: dateLocale })}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Durasi</p>
-                  <p className="font-medium">{detailRequest.total_days} hari</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fDuration")}</p>
+                  <p className="font-medium">{t("travelAdmin.days", { n: detailRequest.total_days })}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fStatus")}</p>
                   {getStatusBadge(detailRequest.status)}
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Dokumen</p>
-                  <p className="font-medium">{detailRequest.document_url ? "Ada" : "Belum Ada"}</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fDocument")}</p>
+                  <p className="font-medium">{detailRequest.document_url ? t("travelAdmin.docExists") : t("travelAdmin.docNone")}</p>
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Keperluan</p>
+                <p className="text-sm text-muted-foreground">{t("travelAdmin.fPurpose")}</p>
                 <p className="font-medium whitespace-pre-wrap">{detailRequest.purpose}</p>
               </div>
               {detailRequest.notes && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Catatan</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fNotes")}</p>
                   <p className="font-medium whitespace-pre-wrap">{detailRequest.notes}</p>
                 </div>
               )}
               {detailRequest.rejection_reason && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Alasan Penolakan</p>
+                  <p className="text-sm text-muted-foreground">{t("travelAdmin.fRejectionReason")}</p>
                   <p className="font-medium whitespace-pre-wrap text-destructive">{detailRequest.rejection_reason}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-muted-foreground">Tanggal Pengajuan</p>
-                <p className="font-medium">{format(new Date(detailRequest.created_at), "d MMMM yyyy, HH:mm", { locale: id })}</p>
+                <p className="text-sm text-muted-foreground">{t("travelAdmin.fSubmittedAt")}</p>
+                <p className="font-medium">{format(new Date(detailRequest.created_at), "d MMMM yyyy, HH:mm", { locale: dateLocale })}</p>
               </div>
             </div>
           )}
