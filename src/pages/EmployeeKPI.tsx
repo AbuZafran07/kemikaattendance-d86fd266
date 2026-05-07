@@ -509,15 +509,15 @@ export default function EmployeeKPI() {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <CardTitle className="text-base">{ind.name}</CardTitle>
                         <Badge className={`${scoreColorClass(score)} text-white border-transparent`}>
-                          Score: {score.toFixed(1)}
+                          {t("empKpi.score", { n: score.toFixed(1) })}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
                         <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                          <span>Realisasi: {realized.toFixed(2)} {ind.unit}</span>
-                          <span>Target: {ind.target} {ind.unit}</span>
+                          <span>{t("empKpi.realization", { val: realized.toFixed(2), unit: ind.unit })}</span>
+                          <span>{t("empKpi.target", { val: ind.target, unit: ind.unit })}</span>
                         </div>
                         <div className="h-3 w-full rounded-full bg-secondary overflow-hidden">
                           <div
@@ -530,14 +530,14 @@ export default function EmployeeKPI() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Bulan</TableHead>
-                              <TableHead>Realisasi</TableHead>
-                              <TableHead>Target</TableHead>
-                              <TableHead className="text-center">Status</TableHead>
+                              <TableHead>{t("empKpi.month")}</TableHead>
+                              <TableHead>{t("empKpi.realCol")}</TableHead>
+                              <TableHead>{t("empKpi.targetCol")}</TableHead>
+                              <TableHead className="text-center">{t("empKpi.statusCol")}</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {MONTHS.map((m, idx) => {
+                            {MONTHS_LOCAL.map((m, idx) => {
                               const month = idx + 1;
                               const r = reals.find((x) => x.month === month);
                               let realisasiVal: number | null = null;
