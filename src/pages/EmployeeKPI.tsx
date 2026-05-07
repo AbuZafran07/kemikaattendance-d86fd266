@@ -461,7 +461,7 @@ export default function EmployeeKPI() {
                                             step="any"
                                             defaultValue={cur ?? ""}
                                             disabled={!hasAtt}
-                                            title={hasAtt ? "" : "Upload lampiran laporan bulan ini terlebih dahulu"}
+                                            title={hasAtt ? "" : t("empKpi.uploadFirst")}
                                             className={filled ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30" : ""}
                                             onBlur={async (e) => {
                                               const raw = e.target.value;
