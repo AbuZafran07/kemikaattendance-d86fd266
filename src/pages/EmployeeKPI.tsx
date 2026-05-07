@@ -480,14 +480,14 @@ export default function EmployeeKPI() {
                               );
                             })
                           ) : (
-                            <p className="text-sm text-muted-foreground">Variabel custom belum diatur oleh admin.</p>
+                            <p className="text-sm text-muted-foreground">{t("empKpi.customNotSet")}</p>
                           )}
                         </div>
                       )}
 
                       <div className="pt-2">
                         <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                          <span>Bulan terisi</span>
+                          <span>{t("empKpi.monthsFilled")}</span>
                           <span>{filledCount}/12</span>
                         </div>
                         <Progress value={(filledCount / 12) * 100} />
