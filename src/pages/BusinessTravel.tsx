@@ -272,14 +272,14 @@ const BusinessTravel = () => {
       // Use secure RPC function instead of direct update
       const { error } = await supabase.rpc('reject_business_travel_request', {
         request_id: selectedRequest.id,
-        reason: rejectionReason || "Ditolak oleh admin",
+        reason: rejectionReason || t("travelAdmin.rejectedByAdmin"),
       });
 
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: "Perjalanan dinas ditolak",
+        title: t("travelAdmin.toastOk"),
+        description: t("travelAdmin.toastRejectOk"),
       });
 
       const currentUser = (await supabase.auth.getUser()).data.user;
