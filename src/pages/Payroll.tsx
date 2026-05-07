@@ -2038,7 +2038,7 @@ const Payroll = () => {
                           <TableCell><Badge variant="outline" className="text-[10px]">{item.departemen}</Badge></TableCell>
                           <TableCell className="text-right text-sm">{formatRupiah(item.basic_salary)}</TableCell>
                           <TableCell className="text-right text-sm">{item.allowance > 0 ? formatRupiah(item.allowance) : <span className="text-muted-foreground">-</span>}</TableCell>
-                          <TableCell className="text-right text-sm">{item.overtime_hours > 0 ? <span title={`${item.overtime_hours} jam`}>{formatRupiah(item.overtime_total)}</span> : <span className="text-muted-foreground">-</span>}</TableCell>
+                          <TableCell className="text-right text-sm">{item.overtime_hours > 0 ? <span title={t("payrollPage.table.hoursTooltip", { count: item.overtime_hours })}>{formatRupiah(item.overtime_total)}</span> : <span className="text-muted-foreground">-</span>}</TableCell>
                           <TableCell className="text-right text-sm font-medium">{formatRupiah(item.bruto_income)}</TableCell>
                           <TableCell className="text-right text-sm text-muted-foreground">{formatRupiah(item.bpjs_kesehatan + item.bpjs_ketenagakerjaan)}</TableCell>
                           <TableCell className="text-right text-sm text-muted-foreground">
@@ -2048,7 +2048,7 @@ const Payroll = () => {
                             {item.pph21_mode === "TER" && item.pph21_ter_rate != null ? (
                               <Badge variant="outline" className="text-[10px]">TER {item.pph21_ter_rate.toFixed(2)}%</Badge>
                             ) : item.pph21_mode === "REKONSILIASI" ? (
-                              <Badge variant="secondary" className="text-[10px]">Rekonsiliasi</Badge>
+                              <Badge variant="secondary" className="text-[10px]">{t("payrollPage.table.rekonsiliasi")}</Badge>
                             ) : (
                               <span className="text-muted-foreground">{item.pph21_mode}</span>
                             )}
@@ -2057,8 +2057,8 @@ const Payroll = () => {
                           <TableCell className="text-right text-sm font-bold text-primary">{formatRupiah(item.take_home_pay)}</TableCell>
                           <TableCell>
                             <div className="flex gap-1">
-                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); setDetailItem(item); }}>Detail</Button>
-                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); generateSlipPDF(item); }} title="Download Slip PDF">
+                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); setDetailItem(item); }}>{t("payrollPage.table.detail")}</Button>
+                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2" onClick={(e) => { e.stopPropagation(); generateSlipPDF(item); }} title={t("payrollPage.table.downloadSlipTitle")}>
                                 <Download className="h-3.5 w-3.5" />
                               </Button>
                             </div>
@@ -2066,7 +2066,7 @@ const Payroll = () => {
                         </TableRow>
                       ))}
                       <TableRow className="bg-muted/50 font-semibold">
-                        <TableCell colSpan={3}>Total ({filteredPayroll.length} karyawan)</TableCell>
+                        <TableCell colSpan={3}>{t("payrollPage.table.totalEmployees", { count: filteredPayroll.length })}</TableCell>
                         <TableCell className="text-right">{formatRupiah(filteredPayroll.reduce((s, p) => s + p.basic_salary, 0))}</TableCell>
                         <TableCell className="text-right">{formatRupiah(filteredPayroll.reduce((s, p) => s + p.allowance, 0))}</TableCell>
                         <TableCell className="text-right">{formatRupiah(filteredPayroll.reduce((s, p) => s + p.overtime_total, 0))}</TableCell>
@@ -2085,7 +2085,7 @@ const Payroll = () => {
                 {payrollTotalPages > 1 && (
                   <div className="flex items-center justify-between mt-4">
                     <p className="text-sm text-muted-foreground">
-                      Menampilkan {(safePage - 1) * payrollPerPage + 1}–{Math.min(safePage * payrollPerPage, filteredPayroll.length)} dari {filteredPayroll.length}
+                      {t("payrollPage.table.showing", { from: (safePage - 1) * payrollPerPage + 1, to: Math.min(safePage * payrollPerPage, filteredPayroll.length), total: filteredPayroll.length })}
                     </p>
                     <div className="flex items-center gap-1">
                       <Button variant="outline" size="sm" disabled={safePage <= 1} onClick={() => setPayrollPage(safePage - 1)}>
