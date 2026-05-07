@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -16,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, ArrowLeft, Megaphone } from "lucide-react";
 import { format } from "date-fns";
+import { id as idLocale, enUS } from "date-fns/locale";
 import DOMPurify from "dompurify";
 
 interface Announcement {
@@ -34,6 +36,8 @@ interface Announcement {
 export default function AnnouncementManagement() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage?.startsWith("en") ? enUS : idLocale;
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -69,7 +73,7 @@ export default function AnnouncementManagement() {
 
   const handleSave = async () => {
     if (!form.title.trim() || !form.content.trim()) {
-      toast({ title: "Error", description: "Judul dan isi pengumuman wajib diisi", variant: "destructive" });
+      toast({ title: t("announceMgmt.errorTitle"), description: t("announceMgmt.errRequired"), variant: "destructive" });
       return;
     }
     setIsSaving(true);
@@ -81,14 +85,14 @@ export default function AnnouncementManagement() {
         .from("company_announcements" as any)
         .update({ title: form.title, content: form.content, type: form.type, priority: form.priority, is_active: form.is_active, expire_at: expireAt } as any)
         .eq("id", editingId);
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-      else toast({ title: "Berhasil", description: "Pengumuman berhasil diperbarui" });
+      if (error) toast({ title: t("announceMgmt.errorTitle"), description: error.message, variant: "destructive" });
+      else toast({ title: t("announceMgmt.successTitle"), description: t("announceMgmt.updatedOk") });
     } else {
       const { error } = await supabase
         .from("company_announcements" as any)
         .insert({ title: form.title, content: form.content, type: form.type, priority: form.priority, is_active: form.is_active, expire_at: expireAt, created_by: user?.id } as any);
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-      else toast({ title: "Berhasil", description: "Pengumuman berhasil ditambahkan" });
+      if (error) toast({ title: t("announceMgmt.errorTitle"), description: error.message, variant: "destructive" });
+      else toast({ title: t("announceMgmt.successTitle"), description: t("announceMgmt.createdOk") });
     }
 
     setIsSaving(false);
@@ -97,10 +101,10 @@ export default function AnnouncementManagement() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Yakin ingin menghapus pengumuman ini?")) return;
+    if (!confirm(t("announceMgmt.deleteConfirm"))) return;
     const { error } = await supabase.from("company_announcements" as any).delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Berhasil", description: "Pengumuman dihapus" }); fetchAnnouncements(); }
+    if (error) toast({ title: t("announceMgmt.errorTitle"), description: error.message, variant: "destructive" });
+    else { toast({ title: t("announceMgmt.successTitle"), description: t("announceMgmt.deletedOk") }); fetchAnnouncements(); }
   };
 
   const toggleActive = async (a: Announcement) => {
@@ -109,9 +113,9 @@ export default function AnnouncementManagement() {
   };
 
   const typeBadge = (type: string) => {
-    if (type === "warning") return <Badge variant="destructive" className="text-[10px]">Penting</Badge>;
-    if (type === "success") return <Badge className="text-[10px] bg-primary">Sukses</Badge>;
-    return <Badge variant="secondary" className="text-[10px]">Info</Badge>;
+    if (type === "warning") return <Badge variant="destructive" className="text-[10px]">{t("announceMgmt.typeWarning")}</Badge>;
+    if (type === "success") return <Badge className="text-[10px] bg-primary">{t("announceMgmt.typeSuccess")}</Badge>;
+    return <Badge variant="secondary" className="text-[10px]">{t("announceMgmt.typeInfo")}</Badge>;
   };
 
   return (
@@ -123,34 +127,34 @@ export default function AnnouncementManagement() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Kelola Pengumuman</h1>
-              <p className="text-sm text-muted-foreground mt-1">Buat dan kelola pengumuman untuk halaman beranda</p>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("announceMgmt.title")}</h1>
+              <p className="text-sm text-muted-foreground mt-1">{t("announceMgmt.subtitle")}</p>
             </div>
           </div>
           <Button onClick={openAdd} className="gap-2">
-            <Plus className="h-4 w-4" /> Tambah Pengumuman
+            <Plus className="h-4 w-4" /> {t("announceMgmt.add")}
           </Button>
         </div>
 
         <Card>
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="p-8 text-center text-muted-foreground">Memuat...</div>
+              <div className="p-8 text-center text-muted-foreground">{t("announceMgmt.loading")}</div>
             ) : announcements.length === 0 ? (
               <div className="p-8 text-center">
                 <Megaphone className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-                <p className="text-muted-foreground">Belum ada pengumuman</p>
+                <p className="text-muted-foreground">{t("announceMgmt.empty")}</p>
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Judul</TableHead>
-                    <TableHead className="hidden sm:table-cell">Tipe</TableHead>
-                    <TableHead className="hidden sm:table-cell">Status</TableHead>
-                    <TableHead className="hidden md:table-cell">Tanggal</TableHead>
-                    <TableHead className="hidden md:table-cell">Expired</TableHead>
-                    <TableHead className="text-right">Aksi</TableHead>
+                    <TableHead>{t("announceMgmt.colTitle")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t("announceMgmt.colType")}</TableHead>
+                    <TableHead className="hidden sm:table-cell">{t("announceMgmt.colStatus")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("announceMgmt.colDate")}</TableHead>
+                    <TableHead className="hidden md:table-cell">{t("announceMgmt.colExpired")}</TableHead>
+                    <TableHead className="text-right">{t("announceMgmt.colAction")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -165,12 +169,12 @@ export default function AnnouncementManagement() {
                         <Switch checked={a.is_active} onCheckedChange={() => toggleActive(a)} />
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
-                        {format(new Date(a.created_at), "dd MMM yyyy")}
+                        {format(new Date(a.created_at), "dd MMM yyyy", { locale: dateLocale })}
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
                         {a.expire_at ? (
                           <Badge variant={new Date(a.expire_at) < new Date() ? "destructive" : "secondary"} className="text-[10px]">
-                            {format(new Date(a.expire_at), "dd MMM yyyy")}
+                            {format(new Date(a.expire_at), "dd MMM yyyy", { locale: dateLocale })}
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground/50">—</span>
@@ -199,48 +203,48 @@ export default function AnnouncementManagement() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Pengumuman" : "Tambah Pengumuman"}</DialogTitle>
+            <DialogTitle>{editingId ? t("announceMgmt.edit") : t("announceMgmt.add")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Judul</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Judul pengumuman" />
+              <Label>{t("announceMgmt.labelTitle")}</Label>
+              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder={t("announceMgmt.phTitle")} />
             </div>
             <div>
-              <Label>Isi Pengumuman</Label>
-              <RichTextEditor value={form.content} onChange={(v) => setForm({ ...form, content: v })} placeholder="Tulis isi pengumuman..." />
+              <Label>{t("announceMgmt.labelContent")}</Label>
+              <RichTextEditor value={form.content} onChange={(v) => setForm({ ...form, content: v })} placeholder={t("announceMgmt.phContent")} />
             </div>
             <div>
-              <Label>Tipe</Label>
+              <Label>{t("announceMgmt.labelType")}</Label>
               <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="info">Info</SelectItem>
-                  <SelectItem value="warning">Penting</SelectItem>
-                  <SelectItem value="success">Sukses</SelectItem>
+                  <SelectItem value="info">{t("announceMgmt.typeInfo")}</SelectItem>
+                  <SelectItem value="warning">{t("announceMgmt.typeWarning")}</SelectItem>
+                  <SelectItem value="success">{t("announceMgmt.typeSuccess")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Prioritas</Label>
+                <Label>{t("announceMgmt.labelPriority")}</Label>
                 <Input type="number" value={form.priority} onChange={(e) => setForm({ ...form, priority: parseInt(e.target.value) || 0 })} />
               </div>
               <div>
-                <Label>Tanggal Expired</Label>
+                <Label>{t("announceMgmt.labelExpire")}</Label>
                 <Input type="date" value={form.expire_at} onChange={(e) => setForm({ ...form, expire_at: e.target.value })} />
-                <p className="text-[10px] text-muted-foreground mt-1">Kosongkan jika tidak ada batas waktu</p>
+                <p className="text-[10px] text-muted-foreground mt-1">{t("announceMgmt.expireHint")}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
-              <Label>Aktif (tampil di beranda)</Label>
+              <Label>{t("announceMgmt.labelActive")}</Label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Batal</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("announceMgmt.cancel")}</Button>
             <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "Menyimpan..." : "Simpan"}
+              {isSaving ? t("announceMgmt.saving") : t("announceMgmt.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
