@@ -739,14 +739,14 @@ const BusinessTravel = () => {
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Hapus Permintaan Perjalanan Dinas</AlertDialogTitle>
+            <AlertDialogTitle>{t("travelAdmin.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus permintaan perjalanan dinas ini? Tindakan ini tidak dapat dibatalkan.
+              {t("travelAdmin.deleteDesc")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteTravel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Hapus</AlertDialogAction>
+            <AlertDialogCancel>{t("travelAdmin.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteTravel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{t("travelAdmin.deleteBtn")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
