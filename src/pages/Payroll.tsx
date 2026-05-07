@@ -2255,11 +2255,11 @@ const Payroll = () => {
         <Dialog open={showDeductionDialog} onOpenChange={(open) => { setShowDeductionDialog(open); if (!open) { setDeductionSearch(""); setSelectedDeductionEmp(null); } }}>
           <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
             <DialogHeader>
-              <DialogTitle>Potongan Tambahan Karyawan</DialogTitle>
-              <DialogDescription>Klik nama karyawan untuk mengisi potongan. Karyawan dengan potongan akan ditandai.</DialogDescription>
+              <DialogTitle>{t("payrollPage.deductionDialog.title")}</DialogTitle>
+              <DialogDescription>{t("payrollPage.deductionDialog.desc")}</DialogDescription>
             </DialogHeader>
             <Input
-              placeholder="🔍 Cari karyawan..."
+              placeholder={t("payrollPage.deductionDialog.search")}
               value={deductionSearch}
               onChange={(e) => setDeductionSearch(e.target.value)}
               className="mb-2"
@@ -2293,7 +2293,7 @@ const Payroll = () => {
                       >
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-sm">{emp.full_name}</span>
-                          {hasValue && <Badge variant="outline" className="text-[10px]">Ada potongan</Badge>}
+                          {hasValue && <Badge variant="outline" className="text-[10px]">{t("payrollPage.deductionDialog.hasDeduction")}</Badge>}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {hasValue && (
@@ -2306,44 +2306,44 @@ const Payroll = () => {
                         <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
                           <div className="grid grid-cols-3 gap-2">
                             <div>
-                              <Label className="text-xs">Pinjaman/Kasbon</Label>
+                              <Label className="text-xs">{t("payrollPage.deductionDialog.loanLabel")}</Label>
                               <Input
                                 type="text"
-                                value={autoLoan > 0 ? formatRupiah(autoLoan) : "Tidak ada cicilan"}
+                                value={autoLoan > 0 ? formatRupiah(autoLoan) : t("payrollPage.deductionDialog.noInstallment")}
                                 readOnly
                                 disabled
                                 className="bg-muted/50 cursor-not-allowed"
-                                title="Otomatis dari modul Deduction (Pinjaman/Kasbon)."
+                                title={t("payrollPage.deductionDialog.loanTooltip")}
                               />
                             </div>
                             <div>
-                              <Label className="text-xs">Potongan Lain (Auto)</Label>
+                              <Label className="text-xs">{t("payrollPage.deductionDialog.otherAuto")}</Label>
                               <Input
                                 type="text"
-                                value={autoOther > 0 ? formatRupiah(autoOther) : "Tidak ada"}
+                                value={autoOther > 0 ? formatRupiah(autoOther) : t("payrollPage.deductionDialog.none")}
                                 readOnly
                                 disabled
                                 className="bg-muted/50 cursor-not-allowed"
-                                title="Otomatis dari modul Deduction (jenis: Potongan Lain)."
+                                title={t("payrollPage.deductionDialog.otherAutoTooltip")}
                               />
                             </div>
                             <div>
-                              <Label className="text-xs">Potongan Lain (Manual)</Label>
+                              <Label className="text-xs">{t("payrollPage.deductionDialog.otherManual")}</Label>
                               <Input type="number" value={ded.other_deduction || ""} placeholder="0"
                                 onChange={(e) => updateDeduction(emp.id, "other_deduction", e.target.value)} />
                             </div>
                           </div>
                           <p className="text-[11px] text-muted-foreground italic">
-                            ℹ️ Kolom <strong>Auto</strong> diambil otomatis dari modul <strong>Deduction</strong> (read-only). Catatan otomatis tersinkron dari deskripsi potongan. Tambahkan <strong>Potongan Lain (Manual)</strong> hanya jika ada potongan tambahan di luar modul Deduction.
+                            {t("payrollPage.deductionDialog.info")}
                           </p>
                           {autoNotesMap.get(emp.id) && (
                             <div className="text-[11px] text-muted-foreground">
-                              <span className="font-medium">Catatan tersinkron:</span> {autoNotesMap.get(emp.id)}
+                              <span className="font-medium">{t("payrollPage.deductionDialog.syncedNote")}</span> {autoNotesMap.get(emp.id)}
                             </div>
                           )}
                           <div>
-                            <Label className="text-xs">Catatan Manual (Tambahan)</Label>
-                            <Textarea rows={1} value={ded.deduction_notes} placeholder="Catatan tambahan untuk potongan manual..."
+                            <Label className="text-xs">{t("payrollPage.deductionDialog.manualNote")}</Label>
+                            <Textarea rows={1} value={ded.deduction_notes} placeholder={t("payrollPage.deductionDialog.manualNotePlaceholder")}
                               onChange={(e) => updateDeduction(emp.id, "deduction_notes", e.target.value)} />
                           </div>
                         </div>
@@ -2353,7 +2353,7 @@ const Payroll = () => {
                 });
               })()}
             </div>
-            <Button onClick={async () => { await saveOverridesToDB('deduction'); setShowDeductionDialog(false); }} className="w-full mt-2">Simpan & Tutup</Button>
+            <Button onClick={async () => { await saveOverridesToDB('deduction'); setShowDeductionDialog(false); }} className="w-full mt-2">{t("payrollPage.deductionDialog.saveClose")}</Button>
           </DialogContent>
         </Dialog>
 
@@ -2361,8 +2361,8 @@ const Payroll = () => {
         <Dialog open={showIncomeDialog} onOpenChange={(open) => { setShowIncomeDialog(open); if (!open) { setIncomeSearch(""); setSelectedIncomeEmp(null); } }}>
           <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
             <DialogHeader>
-              <DialogTitle>Tambahan Penghasilan Insidental</DialogTitle>
-              <DialogDescription>Klik nama karyawan untuk mengisi tambahan penghasilan. Tunjangan tetap diambil otomatis dari data karyawan.</DialogDescription>
+              <DialogTitle>{t("payrollPage.incomeDialog.title")}</DialogTitle>
+              <DialogDescription>{t("payrollPage.incomeDialog.desc")}</DialogDescription>
             </DialogHeader>
             {hasIdulFitriInPeriod && (
               <Button
@@ -2373,11 +2373,11 @@ const Payroll = () => {
                 onClick={handleAutoCalculateTHR}
               >
                 {calculatingThr ? <Loader2 className="h-4 w-4 animate-spin" /> : <Gift className="h-4 w-4" />}
-                Hitung THR Otomatis (Permenaker No.6/2016)
+                {t("payrollPage.incomeDialog.thrAuto")}
               </Button>
             )}
             <Input
-              placeholder="🔍 Cari karyawan..."
+              placeholder={t("payrollPage.incomeDialog.search")}
               value={incomeSearch}
               onChange={(e) => setIncomeSearch(e.target.value)}
               className="mb-2"
@@ -2399,7 +2399,7 @@ const Payroll = () => {
                       >
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-sm">{emp.full_name}</span>
-                          {hasValue && <Badge variant="outline" className="text-[10px]">Ada tambahan</Badge>}
+                          {hasValue && <Badge variant="outline" className="text-[10px]">{t("payrollPage.incomeDialog.hasAddition")}</Badge>}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {hasValue && (
