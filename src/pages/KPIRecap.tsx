@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Award, Loader2, Search, Trophy, TrendingUp, Users, Target as TargetIcon, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
 
