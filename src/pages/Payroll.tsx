@@ -1869,14 +1869,14 @@ const Payroll = () => {
         <div className="space-y-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <DollarSign className="h-7 w-7 text-primary" /> Payroll
+              <DollarSign className="h-7 w-7 text-primary" /> {t("payrollPage.title")}
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Kelola penggajian karyawan dengan perhitungan PPh 21 & tunjangan kehadiran otomatis
+              {t("payrollPage.subtitle")}
             </p>
             <TabsList className="mt-3">
-              <TabsTrigger value="payroll">Payroll</TabsTrigger>
-              <TabsTrigger value="overrides">Riwayat Override</TabsTrigger>
+              <TabsTrigger value="payroll">{t("payrollPage.tabs.payroll")}</TabsTrigger>
+              <TabsTrigger value="overrides">{t("payrollPage.tabs.overrides")}</TabsTrigger>
             </TabsList>
           </div>
 
@@ -1884,7 +1884,7 @@ const Payroll = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <Select value={String(selectedMonth)} onValueChange={(v) => setSelectedMonth(Number(v))}>
               <SelectTrigger className="w-[130px] h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>{MONTHS.map((m) => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}</SelectContent>
+              <SelectContent>{MONTHS.map((m) => <SelectItem key={m.value} value={String(m.value)}>{monthLabel(m.value)}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
               <SelectTrigger className="w-[90px] h-9"><SelectValue /></SelectTrigger>
@@ -1892,17 +1892,17 @@ const Payroll = () => {
             </Select>
             <Button size="sm" onClick={handleGenerate} disabled={generating || period?.status === "finalized"} className="gap-1.5">
               {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calculator className="h-3.5 w-3.5" />}
-              Generate
+              {t("payrollPage.actions.generate")}
             </Button>
             <Button variant="outline" size="sm" onClick={openDeductionDialog} disabled={period?.status === "finalized"} className="gap-1.5">
-              <FileText className="h-3.5 w-3.5" /> Potongan
+              <FileText className="h-3.5 w-3.5" /> {t("payrollPage.actions.deductions")}
             </Button>
             <Button variant="outline" size="sm" onClick={openIncomeDialog} disabled={period?.status === "finalized"} className="gap-1.5">
-              <TrendingUp className="h-3.5 w-3.5" /> Tambahan Penghasilan
+              <TrendingUp className="h-3.5 w-3.5" /> {t("payrollPage.actions.incomeAdditions")}
             </Button>
             {period?.status === "draft" && payrollData.length > 0 && (
               <Button variant="outline" size="sm" onClick={handleFinalize} className="gap-1.5">
-                <Lock className="h-3.5 w-3.5" /> Finalisasi
+                <Lock className="h-3.5 w-3.5" /> {t("payrollPage.actions.finalize")}
               </Button>
             )}
             {period?.status === "finalized" && (
@@ -1912,7 +1912,7 @@ const Payroll = () => {
                 onClick={() => setShowUnlockDialog(true)}
                 className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
               >
-                <Unlock className="h-3.5 w-3.5" /> Buka Kunci untuk Revisi
+                <Unlock className="h-3.5 w-3.5" /> {t("payrollPage.actions.unlock")}
               </Button>
             )}
             {payrollData.length > 0 && (
