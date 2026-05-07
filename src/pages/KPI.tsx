@@ -19,8 +19,7 @@ import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
 import KPIMonthlyAttachments from "@/components/KPIMonthlyAttachments";
-
-const KPI_MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+import { useTranslation } from "react-i18next";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
 
@@ -78,14 +77,13 @@ interface ProfileLite {
   basic_salary: number | null;
 }
 
-const MONTHS = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-const FORMULA_OPTIONS: { value: FormulaType; label: string; hint: string }[] = [
-  { value: "ratio", label: "Ratio", hint: "Rata-rata realisasi / target × 100" },
-  { value: "akumulasi", label: "Akumulasi", hint: "Total realisasi / target × 100" },
-  { value: "avg", label: "Average", hint: "Rata-rata realisasi / target × 100" },
-  { value: "lower", label: "Lower is Better", hint: "Target / rata-rata × 100" },
-  { value: "threshold", label: "Threshold", hint: "Skor berdasarkan aturan" },
-  { value: "custom", label: "Custom Formula", hint: "Ekspresi dengan variabel v0..vN" },
+const FORMULA_KEYS: { value: FormulaType; labelKey: string; hintKey: string }[] = [
+  { value: "ratio", labelKey: "kpiPage.formula.ratio", hintKey: "kpiPage.formula.ratioHint" },
+  { value: "akumulasi", labelKey: "kpiPage.formula.akumulasi", hintKey: "kpiPage.formula.akumulasiHint" },
+  { value: "avg", labelKey: "kpiPage.formula.avg", hintKey: "kpiPage.formula.avgHint" },
+  { value: "lower", labelKey: "kpiPage.formula.lower", hintKey: "kpiPage.formula.lowerHint" },
+  { value: "threshold", labelKey: "kpiPage.formula.threshold", hintKey: "kpiPage.formula.thresholdHint" },
+  { value: "custom", labelKey: "kpiPage.formula.custom", hintKey: "kpiPage.formula.customHint" },
 ];
 
 const scoreColor = (s: number) => {
