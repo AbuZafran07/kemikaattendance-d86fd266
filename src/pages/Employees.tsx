@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useDepartmentJabatan } from "@/hooks/useDepartmentJabatan";
@@ -48,6 +49,8 @@ import { compressEmployeePhoto, blobToFile } from "@/lib/imageCompression";
 import logger from "@/lib/logger";
 
 const Employees = () => {
+  const { t, i18n } = useTranslation();
+  const localeCode = i18n.language === 'en' ? 'en-US' : 'id-ID';
   const { departments: DEPARTMENT_OPTIONS, jabatanOptions: JABATAN_OPTIONS } = useDepartmentJabatan();
   const [employees, setEmployees] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -186,8 +189,8 @@ const Employees = () => {
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: "File terlalu besar",
-          description: "Maksimal ukuran foto 5MB",
+          title: t("employeesPage.toast.fileTooLargeTitle"),
+          description: t("employeesPage.toast.fileTooLargeDesc"),
           variant: "destructive",
         });
         return;
@@ -241,8 +244,8 @@ const Employees = () => {
       });
       setFormErrors(errors);
       toast({
-        title: "Validasi Gagal",
-        description: "Periksa kembali data yang dimasukkan",
+        title: t("employeesPage.toast.validationFailedTitle"),
+        description: t("employeesPage.toast.validationFailedDesc"),
         variant: "destructive",
       });
       return;
@@ -286,8 +289,8 @@ const Employees = () => {
       }
 
       toast({
-        title: "Berhasil",
-        description: "Karyawan berhasil ditambahkan",
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.addedDesc"),
       });
 
       setIsDialogOpen(false);
@@ -296,7 +299,7 @@ const Employees = () => {
       fetchEmployeeRoles();
     } catch (error: any) {
       toast({
-        title: "Gagal Menambahkan Karyawan",
+        title: t("employeesPage.toast.addFailedTitle"),
         description: error.message,
         variant: "destructive",
       });
@@ -320,8 +323,8 @@ const Employees = () => {
       });
       setEditFormErrors(errors);
       toast({
-        title: "Validasi Gagal",
-        description: "Periksa kembali data yang dimasukkan",
+        title: t("employeesPage.toast.validationFailedTitle"),
+        description: t("employeesPage.toast.validationFailedDesc"),
         variant: "destructive",
       });
       return;
@@ -329,10 +332,10 @@ const Employees = () => {
 
     // Extra validation: resign_date wajib jika status Resigned
     if (editFormData.status === "Resigned" && !editFormData.resign_date) {
-      setEditFormErrors({ resign_date: "Tanggal resign wajib diisi untuk status Resigned" });
+      setEditFormErrors({ resign_date: t("employeesPage.toast.resignDateRequiredField") });
       toast({
-        title: "Tanggal Resign Diperlukan",
-        description: "Mohon isi tanggal resign untuk karyawan dengan status Resigned",
+        title: t("employeesPage.toast.resignDateRequiredTitle"),
+        description: t("employeesPage.toast.resignDateRequiredDesc"),
         variant: "destructive",
       });
       return;
@@ -392,8 +395,8 @@ const Employees = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: "Data karyawan berhasil diperbarui",
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.updatedDesc"),
       });
 
       setIsEditDialogOpen(false);
@@ -402,7 +405,7 @@ const Employees = () => {
       fetchEmployees();
     } catch (error: any) {
       toast({
-        title: "Gagal Memperbarui",
+        title: t("employeesPage.toast.updateFailedTitle"),
         description: error.message,
         variant: "destructive",
       });
@@ -498,7 +501,7 @@ const Employees = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Yakin ingin menghapus karyawan ini?")) return;
+    if (!confirm(t("employeesPage.confirmDelete"))) return;
 
     const { error } = await supabase
       .from('profiles')
@@ -507,14 +510,14 @@ const Employees = () => {
 
     if (error) {
       toast({
-        title: "Gagal Menghapus",
+        title: t("employeesPage.toast.deleteFailedTitle"),
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Berhasil",
-        description: "Karyawan berhasil dihapus",
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.deletedDesc"),
       });
       fetchEmployees();
     }
@@ -529,20 +532,18 @@ const Employees = () => {
   const handleAdminResetPassword = async () => {
     if (!resetPasswordEmployee || !newPassword) {
       toast({
-        title: "Password Diperlukan",
-        description: "Masukkan password baru",
+        title: t("employeesPage.toast.passwordRequiredTitle"),
+        description: t("employeesPage.toast.passwordRequiredDesc"),
         variant: "destructive",
       });
       return;
     }
 
-    // Validate password with same requirements as backend (admin-reset-password edge function)
-    // Minimum 8 characters, at least one uppercase, one lowercase, one number, one special character
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       toast({
-        title: "Password Lemah",
-        description: "Password minimal 8 karakter dengan huruf besar, huruf kecil, angka, dan simbol (!@#$%^&*)",
+        title: t("employeesPage.toast.weakPasswordTitle"),
+        description: t("employeesPage.toast.weakPasswordDesc"),
         variant: "destructive",
       });
       return;
@@ -561,8 +562,8 @@ const Employees = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: `Password untuk ${resetPasswordEmployee.full_name} berhasil direset`,
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.resetSuccess", { name: resetPasswordEmployee.full_name }),
       });
 
       setIsResetPasswordDialogOpen(false);
@@ -570,8 +571,8 @@ const Employees = () => {
       setNewPassword("");
     } catch (error: any) {
       toast({
-        title: "Gagal Reset Password",
-        description: error.message || "Terjadi kesalahan",
+        title: t("employeesPage.toast.resetFailedTitle"),
+        description: error.message || t("employeesPage.toast.genericError"),
         variant: "destructive",
       });
     } finally {
@@ -601,8 +602,11 @@ const Employees = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: `${setAdminEmployee.full_name} sekarang menjadi ${newRole === 'admin' ? 'Admin' : 'Karyawan'}`,
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.roleSuccess", {
+          name: setAdminEmployee.full_name,
+          role: newRole === 'admin' ? t("employeesPage.toast.roleAdmin") : t("employeesPage.toast.roleEmployee"),
+        }),
       });
 
       setIsSetAdminDialogOpen(false);
@@ -610,8 +614,8 @@ const Employees = () => {
       fetchEmployeeRoles();
     } catch (error: any) {
       toast({
-        title: "Gagal Mengubah Role",
-        description: error.message || "Terjadi kesalahan",
+        title: t("employeesPage.toast.roleFailedTitle"),
+        description: error.message || t("employeesPage.toast.genericError"),
         variant: "destructive",
       });
     } finally {
@@ -666,15 +670,15 @@ const Employees = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Data Karyawan</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("employeesPage.header.title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Kelola informasi karyawan PT. Kemika Karya Pratama
+              {t("employeesPage.header.subtitle")}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Export
+              {t("employeesPage.header.export")}
             </Button>
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -683,14 +687,14 @@ const Employees = () => {
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Tambah Karyawan
+                  {t("employeesPage.header.addEmployee")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Tambah Karyawan Baru</DialogTitle>
+                  <DialogTitle>{t("employeesPage.addDialog.title")}</DialogTitle>
                   <DialogDescription>
-                    Masukkan data karyawan baru
+                    {t("employeesPage.addDialog.description")}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleAddEmployee} className="space-y-4">
@@ -721,13 +725,13 @@ const Employees = () => {
                       onChange={(e) => handlePhotoSelect(e, false)}
                     />
                     <p className="text-sm text-muted-foreground">
-                      Klik untuk upload foto (maks 5MB)
+                      {t("employeesPage.addDialog.uploadHint")}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="nik">NIK *</Label>
+                      <Label htmlFor="nik">{t("employeesPage.addDialog.nik")} *</Label>
                       <Input
                         id="nik"
                         value={formData.nik}
@@ -736,7 +740,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="full_name">Nama Lengkap *</Label>
+                      <Label htmlFor="full_name">{t("employeesPage.addDialog.fullName")} *</Label>
                       <Input
                         id="full_name"
                         value={formData.full_name}
@@ -745,7 +749,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email *</Label>
+                      <Label htmlFor="email">{t("employeesPage.addDialog.email")} *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -755,7 +759,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password *</Label>
+                      <Label htmlFor="password">{t("employeesPage.addDialog.password")} *</Label>
                       <Input
                         id="password"
                         type="password"
@@ -766,14 +770,14 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="jabatan">Jabatan *</Label>
+                      <Label htmlFor="jabatan">{t("employeesPage.addDialog.jabatan")} *</Label>
                       <Select
                         value={formData.jabatan}
                         onValueChange={(value) => setFormData({ ...formData, jabatan: value })}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih Jabatan" />
+                          <SelectValue placeholder={t("employeesPage.addDialog.selectJabatan")} />
                         </SelectTrigger>
                         <SelectContent>
                           {JABATAN_OPTIONS.map((jabatan) => (
@@ -785,14 +789,14 @@ const Employees = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="departemen">Departemen *</Label>
+                      <Label htmlFor="departemen">{t("employeesPage.addDialog.departemen")} *</Label>
                       <Select
                         value={formData.departemen}
                         onValueChange={(value) => setFormData({ ...formData, departemen: value })}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih Departemen" />
+                          <SelectValue placeholder={t("employeesPage.addDialog.selectDepartemen")} />
                         </SelectTrigger>
                         <SelectContent>
                           {DEPARTMENT_OPTIONS.map((dept) => (
@@ -804,7 +808,7 @@ const Employees = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Telepon</Label>
+                      <Label htmlFor="phone">{t("employeesPage.addDialog.phone")}</Label>
                       <Input
                         id="phone"
                         value={formData.phone}
@@ -812,7 +816,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="join_date">Tanggal Bergabung *</Label>
+                      <Label htmlFor="join_date">{t("employeesPage.addDialog.joinDate")} *</Label>
                       <Input
                         id="join_date"
                         type="date"
@@ -822,26 +826,26 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="work_type">Tipe Kerja *</Label>
+                      <Label htmlFor="work_type">{t("employeesPage.addDialog.workType")} *</Label>
                       <Select
                         value={formData.work_type}
                         onValueChange={(value) => setFormData({ ...formData, work_type: value })}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih Tipe Kerja" />
+                          <SelectValue placeholder={t("employeesPage.addDialog.selectWorkType")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="wfo">WFO (Work From Office)</SelectItem>
-                          <SelectItem value="wfa">Hybrid (Work From Anywhere)</SelectItem>
+                          <SelectItem value="wfo">{t("employeesPage.addDialog.wfo")}</SelectItem>
+                          <SelectItem value="wfa">{t("employeesPage.addDialog.wfa")}</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground">
-                        Hybrid: Bisa absen dari mana saja
+                        {t("employeesPage.addDialog.hybridHint")}
                       </p>
                     </div>
                     <div className="space-y-2 col-span-2">
-                      <Label htmlFor="address">Alamat</Label>
+                      <Label htmlFor="address">{t("employeesPage.addDialog.address")}</Label>
                       <Input
                         id="address"
                         value={formData.address}
@@ -851,10 +855,10 @@ const Employees = () => {
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                      Batal
+                      {t("employeesPage.addDialog.cancel")}
                     </Button>
                     <Button type="submit" disabled={isUploading}>
-                      {isUploading ? "Menyimpan..." : "Simpan"}
+                      {isUploading ? t("employeesPage.addDialog.saving") : t("employeesPage.addDialog.save")}
                     </Button>
                   </div>
                 </form>
@@ -873,9 +877,9 @@ const Employees = () => {
         }}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Edit Data Karyawan</DialogTitle>
+              <DialogTitle>{t("employeesPage.editDialog.title")}</DialogTitle>
               <DialogDescription>
-                Perbarui data karyawan
+                {t("employeesPage.editDialog.description")}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleEditEmployee} className="space-y-4">
@@ -906,13 +910,13 @@ const Employees = () => {
                   onChange={(e) => handlePhotoSelect(e, true)}
                 />
                 <p className="text-sm text-muted-foreground">
-                  Klik untuk ubah foto (maks 5MB)
+                  {t("employeesPage.editDialog.uploadHint")}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit_email">Email *</Label>
+                  <Label htmlFor="edit_email">{t("employeesPage.addDialog.email")} *</Label>
                   <Input
                     id="edit_email"
                     type="email"
@@ -923,7 +927,7 @@ const Employees = () => {
                   {editFormErrors.email && <p className="text-sm text-destructive">{editFormErrors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_nik">NIK *</Label>
+                  <Label htmlFor="edit_nik">{t("employeesPage.addDialog.nik")} *</Label>
                   <Input
                     id="edit_nik"
                     value={editFormData.nik}
@@ -932,7 +936,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_full_name">Nama Lengkap *</Label>
+                  <Label htmlFor="edit_full_name">{t("employeesPage.addDialog.fullName")} *</Label>
                   <Input
                     id="edit_full_name"
                     value={editFormData.full_name}
@@ -941,13 +945,13 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_jabatan">Jabatan *</Label>
+                  <Label htmlFor="edit_jabatan">{t("employeesPage.addDialog.jabatan")} *</Label>
                   <Select
                     value={editFormData.jabatan}
                     onValueChange={(value) => setEditFormData({ ...editFormData, jabatan: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Jabatan" />
+                      <SelectValue placeholder={t("employeesPage.addDialog.selectJabatan")} />
                     </SelectTrigger>
                     <SelectContent>
                       {JABATAN_OPTIONS.map((jabatan) => (
@@ -959,13 +963,13 @@ const Employees = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_departemen">Departemen *</Label>
+                  <Label htmlFor="edit_departemen">{t("employeesPage.addDialog.departemen")} *</Label>
                   <Select
                     value={editFormData.departemen}
                     onValueChange={(value) => setEditFormData({ ...editFormData, departemen: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Departemen" />
+                      <SelectValue placeholder={t("employeesPage.addDialog.selectDepartemen")} />
                     </SelectTrigger>
                     <SelectContent>
                       {DEPARTMENT_OPTIONS.map((dept) => (
@@ -977,7 +981,7 @@ const Employees = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_join_date">Tanggal Bergabung</Label>
+                  <Label htmlFor="edit_join_date">{t("employeesPage.addDialog.joinDate")}</Label>
                   <Input
                     id="edit_join_date"
                     type="date"
@@ -986,7 +990,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_phone">Telepon</Label>
+                  <Label htmlFor="edit_phone">{t("employeesPage.addDialog.phone")}</Label>
                   <Input
                     id="edit_phone"
                     value={editFormData.phone}
@@ -1016,7 +1020,7 @@ const Employees = () => {
                 </div>
                 {editFormData.status === "Resigned" && (
                   <div className="space-y-2">
-                    <Label htmlFor="edit_resign_date">Tanggal Resign *</Label>
+                    <Label htmlFor="edit_resign_date">{t("employeesPage.editDialog.resignDate")} *</Label>
                     <Input
                       id="edit_resign_date"
                       type="date"
@@ -1036,36 +1040,36 @@ const Employees = () => {
                       <p className="text-sm text-destructive">{editFormErrors.resign_date}</p>
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        Untuk arsip historis & laporan mantan karyawan.
+                        {t("employeesPage.editDialog.resignDateHint")}
                       </p>
                     )}
                   </div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="edit_work_type">Tipe Kerja *</Label>
+                  <Label htmlFor="edit_work_type">{t("employeesPage.addDialog.workType")} *</Label>
                   <Select
                     value={editFormData.work_type}
                     onValueChange={(value) => setEditFormData({ ...editFormData, work_type: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Tipe Kerja" />
+                      <SelectValue placeholder={t("employeesPage.addDialog.selectWorkType")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="wfo">WFO (Work From Office)</SelectItem>
-                      <SelectItem value="wfa">Hybrid (Work From Anywhere)</SelectItem>
+                      <SelectItem value="wfo">{t("employeesPage.addDialog.wfo")}</SelectItem>
+                      <SelectItem value="wfa">{t("employeesPage.addDialog.wfa")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Hybrid: Bisa absen dari mana saja
+                    {t("employeesPage.addDialog.hybridHint")}
                   </p>
                 </div>
 
                 {/* Payroll Info Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">💰 Informasi Payroll</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.payrollSection")}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_basic_salary">Gaji Pokok (Rp)</Label>
+                  <Label htmlFor="edit_basic_salary">{t("employeesPage.editDialog.basicSalary")}</Label>
                   <Input
                     id="edit_basic_salary"
                     type="number"
@@ -1076,13 +1080,13 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_ptkp_status">Status PTKP</Label>
+                  <Label htmlFor="edit_ptkp_status">{t("employeesPage.editDialog.ptkpStatus")}</Label>
                   <Select
                     value={editFormData.ptkp_status}
                     onValueChange={(value) => setEditFormData({ ...editFormData, ptkp_status: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih PTKP" />
+                      <SelectValue placeholder={t("employeesPage.editDialog.selectPtkp")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="TK/0">TK/0 - Tidak Kawin</SelectItem>
@@ -1100,13 +1104,13 @@ const Employees = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Penghasilan Tidak Kena Pajak
+                    {t("employeesPage.editDialog.ptkpHint")}
                   </p>
                 </div>
 
                 {/* BPJS & Tunjangan Tetap Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">🏥 BPJS & Tunjangan Tetap</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.bpjsSection")}</p>
                 </div>
                 <div className="col-span-2 flex items-center space-x-2 mb-2">
                   <Checkbox
@@ -1115,10 +1119,10 @@ const Employees = () => {
                     onCheckedChange={(checked) => setEditFormData({ ...editFormData, bpjs_kesehatan_enabled: !!checked })}
                   />
                   <Label htmlFor="edit_bpjs_kes" className="text-sm font-normal cursor-pointer">
-                    Ikut BPJS Kesehatan
+                    {t("employeesPage.editDialog.bpjsKes")}
                   </Label>
                   {!editFormData.bpjs_kesehatan_enabled && (
-                    <Badge variant="destructive" className="text-xs">Tidak Ikut</Badge>
+                    <Badge variant="destructive" className="text-xs">{t("employeesPage.editDialog.notEnrolled")}</Badge>
                   )}
                 </div>
                 <div className="col-span-2 flex items-center space-x-2 mb-2">
@@ -1128,17 +1132,17 @@ const Employees = () => {
                     onCheckedChange={(checked) => setEditFormData({ ...editFormData, bpjs_ketenagakerjaan_enabled: !!checked })}
                   />
                   <Label htmlFor="edit_bpjs_tk" className="text-sm font-normal cursor-pointer">
-                    Ikut BPJS Ketenagakerjaan (JHT, JP, JKK, JKM)
+                    {t("employeesPage.editDialog.bpjsTk")}
                   </Label>
                   {!editFormData.bpjs_ketenagakerjaan_enabled && (
-                    <Badge variant="destructive" className="text-xs">Tidak Ikut</Badge>
+                    <Badge variant="destructive" className="text-xs">{t("employeesPage.editDialog.notEnrolled")}</Badge>
                   )}
                 </div>
 
 
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit_tunjangan_komunikasi">Tunjangan Komunikasi (Rp)</Label>
+                  <Label htmlFor="edit_tunjangan_komunikasi">{t("employeesPage.editDialog.tunjanganKomunikasi")}</Label>
                   <Input
                     id="edit_tunjangan_komunikasi"
                     type="number"
@@ -1149,7 +1153,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_tunjangan_jabatan">Tunjangan Jabatan (Rp)</Label>
+                  <Label htmlFor="edit_tunjangan_jabatan">{t("employeesPage.editDialog.tunjanganJabatan")}</Label>
                   <Input
                     id="edit_tunjangan_jabatan"
                     type="number"
@@ -1160,7 +1164,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_tunjangan_operasional">Tunjangan Operasional (Rp)</Label>
+                  <Label htmlFor="edit_tunjangan_operasional">{t("employeesPage.editDialog.tunjanganOperasional")}</Label>
                   <Input
                     id="edit_tunjangan_operasional"
                     type="number"
@@ -1172,7 +1176,7 @@ const Employees = () => {
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <Label htmlFor="edit_address">Alamat</Label>
+                  <Label htmlFor="edit_address">{t("employeesPage.addDialog.address")}</Label>
                   <Input
                     id="edit_address"
                     value={editFormData.address}
@@ -1182,20 +1186,20 @@ const Employees = () => {
 
                 {/* Contract & Bank Info Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">📄 Kontrak & Info Bank</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.contractSection")}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_contract_type">Tipe Kontrak</Label>
+                  <Label htmlFor="edit_contract_type">{t("employeesPage.editDialog.contractType")}</Label>
                   <Select
                     value={editFormData.contract_type}
                     onValueChange={(value) => setEditFormData({ ...editFormData, contract_type: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Tipe Kontrak" />
+                      <SelectValue placeholder={t("employeesPage.editDialog.selectContract")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="permanent">Permanent Employee</SelectItem>
-                      <SelectItem value="contract">Contract Employee</SelectItem>
+                      <SelectItem value="permanent">{t("employeesPage.editDialog.permanent")}</SelectItem>
+                      <SelectItem value="contract">{t("employeesPage.editDialog.contract")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1209,16 +1213,16 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_bank_name">Nama Bank</Label>
+                  <Label htmlFor="edit_bank_name">{t("employeesPage.editDialog.bankName")}</Label>
                   <Input
                     id="edit_bank_name"
-                    placeholder="BCA, Mandiri, BNI, dll"
+                    placeholder={t("employeesPage.editDialog.bankNamePlaceholder")}
                     value={editFormData.bank_name}
                     onChange={(e) => setEditFormData({ ...editFormData, bank_name: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_bank_account_number">Nomor Rekening</Label>
+                  <Label htmlFor="edit_bank_account_number">{t("employeesPage.editDialog.bankAccount")}</Label>
                   <Input
                     id="edit_bank_account_number"
                     placeholder="1234567890"
@@ -1229,7 +1233,7 @@ const Employees = () => {
 
                 {/* Cuti Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">📅 Pengaturan Cuti</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.leaveSection")}</p>
                 </div>
                 {/* Tenure info for leave eligibility */}
                 {editFormData.join_date && (() => {
@@ -1243,10 +1247,10 @@ const Employees = () => {
                   return (
                     <div className="col-span-2 mb-2">
                       <div className={`text-xs rounded-md px-3 py-2 border ${isEligible ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-950 dark:border-green-800 dark:text-green-300' : 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300'}`}>
-                        <p className="font-medium">{isEligible ? '✅' : '⏳'} Masa kerja: {diffMonths} bulan (bergabung {editFormData.join_date})</p>
+                        <p className="font-medium">{isEligible ? '✅' : '⏳'} {t("employeesPage.editDialog.tenurePrefix")} {diffMonths} {t("employeesPage.editDialog.tenureMonths")} {editFormData.join_date})</p>
                         {isEligible 
-                          ? <p>Karyawan sudah memenuhi syarat masa kerja minimum 12 bulan untuk mendapatkan cuti.</p>
-                          : <p>Cuti akan otomatis aktif setelah 12 bulan masa kerja (tanggal {eligibleDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}).</p>
+                          ? <p>{t("employeesPage.editDialog.tenureEligible")}</p>
+                          : <p>{t("employeesPage.editDialog.tenureNotEligibleBefore")} {eligibleDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'long', year: 'numeric' })}{t("employeesPage.editDialog.tenureNotEligibleAfter")}</p>
                         }
                       </div>
                     </div>
@@ -1259,18 +1263,18 @@ const Employees = () => {
                     onCheckedChange={(checked) => setEditFormData({ ...editFormData, leave_active: !!checked })}
                   />
                   <Label htmlFor="edit_leave_active" className="text-sm font-normal cursor-pointer">
-                    Cuti Aktif
+                    {t("employeesPage.editDialog.leaveActive")}
                   </Label>
                   {editFormData.leave_active ? (
-                    <Badge className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Cuti Aktif</Badge>
+                    <Badge className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">{t("employeesPage.editDialog.leaveActiveBadge")}</Badge>
                   ) : (
-                    <Badge variant="destructive" className="text-xs">Belum Dapat Cuti</Badge>
+                    <Badge variant="destructive" className="text-xs">{t("employeesPage.editDialog.leaveInactiveBadge")}</Badge>
                   )}
                 </div>
                 {editFormData.leave_active && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_annual_leave_quota">Kuota Cuti Tahunan</Label>
+                      <Label htmlFor="edit_annual_leave_quota">{t("employeesPage.editDialog.annualQuota")}</Label>
                       <Input
                         id="edit_annual_leave_quota"
                         type="number"
@@ -1280,7 +1284,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_remaining_leave">Sisa Cuti</Label>
+                      <Label htmlFor="edit_remaining_leave">{t("employeesPage.editDialog.remainingLeave")}</Label>
                       <Input
                         id="edit_remaining_leave"
                         type="number"
@@ -1294,10 +1298,10 @@ const Employees = () => {
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Batal
+                  {t("employeesPage.editDialog.cancel")}
                 </Button>
                 <Button type="submit" disabled={isUploading}>
-                  {isUploading ? "Menyimpan..." : "Simpan Perubahan"}
+                  {isUploading ? t("employeesPage.editDialog.saving") : t("employeesPage.editDialog.saveChanges")}
                 </Button>
               </div>
             </form>
@@ -1321,18 +1325,18 @@ const Employees = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <CardTitle>
-                    {viewMode === "active" ? "Daftar Karyawan Aktif" : "Arsip Karyawan"}
+                    {viewMode === "active" ? t("employeesPage.table.activeTitle") : t("employeesPage.table.archiveTitle")}
                   </CardTitle>
                   <CardDescription>
                     {viewMode === "active"
-                      ? `Total ${activeCount} karyawan aktif`
-                      : `Total ${archiveCount} karyawan (Inactive / Resigned)`}
+                      ? t("employeesPage.table.activeTotal", { count: activeCount })
+                      : t("employeesPage.table.archiveTotal", { count: archiveCount })}
                   </CardDescription>
                 </div>
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Cari karyawan..."
+                    placeholder={t("employeesPage.table.search")}
                     className="pl-10"
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
@@ -1343,11 +1347,11 @@ const Employees = () => {
                 <TabsList className="grid w-full sm:w-auto sm:inline-grid grid-cols-2">
                   <TabsTrigger value="active" className="gap-2">
                     <Users className="h-4 w-4" />
-                    Karyawan Aktif ({activeCount})
+                    {t("employeesPage.table.tabActive")} ({activeCount})
                   </TabsTrigger>
                   <TabsTrigger value="archive" className="gap-2">
                     <Archive className="h-4 w-4" />
-                    Arsip ({archiveCount})
+                    {t("employeesPage.table.tabArchive")} ({archiveCount})
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -1358,15 +1362,15 @@ const Employees = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Foto</TableHead>
-                    <TableHead>NIK</TableHead>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Jabatan</TableHead>
-                    <TableHead>Departemen</TableHead>
-                    <TableHead>Bergabung</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Aksi</TableHead>
+                    <TableHead>{t("employeesPage.table.photo")}</TableHead>
+                    <TableHead>{t("employeesPage.table.nik")}</TableHead>
+                    <TableHead>{t("employeesPage.table.name")}</TableHead>
+                    <TableHead>{t("employeesPage.table.email")}</TableHead>
+                    <TableHead>{t("employeesPage.table.jabatan")}</TableHead>
+                    <TableHead>{t("employeesPage.table.departemen")}</TableHead>
+                    <TableHead>{t("employeesPage.table.joined")}</TableHead>
+                    <TableHead>{t("employeesPage.table.status")}</TableHead>
+                    <TableHead className="text-right">{t("employeesPage.table.action")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1386,13 +1390,13 @@ const Employees = () => {
                             {employeeRoles[employee.id] === 'admin' && (
                               <Badge variant="outline" className="text-xs">
                                 <ShieldCheck className="h-3 w-3 mr-1" />
-                                Admin
+                                {t("employeesPage.table.adminBadge")}
                               </Badge>
                             )}
                             {employee.work_type === 'wfa' && (
                               <Badge variant="secondary" className="text-xs">
                                 <MapPin className="h-3 w-3 mr-1" />
-                                Hybrid
+                                {t("employeesPage.table.hybridBadge")}
                               </Badge>
                             )}
                           </div>
@@ -1400,7 +1404,7 @@ const Employees = () => {
                         <TableCell className="text-muted-foreground">{employee.email}</TableCell>
                         <TableCell>{employee.jabatan}</TableCell>
                         <TableCell>{employee.departemen}</TableCell>
-                        <TableCell>{new Date(employee.join_date).toLocaleDateString('id-ID')}</TableCell>
+                        <TableCell>{new Date(employee.join_date).toLocaleDateString(localeCode)}</TableCell>
                         <TableCell>
                           <Badge
                             variant={
@@ -1412,7 +1416,7 @@ const Employees = () => {
                             }
                           >
                             {employee.status === "Resigned" && employee.resign_date
-                              ? `Resigned (${new Date(employee.resign_date).toLocaleDateString('id-ID')})`
+                              ? `${t("employeesPage.table.resignedWith")} (${new Date(employee.resign_date).toLocaleDateString(localeCode)})`
                               : employee.status}
                           </Badge>
                         </TableCell>
@@ -1426,26 +1430,26 @@ const Employees = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => openDetailDialog(employee)}>
                                 <Eye className="h-4 w-4 mr-2" />
-                                Lihat Detail
+                                {t("employeesPage.table.viewDetail")}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openEditDialog(employee)}>
                                 <Pencil className="h-4 w-4 mr-2" />
-                                Edit
+                                {t("employeesPage.table.edit")}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openResetPasswordDialog(employee)}>
                                 <KeyRound className="h-4 w-4 mr-2" />
-                                Reset Password
+                                {t("employeesPage.table.resetPassword")}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openSetAdminDialog(employee)}>
                                 {employeeRoles[employee.id] === 'admin' ? (
                                   <>
                                     <Shield className="h-4 w-4 mr-2" />
-                                    Hapus Admin
+                                    {t("employeesPage.table.removeAdmin")}
                                   </>
                                 ) : (
                                   <>
                                     <ShieldCheck className="h-4 w-4 mr-2" />
-                                    Jadikan Admin
+                                    {t("employeesPage.table.makeAdmin")}
                                   </>
                                 )}
                               </DropdownMenuItem>
@@ -1453,7 +1457,7 @@ const Employees = () => {
                                 className="text-destructive"
                                 onClick={() => handleDelete(employee.id)}
                               >
-                                Hapus
+                                {t("employeesPage.table.delete")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -1464,10 +1468,10 @@ const Employees = () => {
                     <TableRow>
                       <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         {searchQuery
-                          ? 'Tidak ada karyawan yang sesuai dengan pencarian'
+                          ? t("employeesPage.table.noMatch")
                           : viewMode === "active"
-                          ? 'Belum ada karyawan aktif'
-                          : 'Belum ada karyawan di arsip (Inactive / Resigned)'}
+                          ? t("employeesPage.table.noActive")
+                          : t("employeesPage.table.noArchive")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -1497,29 +1501,29 @@ const Employees = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <KeyRound className="h-5 w-5" />
-                Reset Password Karyawan
+                {t("employeesPage.resetPassword.title")}
               </DialogTitle>
               <DialogDescription>
-                Reset password untuk {resetPasswordEmployee?.full_name}
+                {t("employeesPage.resetPassword.description", { name: resetPasswordEmployee?.full_name })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="new-password">Password Baru</Label>
+                <Label htmlFor="new-password">{t("employeesPage.resetPassword.newPassword")}</Label>
                 <Input
                   id="new-password"
                   type="password"
-                  placeholder="Minimal 6 karakter"
+                  placeholder={t("employeesPage.resetPassword.placeholder")}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)}>
-                  Batal
+                  {t("employeesPage.resetPassword.cancel")}
                 </Button>
                 <Button onClick={handleAdminResetPassword} disabled={isResettingPassword}>
-                  {isResettingPassword ? "Menyimpan..." : "Reset Password"}
+                  {isResettingPassword ? t("employeesPage.resetPassword.saving") : t("employeesPage.resetPassword.submit")}
                 </Button>
               </div>
             </div>
@@ -1538,32 +1542,32 @@ const Employees = () => {
               <DialogTitle className="flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5" />
                 {setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin' 
-                  ? 'Hapus Role Admin' 
-                  : 'Jadikan Admin'}
+                  ? t("employeesPage.adminDialog.removeTitle") 
+                  : t("employeesPage.adminDialog.makeTitle")}
               </DialogTitle>
               <DialogDescription>
                 {setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin'
-                  ? `Apakah Anda yakin ingin menghapus role admin dari ${setAdminEmployee?.full_name}?`
-                  : `Apakah Anda yakin ingin menjadikan ${setAdminEmployee?.full_name} sebagai Admin?`}
+                  ? t("employeesPage.adminDialog.removeConfirm", { name: setAdminEmployee?.full_name })
+                  : t("employeesPage.adminDialog.makeConfirm", { name: setAdminEmployee?.full_name })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-muted/50">
                 <p className="text-sm text-muted-foreground">
                   {setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin'
-                    ? 'Karyawan ini akan kehilangan akses ke dashboard admin dan hanya bisa mengakses tampilan karyawan.'
-                    : 'Karyawan ini akan mendapatkan akses penuh ke dashboard admin termasuk mengelola karyawan, pengaturan, dan laporan.'}
+                    ? t("employeesPage.adminDialog.removeInfo")
+                    : t("employeesPage.adminDialog.makeInfo")}
                 </p>
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsSetAdminDialogOpen(false)}>
-                  Batal
+                  {t("employeesPage.adminDialog.cancel")}
                 </Button>
                 <Button onClick={handleSetAdminRole} disabled={isSettingAdmin}>
-                  {isSettingAdmin ? "Menyimpan..." : (
+                  {isSettingAdmin ? t("employeesPage.adminDialog.saving") : (
                     setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin' 
-                      ? "Hapus Admin" 
-                      : "Jadikan Admin"
+                      ? t("employeesPage.adminDialog.removeAction") 
+                      : t("employeesPage.adminDialog.makeAction")
                   )}
                 </Button>
               </div>
