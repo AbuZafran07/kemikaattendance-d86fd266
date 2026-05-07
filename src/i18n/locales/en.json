@@ -955,6 +955,133 @@
     "daysShort": "({{n}} days)",
     "hoursReason": "{{n}}h - {{reason}}"
   },
+  "loanMgmt": {
+    "title": "Deduction Management",
+    "subtitle": "Manage employee loans, cash advances, and other deductions with automatic installment tracking",
+    "addDeduction": "Add Deduction",
+    "summary": {
+      "totalDeductions": "Total Deductions",
+      "filterSuffix": " (filtered)",
+      "activeDeductions": "Active Deductions",
+      "totalRemaining": "Total Remaining"
+    },
+    "tabs": {
+      "active": "Active",
+      "archived": "Archived ({{count}})"
+    },
+    "list": {
+      "archivedTitle": "Deduction Archive (Paid Off)",
+      "activeTitle": "Employee Deductions",
+      "description": "Click a row to view installment details",
+      "searchPlaceholder": "Search name, employee ID, or department...",
+      "noMatch": "No data matches your search",
+      "noData": "No loan data yet",
+      "archivedAt": "Archived {{date}}",
+      "loading": "Loading..."
+    },
+    "table": {
+      "employee": "Employee",
+      "type": "Type",
+      "amount": "Amount",
+      "monthly": "Monthly",
+      "progress": "Progress",
+      "remaining": "Remaining",
+      "status": "Status",
+      "viewDetail": "View detail",
+      "edit": "Edit deduction",
+      "delete": "Delete deduction"
+    },
+    "pagination": {
+      "show": "Show",
+      "of": "of {{total}} ({{from}}-{{to}})",
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {{current}} / {{total}}"
+    },
+    "create": {
+      "title": "Add New Deduction",
+      "description": "Create a new loan or cash advance for an employee",
+      "employee": "Employee",
+      "pickEmployee": "Select employee",
+      "searchEmployee": "Search name or department...",
+      "noEmployee": "Employee not found.",
+      "type": "Type",
+      "amount": "Loan Amount (Rp)",
+      "amountPlaceholder": "5000000",
+      "installments": "Installments (months)",
+      "installmentsPlaceholder": "12",
+      "perMonth": "Monthly: ",
+      "startDate": "Start Date",
+      "notes": "Notes",
+      "notesPlaceholder": "Loan description...",
+      "create": "Create Loan"
+    },
+    "loanType": {
+      "pinjaman": "Loan",
+      "kasbon": "Cash Advance",
+      "potongan_lain": "Other Deduction"
+    },
+    "detail": {
+      "title": "Loan Detail",
+      "type": "Type",
+      "totalAmount": "Total Loan",
+      "perMonth": "Monthly",
+      "progress": "Progress",
+      "installmentsCount": "{{paid}}/{{total}} installments",
+      "remaining": "Remaining",
+      "status": "Status",
+      "notes": "Notes",
+      "archivedAt": "Archived",
+      "archiveReason": "Archive Reason",
+      "history": "Installment History",
+      "installmentNo": "Installment #{{n}}",
+      "period": "Period {{label}}",
+      "cancel": "Cancel Loan"
+    },
+    "edit": {
+      "title": "Edit Deduction",
+      "description": "{{name}} — changes will regenerate the installment schedule.",
+      "amount": "Amount (Rp)",
+      "save": "Save Changes"
+    },
+    "delete": {
+      "title": "Delete Loan?",
+      "warning1": "You are about to delete <strong>{{name}}</strong>'s loan of <strong>{{amount}}</strong>.",
+      "warning2": "This action is permanent and will remove all installment history. It cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete Permanently"
+    },
+    "status": {
+      "active": "Active",
+      "completed": "Paid Off",
+      "cancelled": "Cancelled"
+    },
+    "instStatus": {
+      "paid": "Paid",
+      "scheduled": "Scheduled",
+      "pending": "Pending",
+      "skipped": "Skipped"
+    },
+    "archive": {
+      "completed": "Auto-archived: all installments paid",
+      "cancelled": "Archived: loan cancelled"
+    },
+    "toast": {
+      "incompleteTitle": "Incomplete data",
+      "incompleteDesc": "Fill in all required fields.",
+      "createdTitle": "Loan Created",
+      "createdDesc": "{{n}}x installments @ {{amount}}",
+      "failedTitle": "Failed",
+      "cancelled": "Loan Cancelled",
+      "deletedTitle": "Loan Deleted",
+      "deletedDesc": "{{name}}'s loan deleted successfully.",
+      "deleteFailedTitle": "Failed to Delete",
+      "cantEditTitle": "Cannot Edit",
+      "cantEditDesc": "This loan already has paid installments. Delete and recreate if changes are needed.",
+      "updatedTitle": "Loan Updated",
+      "updateFailedTitle": "Failed to Update"
+    }
+  },
   "companyCalendar": {
     "title": "Company Calendar",
     "dayNames": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
