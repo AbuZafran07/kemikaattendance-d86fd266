@@ -686,6 +686,24 @@ export type Database = {
           },
         ]
       }
+      notification_last_seen: {
+        Row: {
+          last_seen_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_seen_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_seen_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       overtime_requests: {
         Row: {
           approval_notes: string | null
@@ -1209,6 +1227,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_notifications_seen: { Args: never; Returns: string }
       reject_business_travel_request: {
         Args: { reason: string; request_id: string }
         Returns: undefined
