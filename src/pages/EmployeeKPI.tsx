@@ -338,11 +338,11 @@ export default function EmployeeKPI() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
                     <Paperclip className="w-4 h-4 text-amber-600" />
-                    Lampiran Laporan Bulanan (Wajib)
+                    {t("empKpi.monthlyAttachTitle")}
                   </CardTitle>
                   <p className="text-xs text-muted-foreground flex items-start gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                    <span>Upload laporan bulanan (PDF/Excel, max 10 MB) sebelum input realisasi KPI. Input akan dinonaktifkan jika lampiran belum tersedia.</span>
+                    <span>{t("empKpi.monthlyAttachDesc")}</span>
                   </p>
                 </CardHeader>
                 <CardContent>
