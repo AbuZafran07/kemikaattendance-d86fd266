@@ -290,7 +290,7 @@ const BusinessTravel = () => {
           action_type: "rejected",
           performed_by: currentUser.id,
           target_user_id: selectedRequest.user_id,
-          notes: rejectionReason || "Ditolak oleh admin",
+          notes: rejectionReason || t("travelAdmin.rejectedByAdmin"),
           details: { destination: selectedRequest.destination },
         });
       }
