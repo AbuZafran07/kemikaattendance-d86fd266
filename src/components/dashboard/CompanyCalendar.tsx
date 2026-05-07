@@ -51,14 +51,15 @@ interface CompanyEvent {
   end_date: string;
 }
 
-const leaveTypeLabels: Record<string, string> = {
-  cuti_tahunan: "Cuti Tahunan",
-  izin: "Izin",
-  sakit: "Sakit",
-  lupa_absen: "Lupa Absen",
-};
-
 const CompanyCalendar = () => {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage?.startsWith("en") ? enUS : idLocale;
+  const leaveTypeLabels: Record<string, string> = {
+    cuti_tahunan: t("companyCalendar.leaveTypes.cuti_tahunan"),
+    izin: t("companyCalendar.leaveTypes.izin"),
+    sakit: t("companyCalendar.leaveTypes.sakit"),
+    lupa_absen: t("companyCalendar.leaveTypes.lupa_absen"),
+  };
   const { user, userRole } = useAuth();
   const isAdmin = userRole === "admin";
   const [currentMonth, setCurrentMonth] = useState(new Date());
