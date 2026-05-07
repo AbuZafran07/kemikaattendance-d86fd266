@@ -20,7 +20,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Plus, Loader2, CreditCard, Eye, Ban, CheckCircle2, Clock, Trash2, Pencil, Archive, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { id as idLocale, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 interface Loan {
   id: string;
@@ -58,6 +59,8 @@ interface Installment {
 const LoanManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage?.startsWith("en") ? enUS : idLocale;
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -142,9 +145,9 @@ const LoanManagement = () => {
           nik: (profileMap.get(l.user_id) as any)?.nik || "",
           archived_at: isArchived ? (archivedDateMap.get(l.id) || (l as any).updated_at || l.created_at) : null,
           archived_reason: l.status === "completed"
-            ? "Otomatis diarsipkan: seluruh cicilan telah lunas"
+            ? t("loanMgmt.archive.completed")
             : l.status === "cancelled"
-              ? "Diarsipkan: pinjaman dibatalkan"
+              ? t("loanMgmt.archive.cancelled")
               : null,
         };
       }));
@@ -159,7 +162,7 @@ const LoanManagement = () => {
 
   const handleCreate = async () => {
     if (!form.user_id || !form.total_amount || !form.total_installments) {
-      toast({ title: "Data belum lengkap", description: "Isi semua field yang diperlukan.", variant: "destructive" });
+      toast({ title: t("loanMgmt.toast.incompleteTitle"), description: t("loanMgmt.toast.incompleteDesc"), variant: "destructive" });
       return;
     }
 
@@ -204,12 +207,12 @@ const LoanManagement = () => {
       const { error: instError } = await supabase.from("loan_installments").insert(installmentRecords);
       if (instError) throw instError;
 
-      toast({ title: "Pinjaman Dibuat", description: `${totalInstallments}x cicilan @ ${formatRupiah(monthlyInstallment)}` });
+      toast({ title: t("loanMgmt.toast.createdTitle"), description: t("loanMgmt.toast.createdDesc", { n: totalInstallments, amount: formatRupiah(monthlyInstallment) }) });
       setShowCreateDialog(false);
       setForm({ user_id: "", loan_type: "pinjaman", description: "", total_amount: "", total_installments: "", start_date: format(new Date(), "yyyy-MM-dd") });
       fetchLoans();
     } catch (e: any) {
-      toast({ title: "Gagal", description: e.message, variant: "destructive" });
+      toast({ title: t("loanMgmt.toast.failedTitle"), description: e.message, variant: "destructive" });
     } finally {
       setCreating(false);
     }
@@ -251,11 +254,11 @@ const LoanManagement = () => {
       await supabase.from("employee_loans").update({ status: "cancelled" }).eq("id", loanId);
       // Cancel pending installments
       await supabase.from("loan_installments").update({ status: "skipped" }).eq("loan_id", loanId).eq("status", "pending");
-      toast({ title: "Pinjaman Dibatalkan" });
+      toast({ title: t("loanMgmt.toast.cancelled") });
       fetchLoans();
       setShowDetailDialog(false);
     } catch (e: any) {
-      toast({ title: "Gagal", description: e.message, variant: "destructive" });
+      toast({ title: t("loanMgmt.toast.failedTitle"), description: e.message, variant: "destructive" });
     }
   };
 
@@ -269,12 +272,12 @@ const LoanManagement = () => {
       await supabase.from("loan_installments").delete().eq("loan_id", loanToDelete.id);
       const { error } = await supabase.from("employee_loans").delete().eq("id", loanToDelete.id);
       if (error) throw error;
-      toast({ title: "Pinjaman Dihapus", description: `Pinjaman ${loanToDelete.employee_name || ""} berhasil dihapus.` });
+      toast({ title: t("loanMgmt.toast.deletedTitle"), description: t("loanMgmt.toast.deletedDesc", { name: loanToDelete.employee_name || "" }) });
       setLoanToDelete(null);
       setShowDetailDialog(false);
       fetchLoans();
     } catch (e: any) {
-      toast({ title: "Gagal Menghapus", description: e.message, variant: "destructive" });
+      toast({ title: t("loanMgmt.toast.deleteFailedTitle"), description: e.message, variant: "destructive" });
     } finally {
       setDeleting(false);
     }
@@ -283,8 +286,8 @@ const LoanManagement = () => {
   const openEdit = (loan: Loan) => {
     if (loan.paid_installments > 0) {
       toast({
-        title: "Tidak Bisa Diedit",
-        description: "Pinjaman ini sudah memiliki cicilan yang terbayar. Hapus dan buat ulang jika perlu mengubah.",
+        title: t("loanMgmt.toast.cantEditTitle"),
+        description: t("loanMgmt.toast.cantEditDesc"),
         variant: "destructive",
       });
       return;
@@ -303,7 +306,7 @@ const LoanManagement = () => {
   const handleUpdateLoan = async () => {
     if (!loanToEdit) return;
     if (!editForm.total_amount || !editForm.total_installments) {
-      toast({ title: "Data belum lengkap", description: "Isi semua field yang diperlukan.", variant: "destructive" });
+      toast({ title: t("loanMgmt.toast.incompleteTitle"), description: t("loanMgmt.toast.incompleteDesc"), variant: "destructive" });
       return;
     }
     setUpdating(true);
@@ -341,12 +344,12 @@ const LoanManagement = () => {
       const { error: instErr } = await supabase.from("loan_installments").insert(installmentRecords);
       if (instErr) throw instErr;
 
-      toast({ title: "Pinjaman Diperbarui", description: `${totalInstallments}x cicilan @ ${formatRupiah(monthlyInstallment)}` });
+      toast({ title: t("loanMgmt.toast.updatedTitle"), description: t("loanMgmt.toast.createdDesc", { n: totalInstallments, amount: formatRupiah(monthlyInstallment) }) });
       setShowEditDialog(false);
       setLoanToEdit(null);
       fetchLoans();
     } catch (e: any) {
-      toast({ title: "Gagal Memperbarui", description: e.message, variant: "destructive" });
+      toast({ title: t("loanMgmt.toast.updateFailedTitle"), description: e.message, variant: "destructive" });
     } finally {
       setUpdating(false);
     }
@@ -354,19 +357,19 @@ const LoanManagement = () => {
 
   const statusBadge = (status: string) => {
     switch (status) {
-      case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
-      case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">Lunas</Badge>;
-      case "cancelled": return <Badge variant="destructive">Dibatalkan</Badge>;
+      case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">{t("loanMgmt.status.active")}</Badge>;
+      case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">{t("loanMgmt.status.completed")}</Badge>;
+      case "cancelled": return <Badge variant="destructive">{t("loanMgmt.status.cancelled")}</Badge>;
       default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
   const instStatusBadge = (status: string) => {
     switch (status) {
-      case "paid": return <Badge className="bg-green-500/10 text-green-600 border-green-200 text-[10px]"><CheckCircle2 className="h-3 w-3 mr-1" />Lunas</Badge>;
-      case "scheduled": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200 text-[10px]"><Clock className="h-3 w-3 mr-1" />Terjadwal</Badge>;
-      case "pending": return <Badge variant="outline" className="text-[10px]"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
-      case "skipped": return <Badge variant="secondary" className="text-[10px]">Skip</Badge>;
+      case "paid": return <Badge className="bg-green-500/10 text-green-600 border-green-200 text-[10px]"><CheckCircle2 className="h-3 w-3 mr-1" />{t("loanMgmt.instStatus.paid")}</Badge>;
+      case "scheduled": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200 text-[10px]"><Clock className="h-3 w-3 mr-1" />{t("loanMgmt.instStatus.scheduled")}</Badge>;
+      case "pending": return <Badge variant="outline" className="text-[10px]"><Clock className="h-3 w-3 mr-1" />{t("loanMgmt.instStatus.pending")}</Badge>;
+      case "skipped": return <Badge variant="secondary" className="text-[10px]">{t("loanMgmt.instStatus.skipped")}</Badge>;
       default: return <Badge variant="secondary" className="text-[10px]">{status}</Badge>;
     }
   };
@@ -401,34 +404,34 @@ const LoanManagement = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <CreditCard className="h-7 w-7 text-primary" /> Manajemen Potongan
+              <CreditCard className="h-7 w-7 text-primary" /> {t("loanMgmt.title")}
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Kelola pinjaman, kasbon, dan potongan lain karyawan dengan tracking cicilan otomatis
+              {t("loanMgmt.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-3 w-full lg:w-auto">
             <Button onClick={() => setShowCreateDialog(true)} className="gap-2 ml-auto">
-              <Plus className="h-4 w-4" /> Tambah Potongan
+              <Plus className="h-4 w-4" /> {t("loanMgmt.addDeduction")}
             </Button>
           </div>
         </div>
 
         {/* Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{filteredLoans.length}</p><p className="text-xs text-muted-foreground">Total Potongan{normalizedQuery ? " (filter)" : ""}</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{totalActiveLoans}</p><p className="text-xs text-muted-foreground">Potongan Aktif</p></CardContent></Card>
-          <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">Total Sisa Potongan</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{filteredLoans.length}</p><p className="text-xs text-muted-foreground">{t("loanMgmt.summary.totalDeductions")}{normalizedQuery ? t("loanMgmt.summary.filterSuffix") : ""}</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-2xl font-bold">{totalActiveLoans}</p><p className="text-xs text-muted-foreground">{t("loanMgmt.summary.activeDeductions")}</p></CardContent></Card>
+          <Card><CardContent className="pt-6"><p className="text-lg font-bold">{formatRupiah(totalRemainingAmount)}</p><p className="text-xs text-muted-foreground">{t("loanMgmt.summary.totalRemaining")}</p></CardContent></Card>
         </div>
 
         {/* Tabs Active / Archived */}
         <Tabs value={view} onValueChange={(v) => setView(v as "active" | "archived")}>
           <TabsList>
             <TabsTrigger value="active" className="gap-2">
-              <CreditCard className="h-4 w-4" /> Aktif
+              <CreditCard className="h-4 w-4" /> {t("loanMgmt.tabs.active")}
             </TabsTrigger>
             <TabsTrigger value="archived" className="gap-2">
-              <Archive className="h-4 w-4" /> Archived ({archivedCount})
+              <Archive className="h-4 w-4" /> {t("loanMgmt.tabs.archived", { count: archivedCount })}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -439,13 +442,13 @@ const LoanManagement = () => {
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
               <div>
                 <CardTitle className="text-lg">
-                  {view === "archived" ? "Arsip Potongan (Lunas)" : "Daftar Potongan Karyawan"}
+                  {view === "archived" ? t("loanMgmt.list.archivedTitle") : t("loanMgmt.list.activeTitle")}
                 </CardTitle>
-                <CardDescription>Klik baris untuk melihat detail cicilan</CardDescription>
+                <CardDescription>{t("loanMgmt.list.description")}</CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 lg:justify-end">
                 <Input
-                  placeholder="Cari nama, NIK, atau departemen..."
+                  placeholder={t("loanMgmt.list.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full sm:w-[260px] h-9"
@@ -459,20 +462,20 @@ const LoanManagement = () => {
             ) : filteredLoans.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <CreditCard className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">{normalizedQuery ? "Tidak ada data yang cocok dengan pencarian" : "Belum ada data pinjaman"}</p>
+                <p className="font-medium">{normalizedQuery ? t("loanMgmt.list.noMatch") : t("loanMgmt.list.noData")}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Karyawan</TableHead>
-                      <TableHead>Tipe</TableHead>
-                      <TableHead className="text-right">Jumlah</TableHead>
-                      <TableHead className="text-right">Cicilan/bln</TableHead>
-                      <TableHead className="text-center">Progress</TableHead>
-                      <TableHead className="text-right">Sisa</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>{t("loanMgmt.table.employee")}</TableHead>
+                      <TableHead>{t("loanMgmt.table.type")}</TableHead>
+                      <TableHead className="text-right">{t("loanMgmt.table.amount")}</TableHead>
+                      <TableHead className="text-right">{t("loanMgmt.table.monthly")}</TableHead>
+                      <TableHead className="text-center">{t("loanMgmt.table.progress")}</TableHead>
+                      <TableHead className="text-right">{t("loanMgmt.table.remaining")}</TableHead>
+                      <TableHead>{t("loanMgmt.table.status")}</TableHead>
                       <TableHead className="w-[120px]"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -485,7 +488,7 @@ const LoanManagement = () => {
                             <p className="text-xs text-muted-foreground">{loan.departemen}</p>
                             {view === "archived" && loan.archived_at && (
                               <p className="text-[10px] text-muted-foreground mt-1 italic">
-                                Diarsipkan {format(new Date(loan.archived_at), "dd MMM yyyy", { locale: idLocale })}
+                                {t("loanMgmt.list.archivedAt", { date: format(new Date(loan.archived_at), "dd MMM yyyy", { locale: dateLocale }) })}
                                 {loan.archived_reason ? ` • ${loan.archived_reason}` : ""}
                               </p>
                             )}
@@ -503,7 +506,7 @@ const LoanManagement = () => {
                         <TableCell>{statusBadge(loan.status)}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }} title="Lihat detail">
+                            <Button variant="ghost" size="sm" className="h-7 px-2" onClick={(e) => { e.stopPropagation(); openDetail(loan); }} title={t("loanMgmt.table.viewDetail")}>
                               <Eye className="h-3.5 w-3.5" />
                             </Button>
                             <Button
@@ -511,7 +514,7 @@ const LoanManagement = () => {
                               size="sm"
                               className="h-7 px-2"
                               onClick={(e) => { e.stopPropagation(); openEdit(loan); }}
-                              title="Edit potongan"
+                              title={t("loanMgmt.table.edit")}
                               disabled={loan.paid_installments > 0 || loan.status !== "active"}
                             >
                               <Pencil className="h-3.5 w-3.5" />
@@ -521,7 +524,7 @@ const LoanManagement = () => {
                               size="sm"
                               className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={(e) => { e.stopPropagation(); setLoanToDelete(loan); }}
-                              title="Hapus potongan"
+                              title={t("loanMgmt.table.delete")}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
@@ -536,7 +539,7 @@ const LoanManagement = () => {
             {!loading && filteredLoans.length > 0 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>Tampilkan</span>
+                  <span>{t("loanMgmt.pagination.show")}</span>
                   <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
                     <SelectTrigger className="w-[80px] h-8"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -545,12 +548,12 @@ const LoanManagement = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <span>dari {filteredLoans.length} ({startIdx}-{endIdx})</span>
+                  <span>{t("loanMgmt.pagination.of", { total: filteredLoans.length, from: startIdx, to: endIdx })}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage - 1)} disabled={safePage <= 1}>Sebelumnya</Button>
-                  <span className="text-sm">Hal {safePage} / {totalPages}</span>
-                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage + 1)} disabled={safePage >= totalPages}>Berikutnya</Button>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage - 1)} disabled={safePage <= 1}>{t("loanMgmt.pagination.prev")}</Button>
+                  <span className="text-sm">{t("loanMgmt.pagination.page", { current: safePage, total: totalPages })}</span>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(safePage + 1)} disabled={safePage >= totalPages}>{t("loanMgmt.pagination.next")}</Button>
                 </div>
               </div>
             )}
@@ -561,12 +564,12 @@ const LoanManagement = () => {
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Tambah Potongan Baru</DialogTitle>
-              <DialogDescription>Buat pinjaman atau kasbon baru untuk karyawan</DialogDescription>
+              <DialogTitle>{t("loanMgmt.create.title")}</DialogTitle>
+              <DialogDescription>{t("loanMgmt.create.description")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>Karyawan</Label>
+                <Label>{t("loanMgmt.create.employee")}</Label>
                 <Popover open={employeePickerOpen} onOpenChange={setEmployeePickerOpen} modal={true}>
                   <PopoverTrigger asChild>
                     <Button
@@ -578,21 +581,21 @@ const LoanManagement = () => {
                       {form.user_id
                         ? (() => {
                             const emp = employees.find(e => e.id === form.user_id);
-                            return emp ? `${emp.full_name} — ${emp.departemen}` : "Pilih karyawan";
+                            return emp ? `${emp.full_name} — ${emp.departemen}` : t("loanMgmt.create.pickEmployee");
                           })()
-                        : "Pilih karyawan"}
+                        : t("loanMgmt.create.pickEmployee")}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Cari nama atau departemen..." />
+                      <CommandInput placeholder={t("loanMgmt.create.searchEmployee")} />
                       <CommandList
                         className="max-h-[260px] overflow-y-auto overscroll-contain"
                         onWheel={(e) => e.stopPropagation()}
                         onTouchMove={(e) => e.stopPropagation()}
                       >
-                        <CommandEmpty>Karyawan tidak ditemukan.</CommandEmpty>
+                        <CommandEmpty>{t("loanMgmt.create.noEmployee")}</CommandEmpty>
                         <CommandGroup>
                           {employees.map(e => (
                             <CommandItem
@@ -615,40 +618,40 @@ const LoanManagement = () => {
                 </Popover>
               </div>
               <div>
-                <Label>Tipe</Label>
+                <Label>{t("loanMgmt.create.type")}</Label>
                 <Select value={form.loan_type} onValueChange={(v) => setForm(f => ({ ...f, loan_type: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pinjaman">Pinjaman</SelectItem>
-                    <SelectItem value="kasbon">Kasbon</SelectItem>
-                    <SelectItem value="potongan_lain">Potongan Lain</SelectItem>
+                    <SelectItem value="pinjaman">{t("loanMgmt.loanType.pinjaman")}</SelectItem>
+                    <SelectItem value="kasbon">{t("loanMgmt.loanType.kasbon")}</SelectItem>
+                    <SelectItem value="potongan_lain">{t("loanMgmt.loanType.potongan_lain")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Jumlah Pinjaman (Rp)</Label>
-                <Input type="number" value={form.total_amount} onChange={(e) => setForm(f => ({ ...f, total_amount: e.target.value }))} placeholder="5000000" />
+                <Label>{t("loanMgmt.create.amount")}</Label>
+                <Input type="number" value={form.total_amount} onChange={(e) => setForm(f => ({ ...f, total_amount: e.target.value }))} placeholder={t("loanMgmt.create.amountPlaceholder")} />
               </div>
               <div>
-                <Label>Jumlah Cicilan (bulan)</Label>
-                <Input type="number" value={form.total_installments} onChange={(e) => setForm(f => ({ ...f, total_installments: e.target.value }))} placeholder="12" />
+                <Label>{t("loanMgmt.create.installments")}</Label>
+                <Input type="number" value={form.total_installments} onChange={(e) => setForm(f => ({ ...f, total_installments: e.target.value }))} placeholder={t("loanMgmt.create.installmentsPlaceholder")} />
               </div>
               {form.total_amount && form.total_installments && (
                 <p className="text-sm text-muted-foreground">
-                  Cicilan/bulan: <span className="font-semibold text-foreground">{formatRupiah(Math.ceil(Number(form.total_amount) / Number(form.total_installments)))}</span>
+                  {t("loanMgmt.create.perMonth")}<span className="font-semibold text-foreground">{formatRupiah(Math.ceil(Number(form.total_amount) / Number(form.total_installments)))}</span>
                 </p>
               )}
               <div>
-                <Label>Tanggal Mulai</Label>
+                <Label>{t("loanMgmt.create.startDate")}</Label>
                 <Input type="date" value={form.start_date} onChange={(e) => setForm(f => ({ ...f, start_date: e.target.value }))} />
               </div>
               <div>
-                <Label>Keterangan</Label>
-                <Textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Keterangan pinjaman..." rows={2} />
+                <Label>{t("loanMgmt.create.notes")}</Label>
+                <Textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} placeholder={t("loanMgmt.create.notesPlaceholder")} rows={2} />
               </div>
               <Button onClick={handleCreate} disabled={creating} className="w-full gap-2">
                 {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                Buat Pinjaman
+                {t("loanMgmt.create.create")}
               </Button>
             </div>
           </DialogContent>
@@ -658,32 +661,32 @@ const LoanManagement = () => {
         <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
           <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Detail Pinjaman</DialogTitle>
+              <DialogTitle>{t("loanMgmt.detail.title")}</DialogTitle>
               <DialogDescription>{selectedLoan?.employee_name}</DialogDescription>
             </DialogHeader>
             {selectedLoan && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span className="text-muted-foreground">Tipe</span>
-                  <span className="capitalize font-medium">{selectedLoan.loan_type}</span>
-                  <span className="text-muted-foreground">Total Pinjaman</span>
+                  <span className="text-muted-foreground">{t("loanMgmt.detail.type")}</span>
+                  <span className="capitalize font-medium">{t(`loanMgmt.loanType.${selectedLoan.loan_type}`, selectedLoan.loan_type)}</span>
+                  <span className="text-muted-foreground">{t("loanMgmt.detail.totalAmount")}</span>
                   <span className="font-medium">{formatRupiah(selectedLoan.total_amount)}</span>
-                  <span className="text-muted-foreground">Cicilan/bulan</span>
+                  <span className="text-muted-foreground">{t("loanMgmt.detail.perMonth")}</span>
                   <span>{formatRupiah(selectedLoan.monthly_installment)}</span>
-                  <span className="text-muted-foreground">Progress</span>
-                  <span>{selectedLoan.paid_installments}/{selectedLoan.total_installments} cicilan</span>
-                  <span className="text-muted-foreground">Sisa</span>
+                  <span className="text-muted-foreground">{t("loanMgmt.detail.progress")}</span>
+                  <span>{t("loanMgmt.detail.installmentsCount", { paid: selectedLoan.paid_installments, total: selectedLoan.total_installments })}</span>
+                  <span className="text-muted-foreground">{t("loanMgmt.detail.remaining")}</span>
                   <span className="font-bold text-primary">{formatRupiah(selectedLoan.remaining_amount)}</span>
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-muted-foreground">{t("loanMgmt.detail.status")}</span>
                   <span>{statusBadge(selectedLoan.status)}</span>
                   {selectedLoan.description && <>
-                    <span className="text-muted-foreground">Keterangan</span>
+                    <span className="text-muted-foreground">{t("loanMgmt.detail.notes")}</span>
                     <span>{selectedLoan.description}</span>
                   </>}
                   {selectedLoan.archived_at && (selectedLoan.status === "completed" || selectedLoan.status === "cancelled") && <>
-                    <span className="text-muted-foreground">Diarsipkan</span>
-                    <span>{format(new Date(selectedLoan.archived_at), "dd MMM yyyy", { locale: idLocale })}</span>
-                    <span className="text-muted-foreground">Alasan Arsip</span>
+                    <span className="text-muted-foreground">{t("loanMgmt.detail.archivedAt")}</span>
+                    <span>{format(new Date(selectedLoan.archived_at), "dd MMM yyyy", { locale: dateLocale })}</span>
+                    <span className="text-muted-foreground">{t("loanMgmt.detail.archiveReason")}</span>
                     <span className="italic text-xs">{selectedLoan.archived_reason}</span>
                   </>}
                 </div>
@@ -698,7 +701,7 @@ const LoanManagement = () => {
 
                 {/* Installments */}
                 <div>
-                  <p className="font-semibold text-sm mb-2">Riwayat Cicilan</p>
+                  <p className="font-semibold text-sm mb-2">{t("loanMgmt.detail.history")}</p>
                   {installmentsLoading ? (
                     <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
                   ) : (
@@ -706,8 +709,8 @@ const LoanManagement = () => {
                       {installments.map(inst => (
                         <div key={inst.id} className="flex items-center justify-between border border-border rounded-lg p-3">
                           <div>
-                            <p className="text-sm font-medium">Cicilan #{inst.installment_number}</p>
-                            {inst.period_label && <p className="text-xs text-muted-foreground">Periode {inst.period_label}</p>}
+                            <p className="text-sm font-medium">{t("loanMgmt.detail.installmentNo", { n: inst.installment_number })}</p>
+                            {inst.period_label && <p className="text-xs text-muted-foreground">{t("loanMgmt.detail.period", { label: inst.period_label })}</p>}
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-sm font-medium">{formatRupiah(inst.amount)}</span>
@@ -721,7 +724,7 @@ const LoanManagement = () => {
 
                 {selectedLoan.status === "active" && (
                   <Button variant="destructive" onClick={() => cancelLoan(selectedLoan.id)} className="w-full gap-2">
-                    <Ban className="h-4 w-4" /> Batalkan Pinjaman
+                    <Ban className="h-4 w-4" /> {t("loanMgmt.detail.cancel")}
                   </Button>
                 )}
               </div>
@@ -733,47 +736,47 @@ const LoanManagement = () => {
         <Dialog open={showEditDialog} onOpenChange={(open) => { setShowEditDialog(open); if (!open) setLoanToEdit(null); }}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Edit Potongan</DialogTitle>
+              <DialogTitle>{t("loanMgmt.edit.title")}</DialogTitle>
               <DialogDescription>
-                {loanToEdit?.employee_name} — perubahan akan membuat ulang jadwal cicilan.
+                {t("loanMgmt.edit.description", { name: loanToEdit?.employee_name || "" })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>Tipe</Label>
+                <Label>{t("loanMgmt.create.type")}</Label>
                 <Select value={editForm.loan_type} onValueChange={(v) => setEditForm(f => ({ ...f, loan_type: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pinjaman">Pinjaman</SelectItem>
-                    <SelectItem value="kasbon">Kasbon</SelectItem>
-                    <SelectItem value="potongan_lain">Potongan Lain</SelectItem>
+                    <SelectItem value="pinjaman">{t("loanMgmt.loanType.pinjaman")}</SelectItem>
+                    <SelectItem value="kasbon">{t("loanMgmt.loanType.kasbon")}</SelectItem>
+                    <SelectItem value="potongan_lain">{t("loanMgmt.loanType.potongan_lain")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Jumlah (Rp)</Label>
+                <Label>{t("loanMgmt.edit.amount")}</Label>
                 <Input type="number" value={editForm.total_amount} onChange={(e) => setEditForm(f => ({ ...f, total_amount: e.target.value }))} />
               </div>
               <div>
-                <Label>Jumlah Cicilan (bulan)</Label>
+                <Label>{t("loanMgmt.create.installments")}</Label>
                 <Input type="number" value={editForm.total_installments} onChange={(e) => setEditForm(f => ({ ...f, total_installments: e.target.value }))} />
               </div>
               {editForm.total_amount && editForm.total_installments && (
                 <p className="text-sm text-muted-foreground">
-                  Cicilan/bulan: <span className="font-semibold text-foreground">{formatRupiah(Math.ceil(Number(editForm.total_amount) / Number(editForm.total_installments)))}</span>
+                  {t("loanMgmt.create.perMonth")}<span className="font-semibold text-foreground">{formatRupiah(Math.ceil(Number(editForm.total_amount) / Number(editForm.total_installments)))}</span>
                 </p>
               )}
               <div>
-                <Label>Tanggal Mulai</Label>
+                <Label>{t("loanMgmt.create.startDate")}</Label>
                 <Input type="date" value={editForm.start_date} onChange={(e) => setEditForm(f => ({ ...f, start_date: e.target.value }))} />
               </div>
               <div>
-                <Label>Keterangan</Label>
+                <Label>{t("loanMgmt.create.notes")}</Label>
                 <Textarea value={editForm.description} onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))} rows={2} />
               </div>
               <Button onClick={handleUpdateLoan} disabled={updating} className="w-full gap-2">
                 {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
-                Simpan Perubahan
+                {t("loanMgmt.edit.save")}
               </Button>
             </div>
           </DialogContent>
@@ -783,28 +786,25 @@ const LoanManagement = () => {
         <AlertDialog open={!!loanToDelete} onOpenChange={(open) => { if (!open) setLoanToDelete(null); }}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Hapus Pinjaman?</AlertDialogTitle>
+              <AlertDialogTitle>{t("loanMgmt.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription asChild>
                 <div className="space-y-2">
-                  <p>
-                    Anda akan menghapus pinjaman <strong>{loanToDelete?.employee_name}</strong> sebesar{" "}
-                    <strong>{loanToDelete ? formatRupiah(loanToDelete.total_amount) : ""}</strong>.
-                  </p>
+                  <p dangerouslySetInnerHTML={{ __html: t("loanMgmt.delete.warning1", { name: loanToDelete?.employee_name || "", amount: loanToDelete ? formatRupiah(loanToDelete.total_amount) : "" }) }} />
                   <p className="text-destructive font-medium">
-                    Tindakan ini permanen dan akan menghapus seluruh riwayat cicilannya. Tidak dapat dibatalkan.
+                    {t("loanMgmt.delete.warning2")}
                   </p>
                 </div>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleting}>Batal</AlertDialogCancel>
+              <AlertDialogCancel disabled={deleting}>{t("loanMgmt.delete.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteLoan}
                 disabled={deleting}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-                Hapus Permanen
+                {t("loanMgmt.delete.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
