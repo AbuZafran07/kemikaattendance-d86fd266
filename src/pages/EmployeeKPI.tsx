@@ -319,16 +319,16 @@ export default function EmployeeKPI() {
           <Card>
             <CardContent className="py-16 text-center text-muted-foreground">
               <Target className="w-12 h-12 mx-auto mb-3 opacity-40" />
-              <p className="font-medium">Belum ada KPI untuk tahun {year}</p>
-              <p className="text-sm">Silakan hubungi HR/Admin untuk menetapkan indikator KPI Anda.</p>
+              <p className="font-medium">{t("empKpi.noKpi", { year })}</p>
+              <p className="text-sm">{t("empKpi.contactHr")}</p>
             </CardContent>
           </Card>
         ) : (
           <Tabs defaultValue="input" className="w-full">
             <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="input">Input Realisasi</TabsTrigger>
-              <TabsTrigger value="progress">Progress</TabsTrigger>
-              <TabsTrigger value="score">Score</TabsTrigger>
+              <TabsTrigger value="input">{t("empKpi.tabInput")}</TabsTrigger>
+              <TabsTrigger value="progress">{t("empKpi.tabProgress")}</TabsTrigger>
+              <TabsTrigger value="score">{t("empKpi.tabScore")}</TabsTrigger>
             </TabsList>
 
             {/* TAB 1: INPUT */}
