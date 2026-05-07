@@ -1255,7 +1255,7 @@ const Payroll = () => {
       fetchPayrollData();
     } catch (error: any) {
       console.error("Error generating payroll:", error);
-      toast({ title: "Gagal Generate Payroll", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.generateFailed"), description: error.message, variant: "destructive" });
     } finally {
       setGenerating(false);
     }
@@ -1337,13 +1337,13 @@ const Payroll = () => {
       });
 
       toast({
-        title: "Payroll Berhasil Dibuka",
-        description: "Periode kembali ke Draft. Lakukan revisi lalu Generate ulang & Finalisasi.",
+        title: t("payrollPage.toast.unlockSuccessTitle"),
+        description: t("payrollPage.toast.unlockSuccessDesc"),
       });
       fetchPayrollData();
     } catch (error: any) {
       console.error("Error unlocking payroll:", error);
-      toast({ title: "Gagal Membuka Kunci", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.unlockFailed"), description: error.message, variant: "destructive" });
       throw error;
     }
   };
@@ -1416,10 +1416,10 @@ const Payroll = () => {
         });
       }
 
-      toast({ title: "Payroll Difinalisasi", description: "Payroll periode ini sudah dikunci." });
+      toast({ title: t("payrollPage.toast.finalizedTitle"), description: t("payrollPage.toast.finalizedDesc") });
       fetchPayrollData();
     } catch (error: any) {
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     }
   };
 
@@ -1549,18 +1549,18 @@ const Payroll = () => {
       "JKK Perusahaan (0.24%)": item.bpjs_jkk_employer,
       "JKM Perusahaan (0.3%)": item.bpjs_jkm_employer,
     }));
-    const monthLabel = MONTHS[selectedMonth - 1].label;
+    const mLabel = monthLabel(selectedMonth);
     await exportToExcelFile(
       data,
-      `Payroll ${monthLabel} ${selectedYear}`,
-      `Payroll_${monthLabel}_${selectedYear}.xlsx`,
+      `Payroll ${mLabel} ${selectedYear}`,
+      `Payroll_${mLabel}_${selectedYear}.xlsx`,
       [
         ["PT. KEMIKA KARYA PRATAMA"],
-        [`Data Payroll — ${monthLabel} ${selectedYear}`],
+        [`Data Payroll — ${mLabel} ${selectedYear}`],
         [`Digenerate: ${new Date().toLocaleString("id-ID")}`],
       ]
     );
-    toast({ title: "Export Berhasil", description: `Data payroll ${monthLabel} ${selectedYear} berhasil diexport ke Excel.` });
+    toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.exportPayrollDesc", { month: mLabel, year: selectedYear }) });
   };
 
   const [downloadingAllPDF, setDownloadingAllPDF] = useState(false);
@@ -1572,9 +1572,9 @@ const Payroll = () => {
         await generateSlipPDF(item);
         await new Promise(r => setTimeout(r, 300));
       }
-      toast({ title: "Download Selesai", description: `${payrollData.length} slip gaji berhasil di-download.` });
+      toast({ title: t("payrollPage.toast.downloadDoneTitle"), description: t("payrollPage.toast.downloadDoneDesc", { count: payrollData.length }) });
     } catch (error: any) {
-      toast({ title: "Gagal Download", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.downloadFailed"), description: error.message, variant: "destructive" });
     } finally {
       setDownloadingAllPDF(false);
     }
@@ -1601,8 +1601,8 @@ const Payroll = () => {
       const companyConfig = settingsData?.value as any;
       if (!companyConfig?.account_number) {
         toast({
-          title: "Konfigurasi Belum Lengkap",
-          description: "Silakan atur nomor rekening perusahaan di menu Settings > Pengaturan Bank Perusahaan terlebih dahulu.",
+          title: t("payrollPage.toast.configIncompleteTitle"),
+          description: t("payrollPage.toast.configIncompleteDesc"),
           variant: "destructive",
         });
         return;
@@ -1634,7 +1634,7 @@ const Payroll = () => {
       setBankPreviewData(employees);
       setShowBankPreview(true);
     } catch (error: any) {
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     } finally {
       setLoadingBankPreview(false);
     }
@@ -1654,10 +1654,10 @@ const Payroll = () => {
         selectedYear
       );
       downloadBankPayrollFile(csvContent, selectedMonth, selectedYear);
-      toast({ title: "Export Berhasil", description: "File e-Payroll bank berhasil di-download." });
+      toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.bankExportSuccessDesc") });
       setShowBankPreview(false);
     } catch (error: any) {
-      toast({ title: "Gagal Export", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.exportFailed"), description: error.message, variant: "destructive" });
     } finally {
       setExportingBankPayroll(false);
     }
@@ -1674,7 +1674,7 @@ const Payroll = () => {
     if (payrollData.length === 0) return;
     const thrRecipients = payrollData.filter(p => (p.thr || 0) > 0);
     if (thrRecipients.length === 0) {
-      toast({ title: "Tidak Ada Data THR", description: "Belum ada karyawan yang memiliki THR pada periode ini.", variant: "destructive" });
+      toast({ title: t("payrollPage.toast.noThrTitle"), description: t("payrollPage.toast.noThrDesc"), variant: "destructive" });
       return;
     }
     setLoadingThrBankPreview(true);
@@ -1683,7 +1683,7 @@ const Payroll = () => {
         .from("system_settings").select("value").eq("key", "company_bank_config").single();
       const companyConfig = settingsData?.value as any;
       if (!companyConfig?.account_number) {
-        toast({ title: "Konfigurasi Belum Lengkap", description: "Silakan atur nomor rekening perusahaan di menu Settings > Pengaturan Bank Perusahaan terlebih dahulu.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.configIncompleteTitle"), description: t("payrollPage.toast.configIncompleteDesc"), variant: "destructive" });
         return;
       }
       setThrBankCompanyConfig(companyConfig);
@@ -1709,7 +1709,7 @@ const Payroll = () => {
       setThrBankPreviewData(employees);
       setShowThrBankPreview(true);
     } catch (error: any) {
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     } finally {
       setLoadingThrBankPreview(false);
     }
@@ -1730,10 +1730,10 @@ const Payroll = () => {
         'THR'
       );
       downloadBankPayrollFile(csvContent, selectedMonth, selectedYear, 'e-payroll-THR');
-      toast({ title: "Export Berhasil", description: "File e-Payroll THR berhasil di-download." });
+      toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.thrBankExportDesc") });
       setShowThrBankPreview(false);
     } catch (error: any) {
-      toast({ title: "Gagal Export", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.exportFailed"), description: error.message, variant: "destructive" });
     } finally {
       setExportingThrBank(false);
     }
@@ -1745,7 +1745,7 @@ const Payroll = () => {
     // Check if any employee has THR > 0
     const thrRecipients = payrollData.filter(p => (p.thr || 0) > 0);
     if (thrRecipients.length === 0) {
-      toast({ title: "Tidak Ada Data THR", description: "Belum ada karyawan yang memiliki THR pada periode ini. Hitung THR terlebih dahulu melalui Tambahan Penghasilan.", variant: "destructive" });
+      toast({ title: t("payrollPage.toast.noThrTitle"), description: t("payrollPage.toast.noThrAddDesc"), variant: "destructive" });
       return;
     }
     setGeneratingThrPdf(true);
@@ -1799,10 +1799,10 @@ const Payroll = () => {
       });
 
       await generateThrDisbursementPDF(thrEmployees, selectedMonth, selectedYear, idulFitriDate, idulFitriName, logo);
-      toast({ title: "PDF THR Berhasil", description: "Dokumen pengajuan pembayaran THR berhasil di-download." });
+      toast({ title: t("payrollPage.toast.thrPdfTitle"), description: t("payrollPage.toast.thrPdfDesc") });
     } catch (error: any) {
       console.error("Error generating THR PDF:", error);
-      toast({ title: "Gagal Generate PDF", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.thrPdfFailed"), description: error.message, variant: "destructive" });
     } finally {
       setGeneratingThrPdf(false);
     }
@@ -1855,9 +1855,9 @@ const Payroll = () => {
         selectedYear,
         logo
       );
-      toast({ title: "Export Berhasil", description: "Laporan payroll detail berhasil di-download." });
+      toast({ title: t("payrollPage.toast.exportSuccessTitle"), description: t("payrollPage.toast.reportSuccessDesc") });
     } catch (error: any) {
-      toast({ title: "Gagal Export", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.exportFailed"), description: error.message, variant: "destructive" });
     } finally {
       setGeneratingReport(false);
     }
