@@ -2555,10 +2555,10 @@ const Payroll = () => {
           <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Landmark className="h-5 w-5" /> Preview e-Payroll Bank
+                <Landmark className="h-5 w-5" /> {t("payrollPage.bankPreview.title")}
               </DialogTitle>
               <DialogDescription>
-                Review data transfer gaji sebelum download file — {MONTHS[selectedMonth - 1].label} {selectedYear}
+                {t("payrollPage.bankPreview.desc", { month: monthLabel(selectedMonth), year: selectedYear })}
               </DialogDescription>
             </DialogHeader>
 
@@ -2567,23 +2567,23 @@ const Payroll = () => {
                 <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-sm text-destructive">
-                    {bankIncompleteEmployees.length} karyawan belum memiliki data rekening bank lengkap:
+                    {t("payrollPage.bankPreview.incompleteTitle", { count: bankIncompleteEmployees.length })}
                   </p>
                   <ul className="text-xs text-destructive/80 mt-1 list-disc list-inside">
                     {bankIncompleteEmployees.map((e) => (
-                      <li key={e.nik}>{e.fullName} — {!e.bankAccountNumber ? "No. Rekening kosong" : "Nama Bank kosong"}</li>
+                      <li key={e.nik}>{e.fullName} — {!e.bankAccountNumber ? t("payrollPage.bankPreview.noAccount") : t("payrollPage.bankPreview.noBank")}</li>
                     ))}
                   </ul>
-                  <p className="text-xs text-muted-foreground mt-1">Lengkapi data di halaman Karyawan sebelum export.</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("payrollPage.bankPreview.completeHint")}</p>
                 </div>
               </div>
             )}
 
             {bankCompanyConfig && (
               <div className="flex items-center gap-4 text-sm bg-muted/50 rounded-lg p-3">
-                <div><span className="text-muted-foreground">Rekening Pengirim:</span> <span className="font-medium">{bankCompanyConfig.account_number}</span></div>
-                <div><span className="text-muted-foreground">Bank:</span> <span className="font-medium">{bankCompanyConfig.bank_name}</span></div>
-                <div><span className="text-muted-foreground">Total:</span> <span className="font-bold">{formatRupiah(bankPreviewData.reduce((s, e) => s + Math.round(e.amount), 0))}</span></div>
+                <div><span className="text-muted-foreground">{t("payrollPage.bankPreview.senderAccount")}</span> <span className="font-medium">{bankCompanyConfig.account_number}</span></div>
+                <div><span className="text-muted-foreground">{t("payrollPage.bankPreview.bank")}</span> <span className="font-medium">{bankCompanyConfig.bank_name}</span></div>
+                <div><span className="text-muted-foreground">{t("payrollPage.bankPreview.total")}</span> <span className="font-bold">{formatRupiah(bankPreviewData.reduce((s, e) => s + Math.round(e.amount), 0))}</span></div>
               </div>
             )}
 
@@ -2591,7 +2591,7 @@ const Payroll = () => {
               <div className="flex items-start gap-2 text-sm bg-primary/10 border border-primary/20 rounded-lg p-3">
                 <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <p className="text-primary">
-                  <span className="font-semibold">Catatan:</span> Nominal THP sudah dikurangi THR karena THR dibayarkan terpisah melalui e-Payroll THR.
+                  <span className="font-semibold">{t("payrollPage.bankPreview.thrNote")}</span> {t("payrollPage.bankPreview.thrNoteDesc")}
                 </p>
               </div>
             )}
@@ -2600,13 +2600,13 @@ const Payroll = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-10">No</TableHead>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>No. Rekening</TableHead>
-                    <TableHead>Bank</TableHead>
-                    <TableHead>NIK</TableHead>
-                    <TableHead className="text-right">THP</TableHead>
-                    <TableHead className="w-16 text-center">Tipe</TableHead>
+                    <TableHead className="w-10">{t("payrollPage.bankPreview.colNo")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colName")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colAccount")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colBank")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colNik")}</TableHead>
+                    <TableHead className="text-right">{t("payrollPage.bankPreview.colThp")}</TableHead>
+                    <TableHead className="w-16 text-center">{t("payrollPage.bankPreview.colType")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -2617,10 +2617,10 @@ const Payroll = () => {
                         <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
                         <TableCell className="font-medium">{emp.fullName}</TableCell>
                         <TableCell className={!emp.bankAccountNumber ? "text-destructive font-medium" : ""}>
-                          {emp.bankAccountNumber || "⚠ Belum diisi"}
+                          {emp.bankAccountNumber || t("payrollPage.bankPreview.notFilled")}
                         </TableCell>
                         <TableCell className={!emp.bankName ? "text-destructive font-medium" : ""}>
-                          {emp.bankName || "⚠ Belum diisi"}
+                          {emp.bankName || t("payrollPage.bankPreview.notFilled")}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs">{emp.nik}</TableCell>
                         <TableCell className="text-right font-medium">{formatRupiah(Math.round(emp.amount))}</TableCell>
@@ -2639,12 +2639,12 @@ const Payroll = () => {
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t">
-              <p className="text-xs text-muted-foreground">{bankPreviewData.length} karyawan • Format: TXT (semicolon-separated)</p>
+              <p className="text-xs text-muted-foreground">{t("payrollPage.bankPreview.footer", { count: bankPreviewData.length })}</p>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowBankPreview(false)}>Batal</Button>
+                <Button variant="outline" onClick={() => setShowBankPreview(false)}>{t("payrollPage.bankPreview.cancel")}</Button>
                 <Button onClick={handleConfirmBankExport} disabled={exportingBankPayroll || bankIncompleteEmployees.length > 0} className="gap-2">
                   {exportingBankPayroll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                  Download e-Payroll
+                  {t("payrollPage.bankPreview.download")}
                 </Button>
               </div>
             </div>
@@ -2656,10 +2656,10 @@ const Payroll = () => {
           <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Gift className="h-5 w-5 text-primary" /> Preview e-Payroll THR
+                <Gift className="h-5 w-5 text-primary" /> {t("payrollPage.bankPreview.thrTitle")}
               </DialogTitle>
               <DialogDescription>
-                Review data transfer THR sebelum download file — {MONTHS[selectedMonth - 1].label} {selectedYear}
+                {t("payrollPage.bankPreview.thrDesc", { month: monthLabel(selectedMonth), year: selectedYear })}
               </DialogDescription>
             </DialogHeader>
 
@@ -2668,23 +2668,23 @@ const Payroll = () => {
                 <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-sm text-destructive">
-                    {thrBankIncompleteEmployees.length} karyawan belum memiliki data rekening bank lengkap:
+                    {t("payrollPage.bankPreview.incompleteTitle", { count: thrBankIncompleteEmployees.length })}
                   </p>
                   <ul className="text-xs text-destructive/80 mt-1 list-disc list-inside">
                     {thrBankIncompleteEmployees.map((e) => (
-                      <li key={e.nik}>{e.fullName} — {!e.bankAccountNumber ? "No. Rekening kosong" : "Nama Bank kosong"}</li>
+                      <li key={e.nik}>{e.fullName} — {!e.bankAccountNumber ? t("payrollPage.bankPreview.noAccount") : t("payrollPage.bankPreview.noBank")}</li>
                     ))}
                   </ul>
-                  <p className="text-xs text-muted-foreground mt-1">Lengkapi data di halaman Karyawan sebelum export.</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("payrollPage.bankPreview.completeHint")}</p>
                 </div>
               </div>
             )}
 
             {thrBankCompanyConfig && (
               <div className="flex items-center gap-4 text-sm bg-muted/50 rounded-lg p-3">
-                <div><span className="text-muted-foreground">Rekening Pengirim:</span> <span className="font-medium">{thrBankCompanyConfig.account_number}</span></div>
-                <div><span className="text-muted-foreground">Bank:</span> <span className="font-medium">{thrBankCompanyConfig.bank_name}</span></div>
-                <div><span className="text-muted-foreground">Total THR:</span> <span className="font-bold">{formatRupiah(thrBankPreviewData.reduce((s, e) => s + Math.round(e.amount), 0))}</span></div>
+                <div><span className="text-muted-foreground">{t("payrollPage.bankPreview.senderAccount")}</span> <span className="font-medium">{thrBankCompanyConfig.account_number}</span></div>
+                <div><span className="text-muted-foreground">{t("payrollPage.bankPreview.bank")}</span> <span className="font-medium">{thrBankCompanyConfig.bank_name}</span></div>
+                <div><span className="text-muted-foreground">{t("payrollPage.bankPreview.totalThr")}</span> <span className="font-bold">{formatRupiah(thrBankPreviewData.reduce((s, e) => s + Math.round(e.amount), 0))}</span></div>
               </div>
             )}
 
@@ -2692,13 +2692,13 @@ const Payroll = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-10">No</TableHead>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>No. Rekening</TableHead>
-                    <TableHead>Bank</TableHead>
-                    <TableHead>NIK</TableHead>
-                    <TableHead className="text-right">THR</TableHead>
-                    <TableHead className="w-16 text-center">Tipe</TableHead>
+                    <TableHead className="w-10">{t("payrollPage.bankPreview.colNo")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colName")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colAccount")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colBank")}</TableHead>
+                    <TableHead>{t("payrollPage.bankPreview.colNik")}</TableHead>
+                    <TableHead className="text-right">{t("payrollPage.bankPreview.colThr")}</TableHead>
+                    <TableHead className="w-16 text-center">{t("payrollPage.bankPreview.colType")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -2709,10 +2709,10 @@ const Payroll = () => {
                         <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
                         <TableCell className="font-medium">{emp.fullName}</TableCell>
                         <TableCell className={!emp.bankAccountNumber ? "text-destructive font-medium" : ""}>
-                          {emp.bankAccountNumber || "⚠ Belum diisi"}
+                          {emp.bankAccountNumber || t("payrollPage.bankPreview.notFilled")}
                         </TableCell>
                         <TableCell className={!emp.bankName ? "text-destructive font-medium" : ""}>
-                          {emp.bankName || "⚠ Belum diisi"}
+                          {emp.bankName || t("payrollPage.bankPreview.notFilled")}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs">{emp.nik}</TableCell>
                         <TableCell className="text-right font-medium">{formatRupiah(Math.round(emp.amount))}</TableCell>
@@ -2731,12 +2731,12 @@ const Payroll = () => {
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t">
-              <p className="text-xs text-muted-foreground">{thrBankPreviewData.length} karyawan • Format: TXT (semicolon-separated)</p>
+              <p className="text-xs text-muted-foreground">{t("payrollPage.bankPreview.footer", { count: thrBankPreviewData.length })}</p>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowThrBankPreview(false)}>Batal</Button>
+                <Button variant="outline" onClick={() => setShowThrBankPreview(false)}>{t("payrollPage.bankPreview.cancel")}</Button>
                 <Button onClick={handleConfirmThrBankExport} disabled={exportingThrBank || thrBankIncompleteEmployees.length > 0} className="gap-2">
                   {exportingThrBank ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                  Download e-Payroll THR
+                  {t("payrollPage.bankPreview.downloadThr")}
                 </Button>
               </div>
             </div>

@@ -1543,6 +1543,35 @@
       "thrPdfDesc": "THR payment submission document successfully downloaded.",
       "thrPdfFailed": "Failed to Generate PDF",
       "reportSuccessDesc": "Detailed payroll report successfully downloaded."
+    },
+    "bankPreview": {
+      "title": "e-Payroll Bank Preview",
+      "thrTitle": "e-Payroll THR Preview",
+      "desc": "Review salary transfer data before downloading file — {{month}} {{year}}",
+      "thrDesc": "Review THR transfer data before downloading file — {{month}} {{year}}",
+      "incompleteTitle": "{{count}} employees do not have complete bank account data:",
+      "noAccount": "Account number empty",
+      "noBank": "Bank name empty",
+      "completeHint": "Complete the data on the Employees page before exporting.",
+      "senderAccount": "Sender Account:",
+      "bank": "Bank:",
+      "total": "Total:",
+      "totalThr": "Total THR:",
+      "thrNote": "Note:",
+      "thrNoteDesc": "THP nominal has been deducted by THR because THR is paid separately via e-Payroll THR.",
+      "colNo": "No",
+      "colName": "Name",
+      "colAccount": "Account No.",
+      "colBank": "Bank",
+      "colNik": "NIK",
+      "colThp": "THP",
+      "colThr": "THR",
+      "colType": "Type",
+      "notFilled": "⚠ Not filled",
+      "footer": "{{count}} employees • Format: TXT (semicolon-separated)",
+      "cancel": "Cancel",
+      "download": "Download e-Payroll",
+      "downloadThr": "Download e-Payroll THR"
     }
   }
 }
