@@ -655,8 +655,8 @@ export default function KPIPage() {
         <div className="flex items-center gap-3">
           <Target className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold">KPI Management</h1>
-            <p className="text-sm text-muted-foreground">Kelola indikator, realisasi, dan output payroll KPI karyawan</p>
+            <h1 className="text-2xl font-bold">{t("kpiPage.header.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("kpiPage.header.subtitle")}</p>
           </div>
         </div>
 
@@ -664,9 +664,9 @@ export default function KPIPage() {
         <Card>
           <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label>Karyawan</Label>
+              <Label>{t("kpiPage.select.employee")}</Label>
               <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger><SelectValue placeholder="Pilih karyawan" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("kpiPage.select.employeePh")} /></SelectTrigger>
                 <SelectContent>
                   {profiles.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
@@ -677,7 +677,7 @@ export default function KPIPage() {
               </Select>
             </div>
             <div>
-              <Label>Tahun</Label>
+              <Label>{t("kpiPage.select.year")}</Label>
               <Select value={String(year)} onValueChange={(v) => setYear(parseInt(v))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -692,7 +692,7 @@ export default function KPIPage() {
                 <div className="font-semibold">{selectedProfile.full_name}</div>
                 <div className="text-muted-foreground">{selectedProfile.jabatan} • {selectedProfile.departemen}</div>
                 <div className="text-muted-foreground">
-                  Gaji Pokok: Rp {(selectedProfile.basic_salary || 0).toLocaleString("id-ID")}
+                  {t("kpiPage.select.basic")}: Rp {(selectedProfile.basic_salary || 0).toLocaleString("id-ID")}
                 </div>
               </div>
             )}
