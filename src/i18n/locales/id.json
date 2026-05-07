@@ -954,5 +954,75 @@
     "rejected": "Ditolak",
     "daysShort": "({{n}} hari)",
     "hoursReason": "{{n}} jam - {{reason}}"
+  },
+  "companyCalendar": {
+    "title": "Kalender Perusahaan",
+    "dayNames": ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
+    "travelPrefix": "Dinas",
+    "leaveTypes": {
+      "cuti_tahunan": "Cuti Tahunan",
+      "izin": "Izin",
+      "sakit": "Sakit",
+      "lupa_absen": "Lupa Absen"
+    },
+    "tooltip": {
+      "checkOutPrefix": "Pulang"
+    },
+    "legend": {
+      "holiday": "Hari Libur",
+      "specialHours": "Jam Kerja Khusus",
+      "officeEvent": "Event Kantor",
+      "myLeave": "Cuti Saya",
+      "travel": "Dinas",
+      "today": "Hari Ini"
+    },
+    "detail": {
+      "holiday": "Hari Libur",
+      "specialHours": "Jam Kerja Khusus",
+      "checkInUntil": "Masuk: s.d. {{time}}",
+      "checkOutFrom": "Pulang: mulai {{time}}",
+      "officeEvent": "Event Kantor",
+      "leavePermit": "Cuti / Izin",
+      "delegateTo": "Tugas didelegasikan ke:",
+      "travel": "Perjalanan Dinas",
+      "noEvent": "Tidak ada event pada tanggal ini.",
+      "addHoliday": "Tambah Libur",
+      "addEvent": "Tambah Event"
+    },
+    "form": {
+      "addHoliday": "Tambah Hari Libur",
+      "addOfficeEvent": "Tambah Event Kantor",
+      "officeEvent": "Event Kantor",
+      "holiday": "Hari Libur",
+      "holidayName": "Nama Hari Libur *",
+      "eventTitle": "Judul Event *",
+      "holidayPlaceholder": "Contoh: Hari Raya Idul Fitri",
+      "eventPlaceholder": "Contoh: Rapat Bulanan",
+      "endDate": "Tanggal Selesai",
+      "startDate": "Tanggal Mulai",
+      "descriptionOptional": "Deskripsi (opsional)",
+      "descriptionPlaceholder": "Deskripsi event...",
+      "saving": "Menyimpan...",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "editHoliday": "Edit Hari Libur",
+      "editEvent": "Edit Event Kantor",
+      "holidayNameLabel": "Nama Hari Libur",
+      "eventTitleLabel": "Judul Event"
+    },
+    "toast": {
+      "eventAdded": "Event berhasil ditambahkan",
+      "eventAddFailed": "Gagal menambah event: ",
+      "holidayAdded": "Hari libur berhasil ditambahkan",
+      "holidayAddFailed": "Gagal menambah hari libur: ",
+      "holidayDeleted": "Hari libur berhasil dihapus",
+      "deleteFailed": "Gagal menghapus: ",
+      "holidayUpdated": "Hari libur berhasil diperbarui",
+      "updateFailed": "Gagal mengubah: ",
+      "eventDeleted": "Event berhasil dihapus",
+      "eventDeleteFailed": "Gagal menghapus event: ",
+      "eventUpdated": "Event berhasil diperbarui",
+      "eventUpdateFailed": "Gagal mengubah event: "
+    }
   }
 }
