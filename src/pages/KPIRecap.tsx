@@ -156,7 +156,7 @@ export default function KPIRecap() {
       })));
       setGrades((grd || []) as GradeSetting[]);
     } catch (err: unknown) {
-      toast({ title: "Gagal memuat data", description: (err as Error).message, variant: "destructive" });
+      toast({ title: t("kpiRecap.loadFail"), description: (err as Error).message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
