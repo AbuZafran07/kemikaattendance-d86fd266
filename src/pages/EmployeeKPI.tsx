@@ -394,8 +394,8 @@ export default function EmployeeKPI() {
                           )}
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">Target: {ind.target} {ind.unit}</Badge>
-                          <Badge variant="outline">Bobot: {ind.weight}%</Badge>
+                          <Badge variant="outline">{t("empKpi.target", { val: ind.target, unit: ind.unit })}</Badge>
+                          <Badge variant="outline">{t("empKpi.weight", { n: ind.weight })}</Badge>
                           <Badge variant="secondary">{ind.formula_type}</Badge>
                         </div>
                       </div>
