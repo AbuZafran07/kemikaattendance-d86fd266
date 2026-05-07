@@ -127,6 +127,8 @@ export default function EmployeeKPI() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { t } = useTranslation();
+  const MONTHS_LOCAL = (t("common.monthsShort", { returnObjects: true }) as string[]) || MONTHS;
 
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
