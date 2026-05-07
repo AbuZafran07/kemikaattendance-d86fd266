@@ -225,13 +225,13 @@ export default function EmployeeKPI() {
       .eq("year", year)
       .eq("month", month);
     if (cntErr) {
-      toast({ title: "Gagal validasi lampiran", description: cntErr.message, variant: "destructive" });
+      toast({ title: t("empKpi.validateFail"), description: cntErr.message, variant: "destructive" });
       return false;
     }
     if (!count || count === 0) {
       toast({
-        title: "Lampiran wajib",
-        description: `Upload minimal 1 file laporan (PDF/Excel) untuk bulan ${MONTHS[month - 1]} sebelum input realisasi.`,
+        title: t("empKpi.attachRequired"),
+        description: t("empKpi.attachRequiredDesc", { month: MONTHS_LOCAL[month - 1] }),
         variant: "destructive",
       });
       // Sync state
