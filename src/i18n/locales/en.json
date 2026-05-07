@@ -1272,6 +1272,11 @@
       "noActive": "No active employees yet",
       "noArchive": "No employees in archive (Inactive / Resigned)"
     },
+    "statusBadge": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "resigned": "Resigned"
+    },
     "resetPassword": {
       "title": "Reset Employee Password",
       "description": "Reset password for {{name}}",
