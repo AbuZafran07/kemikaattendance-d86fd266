@@ -267,7 +267,11 @@ function FormulaTester({
 }
 
 export default function KPIPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
+  const MONTHS = useMemo(() => Array.from({length:12},(_,i)=>t(`kpiPage.months.${i+1}`)), [t]);
+  const KPI_MONTHS = MONTHS;
+  const FORMULA_OPTIONS = useMemo(() => FORMULA_KEYS.map(f => ({ value: f.value, label: t(f.labelKey), hint: t(f.hintKey) })), [t]);
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
