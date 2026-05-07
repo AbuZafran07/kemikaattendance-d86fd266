@@ -305,27 +305,27 @@ export default function KPIRecap() {
 
         {/* Table */}
         <Card>
-          <CardHeader><CardTitle className="text-base">Pencapaian KPI Karyawan</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t("kpiRecap.tableTitle")}</CardTitle></CardHeader>
           <CardContent className="p-0">
             {loading ? (
               <div className="flex items-center justify-center py-12 text-muted-foreground">
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" /> Memuat data...
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" /> {t("kpiRecap.loading")}
               </div>
             ) : filteredRows.length === 0 ? (
-              <div className="py-12 text-center text-sm text-muted-foreground">Tidak ada karyawan yang cocok dengan filter.</div>
+              <div className="py-12 text-center text-sm text-muted-foreground">{t("kpiRecap.empty")}</div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12">#</TableHead>
-                      <TableHead>Karyawan</TableHead>
-                      <TableHead>Departemen</TableHead>
-                      <TableHead className="text-center">Indikator</TableHead>
-                      <TableHead className="text-center">Bobot Total</TableHead>
-                      <TableHead className="text-center">Score Akhir</TableHead>
-                      <TableHead className="text-center">Grade</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
+                      <TableHead>{t("kpiRecap.colEmployee")}</TableHead>
+                      <TableHead>{t("kpiRecap.colDept")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colIndicator")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colTotalWeight")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colFinalScore")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colGrade")}</TableHead>
+                      <TableHead className="text-right">{t("kpiRecap.colAction")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -339,7 +339,7 @@ export default function KPIRecap() {
                         <TableCell className="text-sm">{r.profile.departemen}</TableCell>
                         <TableCell className="text-center">
                           {r.indicatorCount === 0
-                            ? <Badge variant="outline" className="text-muted-foreground">Belum diatur</Badge>
+                            ? <Badge variant="outline" className="text-muted-foreground">{t("kpiRecap.notSet")}</Badge>
                             : <Badge variant="secondary">{r.indicatorCount}</Badge>}
                         </TableCell>
                         <TableCell className="text-center text-sm">
@@ -363,7 +363,7 @@ export default function KPIRecap() {
                         </TableCell>
                         <TableCell className="text-right">
                           <Button size="sm" variant="ghost" onClick={() => navigate(`/dashboard/kpi?user=${r.profile.id}&year=${year}`)}>
-                            Detail <ArrowRight className="h-3 w-3 ml-1" />
+                            {t("kpiRecap.detail")} <ArrowRight className="h-3 w-3 ml-1" />
                           </Button>
                         </TableCell>
                       </TableRow>
