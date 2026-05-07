@@ -1272,6 +1272,11 @@
       "noActive": "Belum ada karyawan aktif",
       "noArchive": "Belum ada karyawan di arsip (Inactive / Resigned)"
     },
+    "statusBadge": {
+      "active": "Aktif",
+      "inactive": "Non-aktif",
+      "resigned": "Resigned"
+    },
     "resetPassword": {
       "title": "Reset Password Karyawan",
       "description": "Reset password untuk {{name}}",
