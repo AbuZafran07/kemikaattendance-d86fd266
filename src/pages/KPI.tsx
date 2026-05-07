@@ -361,7 +361,7 @@ export default function KPIPage() {
           setRealizations([]);
         }
       } catch (err: any) {
-        toast({ title: "Gagal memuat KPI", description: err.message, variant: "destructive" });
+        toast({ title: t("kpiPage.toast.loadFail"), description: err.message, variant: "destructive" });
       } finally {
         setLoading(false);
       }
@@ -372,7 +372,7 @@ export default function KPIPage() {
 
   const addIndicator = () => {
     if (!selectedUserId) {
-      toast({ title: "Pilih karyawan dulu", variant: "destructive" });
+      toast({ title: t("kpiPage.toast.pickFirst"), variant: "destructive" });
       return;
     }
     setIndicators((prev) => [
@@ -404,13 +404,13 @@ export default function KPIPage() {
     if (ind.id) {
       const { error } = await supabase.from("kpi_indicators").delete().eq("id", ind.id);
       if (error) {
-        toast({ title: "Gagal menghapus", description: error.message, variant: "destructive" });
+        toast({ title: t("kpiPage.toast.removeFail"), description: error.message, variant: "destructive" });
         return;
       }
     }
     setIndicators((prev) => prev.filter((_, i) => i !== idx));
     setRealizations((prev) => prev.filter((r) => r.indicator_id !== ind.id));
-    toast({ title: "Indicator dihapus" });
+    toast({ title: t("kpiPage.toast.removed") });
   };
 
   const saveAllIndicators = async () => {
@@ -418,8 +418,8 @@ export default function KPIPage() {
     const total = indicators.reduce((a, b) => a + (Number(b.weight) || 0), 0);
     if (Math.round(total) !== 100) {
       toast({
-        title: "Total bobot harus 100%",
-        description: `Saat ini total bobot = ${total}%`,
+        title: t("kpiPage.toast.weightMust"),
+        description: t("kpiPage.toast.weightCurrent", { w: total }),
         variant: "destructive",
       });
       return;
@@ -430,7 +430,7 @@ export default function KPIPage() {
       const err = validateCustomExpr(ind.custom_expr, ind.custom_vars);
       if (err) {
         toast({
-          title: `Formula tidak valid: ${ind.name || "Indicator tanpa nama"}`,
+          title: t("kpiPage.toast.invalidFormulaTitle", { n: ind.name || t("kpiPage.toast.noName") }),
           description: err,
           variant: "destructive",
         });
@@ -479,9 +479,9 @@ export default function KPIPage() {
           sort_order: i.sort_order ?? 0,
         }));
       setIndicators(refreshed);
-      toast({ title: "Tersimpan", description: "Semua indicator berhasil disimpan" });
+      toast({ title: t("kpiPage.toast.saved"), description: t("kpiPage.toast.savedDesc") });
     } catch (err: any) {
-      toast({ title: "Gagal menyimpan", description: err.message, variant: "destructive" });
+      toast({ title: t("kpiPage.toast.saveFail"), description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -535,7 +535,7 @@ export default function KPIPage() {
         ];
       });
     } catch (err: any) {
-      toast({ title: "Gagal menyimpan realisasi", description: err.message, variant: "destructive" });
+      toast({ title: t("kpiPage.toast.realFail"), description: err.message, variant: "destructive" });
     }
   };
 
@@ -579,9 +579,9 @@ export default function KPIPage() {
       }));
       const { error } = await supabase.from("kpi_grade_settings").upsert(payload, { onConflict: "grade" });
       if (error) throw error;
-      toast({ title: "Pengaturan grade tersimpan" });
+      toast({ title: t("kpiPage.toast.gradeSaved") });
     } catch (err: any) {
-      toast({ title: "Gagal menyimpan grade", description: err.message, variant: "destructive" });
+      toast({ title: t("kpiPage.toast.gradeFail"), description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
