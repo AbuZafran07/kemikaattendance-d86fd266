@@ -489,19 +489,19 @@ const BusinessTravel = () => {
                         <TableCell>{request.destination}</TableCell>
                         <TableCell className="max-w-xs truncate">{request.purpose}</TableCell>
                         <TableCell>
-                          {format(new Date(request.start_date), "d MMM yyyy", { locale: id })} -
-                          {format(new Date(request.end_date), "d MMM yyyy", { locale: id })}
+                          {format(new Date(request.start_date), "d MMM yyyy", { locale: dateLocale })} -
+                          {format(new Date(request.end_date), "d MMM yyyy", { locale: dateLocale })}
                         </TableCell>
-                        <TableCell>{request.total_days} hari</TableCell>
+                        <TableCell>{t("travelAdmin.days", { n: request.total_days })}</TableCell>
                         <TableCell>{getStatusBadge(request.status)}</TableCell>
                         <TableCell>
                           {request.document_url ? (
                             <Badge variant="outline" className="gap-1">
                               <FileText className="h-3 w-3" />
-                              Ada
+                              {t("travelAdmin.docExists")}
                             </Badge>
                           ) : (
-                            <Badge variant="secondary">Belum Ada</Badge>
+                            <Badge variant="secondary">{t("travelAdmin.docNone")}</Badge>
                           )}
                         </TableCell>
                         {isAdmin && (
