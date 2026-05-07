@@ -372,7 +372,7 @@ const CompanyCalendar = () => {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-sm font-medium min-w-[120px] text-center">
-              {format(currentMonth, "MMMM yyyy", { locale: id })}
+              {format(currentMonth, "MMMM yyyy", { locale: dateLocale })}
             </span>
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>
               <ChevronRight className="h-4 w-4" />
@@ -479,7 +479,7 @@ const CompanyCalendar = () => {
                   <TooltipTrigger asChild>{content}</TooltipTrigger>
                   <TooltipContent side="top" className="max-w-[200px]">
                     <div className="space-y-1">
-                      <p className="font-medium text-xs">{format(date, "d MMMM yyyy", { locale: id })}</p>
+                      <p className="font-medium text-xs">{format(date, "d MMMM yyyy", { locale: dateLocale })}</p>
                       {holidayName && (
                         <div className="flex items-center gap-1 text-xs">
                           <Palmtree className="h-3 w-3 text-destructive" />
@@ -561,7 +561,7 @@ const CompanyCalendar = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
-              {selectedDate && format(selectedDate, "EEEE, d MMMM yyyy", { locale: id })}
+              {selectedDate && format(selectedDate, "EEEE, d MMMM yyyy", { locale: dateLocale })}
             </DialogTitle>
           </DialogHeader>
           {selectedDate && (() => {
@@ -719,7 +719,7 @@ const CompanyCalendar = () => {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              {addEventDate && format(addEventDate, "EEEE, d MMMM yyyy", { locale: id })}
+              {addEventDate && format(addEventDate, "EEEE, d MMMM yyyy", { locale: dateLocale })}
             </p>
 
             {/* Mode tabs */}
