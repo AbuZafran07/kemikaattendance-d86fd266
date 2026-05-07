@@ -291,7 +291,7 @@ export default function EmployeeKPI() {
             </Button>
             <img src={logo} alt="Logo" className="w-9 h-9 object-contain" />
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold truncate">KPI Saya</h1>
+              <h1 className="text-base sm:text-lg font-bold truncate">{t("empKpi.title")}</h1>
               <p className="text-xs text-muted-foreground truncate">{profile?.full_name}</p>
             </div>
           </div>
