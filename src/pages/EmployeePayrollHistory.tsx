@@ -57,6 +57,8 @@ interface PeriodInfo {
 
 const EmployeePayrollHistory = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const monthsLong = (t("common.monthsLong", { returnObjects: true }) as string[]) || [];
   const { user, profile, signOut } = useAuth();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [payrolls, setPayrolls] = useState<(PayrollItem & { month: number; year: number })[]>([]);
