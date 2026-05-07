@@ -1132,7 +1132,7 @@ export default function KPIPage() {
             <TabsContent value="realisasi" className="space-y-4 mt-4">
               {indicators.filter((i) => i.id).length === 0 && (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">
-                  Simpan indicator terlebih dahulu di tab Setup.
+                  {t("kpiPage.real.savedFirst")}
                 </CardContent></Card>
               )}
 
@@ -1140,8 +1140,8 @@ export default function KPIPage() {
               {selectedUserId && (
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Lampiran Laporan Karyawan ({year})</CardTitle>
-                    <p className="text-xs text-muted-foreground">Lihat & kelola laporan bulanan yang diupload karyawan.</p>
+                    <CardTitle className="text-base">{t("kpiPage.real.attachTitle", { y: year })}</CardTitle>
+                    <p className="text-xs text-muted-foreground">{t("kpiPage.real.attachHint")}</p>
                   </CardHeader>
                   <CardContent>
                     <Accordion type="multiple" className="w-full">
@@ -1178,10 +1178,10 @@ export default function KPIPage() {
                   <Card key={ind.id}>
                     <CardHeader>
                       <CardTitle className="text-base flex items-center justify-between">
-                        <span>{ind.name || "(Tanpa nama)"}</span>
+                        <span>{ind.name || t("kpiPage.real.noName")}</span>
                         <Badge variant="outline">{FORMULA_OPTIONS.find((f) => f.value === ind.formula_type)?.label}</Badge>
                       </CardTitle>
-                      <p className="text-sm text-muted-foreground">Target: {ind.target} {ind.unit} • Bobot: {ind.weight}%</p>
+                      <p className="text-sm text-muted-foreground">{t("kpiPage.real.target")}: {ind.target} {ind.unit} • {t("kpiPage.setup.weight")}: {ind.weight}%</p>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {ind.formula_type !== "custom" ? (
@@ -1207,7 +1207,7 @@ export default function KPIPage() {
                           })}
                         </div>
                       ) : ind.custom_vars.length === 0 ? (
-                        <p className="text-sm text-muted-foreground italic">Belum ada variabel custom. Tambahkan variabel di tab Setup Indicator terlebih dahulu.</p>
+                        <p className="text-sm text-muted-foreground italic">{t("kpiPage.real.noVarYet")}</p>
                       ) : (
                         <div className="space-y-3">
                           {MONTHS.map((m, mi) => {
@@ -1221,7 +1221,7 @@ export default function KPIPage() {
                                   {ind.custom_vars.map((v) => (
                                     <div key={v.alias}>
                                       <Label className="text-xs">
-                                        {v.label || <span className="italic text-muted-foreground">(tanpa label)</span>}{" "}
+                                        {v.label || <span className="italic text-muted-foreground">{t("kpiPage.setup.noLabel")}</span>}{" "}
                                         <span className="font-mono text-muted-foreground">[{v.alias}]</span>
                                       </Label>
                                       <Input
@@ -1246,10 +1246,10 @@ export default function KPIPage() {
                       )}
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t">
-                        <Metric label="Bulan Terisi" value={`${filled}/12`} />
-                        <Metric label="Realisasi" value={realized.toFixed(2)} />
-                        <Metric label="Target" value={ind.target} />
-                        <Metric label="Score" value={`${score.toFixed(1)}`} />
+                        <Metric label={t("kpiPage.real.filled")} value={`${filled}/12`} />
+                        <Metric label={t("kpiPage.real.realized")} value={realized.toFixed(2)} />
+                        <Metric label={t("kpiPage.real.target")} value={ind.target} />
+                        <Metric label={t("kpiPage.real.score")} value={`${score.toFixed(1)}`} />
                       </div>
                       <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                         <div className={`h-full ${scoreColor(score)}`} style={{ width: `${Math.min(100, score)}%` }} />
@@ -1263,16 +1263,16 @@ export default function KPIPage() {
             {/* TAB 3: PROGRESS */}
             <TabsContent value="progress" className="space-y-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <SummaryCard icon={<TrendingUp className="h-5 w-5" />} label="Score Akhir (Weighted)" value={finalScore.toFixed(1)} />
-                <SummaryCard icon={<Award className="h-5 w-5" />} label="Grade Proyeksi" value={finalGrade?.grade || "-"} />
-                <SummaryCard icon={<Target className="h-5 w-5" />} label="Total Indicator" value={String(indicators.length)} />
+                <SummaryCard icon={<TrendingUp className="h-5 w-5" />} label={t("kpiPage.progress.finalScore")} value={finalScore.toFixed(1)} />
+                <SummaryCard icon={<Award className="h-5 w-5" />} label={t("kpiPage.progress.projGrade")} value={finalGrade?.grade || "-"} />
+                <SummaryCard icon={<Target className="h-5 w-5" />} label={t("kpiPage.progress.totalInd")} value={String(indicators.length)} />
               </div>
 
               {indicatorScores.map((it) => (
                 <Card key={it.indicator.id}>
                   <CardHeader>
                     <CardTitle className="text-base flex items-center justify-between">
-                      <span>{it.indicator.name || "(Tanpa nama)"}</span>
+                      <span>{it.indicator.name || t("kpiPage.real.noName")}</span>
                       <Badge className={scoreColor(it.score) + " text-white"}>{it.score.toFixed(1)}</Badge>
                     </CardTitle>
                   </CardHeader>
@@ -1284,10 +1284,10 @@ export default function KPIPage() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Bulan</TableHead>
-                            <TableHead>Realisasi</TableHead>
-                            <TableHead>Target</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>{t("kpiPage.progress.colMonth")}</TableHead>
+                            <TableHead>{t("kpiPage.progress.colReal")}</TableHead>
+                            <TableHead>{t("kpiPage.progress.colTarget")}</TableHead>
+                            <TableHead>{t("kpiPage.progress.colStatus")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1314,10 +1314,10 @@ export default function KPIPage() {
                             );
                           })}
                           <TableRow className="font-semibold bg-muted/50">
-                            <TableCell>Total / Rata-rata</TableCell>
+                            <TableCell>{t("kpiPage.progress.totalAvg")}</TableCell>
                             <TableCell>{it.realized.toFixed(2)}</TableCell>
                             <TableCell>{it.indicator.target}</TableCell>
-                            <TableCell>Score: {it.score.toFixed(1)}</TableCell>
+                            <TableCell>{t("kpiPage.progress.scoreLabel")} {it.score.toFixed(1)}</TableCell>
                           </TableRow>
                         </TableBody>
                       </Table>
@@ -1331,33 +1331,33 @@ export default function KPIPage() {
             <TabsContent value="payroll" className="space-y-4 mt-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Card>
-                  <CardHeader><CardTitle className="text-base">Konfigurasi Grade</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-base">{t("kpiPage.payroll.gradeConfig")}</CardTitle></CardHeader>
                   <CardContent className="space-y-3">
                     {grades.map((g, gi) => (
                       <div key={g.id || g.grade} className="grid grid-cols-12 gap-2 items-end">
                         <div className="col-span-2">
-                          <Label className="text-xs">Grade</Label>
+                          <Label className="text-xs">{t("kpiPage.payroll.grade")}</Label>
                           <Input value={g.grade} disabled />
                         </div>
                         <div className="col-span-5">
-                          <Label className="text-xs">Min Score</Label>
+                          <Label className="text-xs">{t("kpiPage.payroll.minScore")}</Label>
                           <Input type="number" value={g.min_score} onChange={(e) => updateGrade(gi, { min_score: parseFloat(e.target.value) || 0 })} />
                         </div>
                         <div className="col-span-5">
-                          <Label className="text-xs">Bonus (%)</Label>
+                          <Label className="text-xs">{t("kpiPage.payroll.bonusPct")}</Label>
                           <Input type="number" value={g.bonus_percent} onChange={(e) => updateGrade(gi, { bonus_percent: parseFloat(e.target.value) || 0 })} />
                         </div>
                       </div>
                     ))}
                     <Button onClick={saveGrades} disabled={saving} className="w-full">
                       {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                      Simpan Grade
+                      {t("kpiPage.payroll.saveGrade")}
                     </Button>
                   </CardContent>
                 </Card>
 
                 <Card>
-                  <CardHeader><CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" /> Slip Payroll KPI</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" /> {t("kpiPage.payroll.slipTitle")}</CardTitle></CardHeader>
                   <CardContent>
                     {selectedProfile ? (() => {
                       const basic = selectedProfile.basic_salary || 0;
@@ -1370,44 +1370,44 @@ export default function KPIPage() {
                             </div>
                             <div>
                               <div className="font-semibold">{selectedProfile.full_name}</div>
-                              <div className="text-sm text-muted-foreground">{selectedProfile.jabatan} • Tahun {year}</div>
+                              <div className="text-sm text-muted-foreground">{selectedProfile.jabatan} • {t("kpiPage.payroll.year")} {year}</div>
                             </div>
                           </div>
                           <div className="space-y-2 text-sm border-t pt-3">
-                            <Row label="Score Akhir" value={finalScore.toFixed(1)} />
-                            <Row label="Grade" value={finalGrade?.grade || "-"} />
-                            <Row label="Gaji Pokok" value={`Rp ${basic.toLocaleString("id-ID")}`} />
-                            <Row label={`Bonus KPI (${finalGrade?.bonus_percent || 0}%)`} value={`Rp ${bonus.toLocaleString("id-ID")}`} />
+                            <Row label={t("kpiPage.payroll.finalScore")} value={finalScore.toFixed(1)} />
+                            <Row label={t("kpiPage.payroll.gradeLbl")} value={finalGrade?.grade || "-"} />
+                            <Row label={t("kpiPage.payroll.basic")} value={`Rp ${basic.toLocaleString("id-ID")}`} />
+                            <Row label={t("kpiPage.payroll.bonus", { p: finalGrade?.bonus_percent || 0 })} value={`Rp ${bonus.toLocaleString("id-ID")}`} />
                             <div className="border-t pt-2 flex justify-between font-bold text-base">
-                              <span>Total Take-Home</span>
+                              <span>{t("kpiPage.payroll.total")}</span>
                               <span>Rp {(basic + bonus).toLocaleString("id-ID")}</span>
                             </div>
                           </div>
                         </div>
                       );
                     })() : (
-                      <div className="text-sm text-muted-foreground text-center py-6">Pilih karyawan</div>
+                      <div className="text-sm text-muted-foreground text-center py-6">{t("kpiPage.payroll.pickEmployee")}</div>
                     )}
                   </CardContent>
                 </Card>
               </div>
 
               <Card>
-                <CardHeader><CardTitle className="text-base">Rekap Semua Karyawan ({year})</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-base">{t("kpiPage.payroll.recapTitle", { y: year })}</CardTitle></CardHeader>
                 <CardContent>
                   {recap.length === 0 ? (
-                    <div className="text-sm text-muted-foreground text-center py-6">Belum ada data score</div>
+                    <div className="text-sm text-muted-foreground text-center py-6">{t("kpiPage.payroll.noScore")}</div>
                   ) : (
                     <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Karyawan</TableHead>
-                            <TableHead>Departemen</TableHead>
-                            <TableHead>Score</TableHead>
-                            <TableHead>Grade</TableHead>
-                            <TableHead>Gaji Pokok</TableHead>
-                            <TableHead>Bonus KPI</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colName")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colDept")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colScore")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colGrade")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colBasic")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colBonus")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
