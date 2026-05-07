@@ -309,7 +309,7 @@ const BusinessTravel = () => {
     } catch (error: any) {
       logger.error("Error rejecting request:", error);
       toast({
-        title: "Gagal Menolak",
+        title: t("travelAdmin.toastRejectFail"),
         description: error.message,
         variant: "destructive",
       });
