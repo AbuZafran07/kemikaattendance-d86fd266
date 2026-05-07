@@ -223,10 +223,10 @@ const BusinessTravel = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
+        title: t("travelAdmin.toastOk"),
         description: documentUrl 
-          ? "Perjalanan dinas disetujui dan dokumen berhasil diunggah" 
-          : "Perjalanan dinas disetujui",
+          ? t("travelAdmin.toastApproveOkDoc")
+          : t("travelAdmin.toastApproveOk"),
       });
 
       const currentUser = (await supabase.auth.getUser()).data.user;
