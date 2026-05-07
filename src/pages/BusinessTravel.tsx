@@ -602,15 +602,15 @@ const BusinessTravel = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
-              Batal
+              {t("travelAdmin.cancel")}
             </Button>
             {selectedRequest?.status === "approved" ? (
               <Button onClick={handleUploadOnly} disabled={!uploadingFile || isProcessing}>
-                {isProcessing ? "Mengupload..." : "Upload Dokumen"}
+                {isProcessing ? t("travelAdmin.uploading") : t("travelAdmin.uploadDoc")}
               </Button>
             ) : (
               <Button onClick={handleApprove} disabled={isProcessing}>
-                {isProcessing ? "Memproses..." : uploadingFile ? "Setujui & Upload" : "Setujui Tanpa Dokumen"}
+                {isProcessing ? t("travelAdmin.processing") : uploadingFile ? t("travelAdmin.approveAndUpload") : t("travelAdmin.approveNoDoc")}
               </Button>
             )}
           </DialogFooter>
