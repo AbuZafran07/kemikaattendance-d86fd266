@@ -877,9 +877,9 @@ const Employees = () => {
         }}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Edit Data Karyawan</DialogTitle>
+              <DialogTitle>{t("employeesPage.editDialog.title")}</DialogTitle>
               <DialogDescription>
-                Perbarui data karyawan
+                {t("employeesPage.editDialog.description")}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleEditEmployee} className="space-y-4">
@@ -910,13 +910,13 @@ const Employees = () => {
                   onChange={(e) => handlePhotoSelect(e, true)}
                 />
                 <p className="text-sm text-muted-foreground">
-                  Klik untuk ubah foto (maks 5MB)
+                  {t("employeesPage.editDialog.uploadHint")}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit_email">Email *</Label>
+                  <Label htmlFor="edit_email">{t("employeesPage.addDialog.email")} *</Label>
                   <Input
                     id="edit_email"
                     type="email"
@@ -927,7 +927,7 @@ const Employees = () => {
                   {editFormErrors.email && <p className="text-sm text-destructive">{editFormErrors.email}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_nik">NIK *</Label>
+                  <Label htmlFor="edit_nik">{t("employeesPage.addDialog.nik")} *</Label>
                   <Input
                     id="edit_nik"
                     value={editFormData.nik}
@@ -936,7 +936,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_full_name">Nama Lengkap *</Label>
+                  <Label htmlFor="edit_full_name">{t("employeesPage.addDialog.fullName")} *</Label>
                   <Input
                     id="edit_full_name"
                     value={editFormData.full_name}
@@ -945,13 +945,13 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_jabatan">Jabatan *</Label>
+                  <Label htmlFor="edit_jabatan">{t("employeesPage.addDialog.jabatan")} *</Label>
                   <Select
                     value={editFormData.jabatan}
                     onValueChange={(value) => setEditFormData({ ...editFormData, jabatan: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Jabatan" />
+                      <SelectValue placeholder={t("employeesPage.addDialog.selectJabatan")} />
                     </SelectTrigger>
                     <SelectContent>
                       {JABATAN_OPTIONS.map((jabatan) => (
@@ -963,13 +963,13 @@ const Employees = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_departemen">Departemen *</Label>
+                  <Label htmlFor="edit_departemen">{t("employeesPage.addDialog.departemen")} *</Label>
                   <Select
                     value={editFormData.departemen}
                     onValueChange={(value) => setEditFormData({ ...editFormData, departemen: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Departemen" />
+                      <SelectValue placeholder={t("employeesPage.addDialog.selectDepartemen")} />
                     </SelectTrigger>
                     <SelectContent>
                       {DEPARTMENT_OPTIONS.map((dept) => (
@@ -981,7 +981,7 @@ const Employees = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_join_date">Tanggal Bergabung</Label>
+                  <Label htmlFor="edit_join_date">{t("employeesPage.addDialog.joinDate")}</Label>
                   <Input
                     id="edit_join_date"
                     type="date"
@@ -990,7 +990,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_phone">Telepon</Label>
+                  <Label htmlFor="edit_phone">{t("employeesPage.addDialog.phone")}</Label>
                   <Input
                     id="edit_phone"
                     value={editFormData.phone}
@@ -1020,7 +1020,7 @@ const Employees = () => {
                 </div>
                 {editFormData.status === "Resigned" && (
                   <div className="space-y-2">
-                    <Label htmlFor="edit_resign_date">Tanggal Resign *</Label>
+                    <Label htmlFor="edit_resign_date">{t("employeesPage.editDialog.resignDate")} *</Label>
                     <Input
                       id="edit_resign_date"
                       type="date"
@@ -1040,36 +1040,36 @@ const Employees = () => {
                       <p className="text-sm text-destructive">{editFormErrors.resign_date}</p>
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        Untuk arsip historis & laporan mantan karyawan.
+                        {t("employeesPage.editDialog.resignDateHint")}
                       </p>
                     )}
                   </div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="edit_work_type">Tipe Kerja *</Label>
+                  <Label htmlFor="edit_work_type">{t("employeesPage.addDialog.workType")} *</Label>
                   <Select
                     value={editFormData.work_type}
                     onValueChange={(value) => setEditFormData({ ...editFormData, work_type: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Tipe Kerja" />
+                      <SelectValue placeholder={t("employeesPage.addDialog.selectWorkType")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="wfo">WFO (Work From Office)</SelectItem>
-                      <SelectItem value="wfa">Hybrid (Work From Anywhere)</SelectItem>
+                      <SelectItem value="wfo">{t("employeesPage.addDialog.wfo")}</SelectItem>
+                      <SelectItem value="wfa">{t("employeesPage.addDialog.wfa")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Hybrid: Bisa absen dari mana saja
+                    {t("employeesPage.addDialog.hybridHint")}
                   </p>
                 </div>
 
                 {/* Payroll Info Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">💰 Informasi Payroll</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.payrollSection")}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_basic_salary">Gaji Pokok (Rp)</Label>
+                  <Label htmlFor="edit_basic_salary">{t("employeesPage.editDialog.basicSalary")}</Label>
                   <Input
                     id="edit_basic_salary"
                     type="number"
@@ -1080,13 +1080,13 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_ptkp_status">Status PTKP</Label>
+                  <Label htmlFor="edit_ptkp_status">{t("employeesPage.editDialog.ptkpStatus")}</Label>
                   <Select
                     value={editFormData.ptkp_status}
                     onValueChange={(value) => setEditFormData({ ...editFormData, ptkp_status: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih PTKP" />
+                      <SelectValue placeholder={t("employeesPage.editDialog.selectPtkp")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="TK/0">TK/0 - Tidak Kawin</SelectItem>
@@ -1104,13 +1104,13 @@ const Employees = () => {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    Penghasilan Tidak Kena Pajak
+                    {t("employeesPage.editDialog.ptkpHint")}
                   </p>
                 </div>
 
                 {/* BPJS & Tunjangan Tetap Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">🏥 BPJS & Tunjangan Tetap</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.bpjsSection")}</p>
                 </div>
                 <div className="col-span-2 flex items-center space-x-2 mb-2">
                   <Checkbox
@@ -1119,10 +1119,10 @@ const Employees = () => {
                     onCheckedChange={(checked) => setEditFormData({ ...editFormData, bpjs_kesehatan_enabled: !!checked })}
                   />
                   <Label htmlFor="edit_bpjs_kes" className="text-sm font-normal cursor-pointer">
-                    Ikut BPJS Kesehatan
+                    {t("employeesPage.editDialog.bpjsKes")}
                   </Label>
                   {!editFormData.bpjs_kesehatan_enabled && (
-                    <Badge variant="destructive" className="text-xs">Tidak Ikut</Badge>
+                    <Badge variant="destructive" className="text-xs">{t("employeesPage.editDialog.notEnrolled")}</Badge>
                   )}
                 </div>
                 <div className="col-span-2 flex items-center space-x-2 mb-2">
@@ -1132,17 +1132,17 @@ const Employees = () => {
                     onCheckedChange={(checked) => setEditFormData({ ...editFormData, bpjs_ketenagakerjaan_enabled: !!checked })}
                   />
                   <Label htmlFor="edit_bpjs_tk" className="text-sm font-normal cursor-pointer">
-                    Ikut BPJS Ketenagakerjaan (JHT, JP, JKK, JKM)
+                    {t("employeesPage.editDialog.bpjsTk")}
                   </Label>
                   {!editFormData.bpjs_ketenagakerjaan_enabled && (
-                    <Badge variant="destructive" className="text-xs">Tidak Ikut</Badge>
+                    <Badge variant="destructive" className="text-xs">{t("employeesPage.editDialog.notEnrolled")}</Badge>
                   )}
                 </div>
 
 
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit_tunjangan_komunikasi">Tunjangan Komunikasi (Rp)</Label>
+                  <Label htmlFor="edit_tunjangan_komunikasi">{t("employeesPage.editDialog.tunjanganKomunikasi")}</Label>
                   <Input
                     id="edit_tunjangan_komunikasi"
                     type="number"
@@ -1153,7 +1153,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_tunjangan_jabatan">Tunjangan Jabatan (Rp)</Label>
+                  <Label htmlFor="edit_tunjangan_jabatan">{t("employeesPage.editDialog.tunjanganJabatan")}</Label>
                   <Input
                     id="edit_tunjangan_jabatan"
                     type="number"
@@ -1164,7 +1164,7 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_tunjangan_operasional">Tunjangan Operasional (Rp)</Label>
+                  <Label htmlFor="edit_tunjangan_operasional">{t("employeesPage.editDialog.tunjanganOperasional")}</Label>
                   <Input
                     id="edit_tunjangan_operasional"
                     type="number"
@@ -1176,7 +1176,7 @@ const Employees = () => {
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <Label htmlFor="edit_address">Alamat</Label>
+                  <Label htmlFor="edit_address">{t("employeesPage.addDialog.address")}</Label>
                   <Input
                     id="edit_address"
                     value={editFormData.address}
@@ -1186,20 +1186,20 @@ const Employees = () => {
 
                 {/* Contract & Bank Info Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">📄 Kontrak & Info Bank</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.contractSection")}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_contract_type">Tipe Kontrak</Label>
+                  <Label htmlFor="edit_contract_type">{t("employeesPage.editDialog.contractType")}</Label>
                   <Select
                     value={editFormData.contract_type}
                     onValueChange={(value) => setEditFormData({ ...editFormData, contract_type: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Tipe Kontrak" />
+                      <SelectValue placeholder={t("employeesPage.editDialog.selectContract")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="permanent">Permanent Employee</SelectItem>
-                      <SelectItem value="contract">Contract Employee</SelectItem>
+                      <SelectItem value="permanent">{t("employeesPage.editDialog.permanent")}</SelectItem>
+                      <SelectItem value="contract">{t("employeesPage.editDialog.contract")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1213,16 +1213,16 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_bank_name">Nama Bank</Label>
+                  <Label htmlFor="edit_bank_name">{t("employeesPage.editDialog.bankName")}</Label>
                   <Input
                     id="edit_bank_name"
-                    placeholder="BCA, Mandiri, BNI, dll"
+                    placeholder={t("employeesPage.editDialog.bankNamePlaceholder")}
                     value={editFormData.bank_name}
                     onChange={(e) => setEditFormData({ ...editFormData, bank_name: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_bank_account_number">Nomor Rekening</Label>
+                  <Label htmlFor="edit_bank_account_number">{t("employeesPage.editDialog.bankAccount")}</Label>
                   <Input
                     id="edit_bank_account_number"
                     placeholder="1234567890"
@@ -1233,7 +1233,7 @@ const Employees = () => {
 
                 {/* Cuti Section */}
                 <div className="col-span-2 border-t border-border pt-3 mt-2">
-                  <p className="text-sm font-semibold text-muted-foreground mb-3">📅 Pengaturan Cuti</p>
+                  <p className="text-sm font-semibold text-muted-foreground mb-3">{t("employeesPage.editDialog.leaveSection")}</p>
                 </div>
                 {/* Tenure info for leave eligibility */}
                 {editFormData.join_date && (() => {
