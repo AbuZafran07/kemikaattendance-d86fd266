@@ -621,24 +621,24 @@ const BusinessTravel = () => {
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tolak Perjalanan Dinas</DialogTitle>
+            <DialogTitle>{t("travelAdmin.rejectTitle")}</DialogTitle>
             <DialogDescription>
-              Berikan alasan penolakan untuk perjalanan dinas ini
+              {t("travelAdmin.rejectDesc")}
             </DialogDescription>
           </DialogHeader>
 
           {selectedRequest && (
             <div className="space-y-4">
               <div className="text-sm space-y-1">
-                <p><strong>Nama:</strong> {selectedRequest.profiles?.full_name}</p>
-                <p><strong>Tujuan:</strong> {selectedRequest.destination}</p>
+                <p><strong>{t("travelAdmin.fName")}:</strong> {selectedRequest.profiles?.full_name}</p>
+                <p><strong>{t("travelAdmin.fDestination")}:</strong> {selectedRequest.destination}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="reason">Alasan Penolakan</Label>
+                <Label htmlFor="reason">{t("travelAdmin.reasonLabel")}</Label>
                 <Textarea
                   id="reason"
-                  placeholder="Tuliskan alasan penolakan..."
+                  placeholder={t("travelAdmin.reasonPlaceholder")}
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   rows={3}
@@ -649,10 +649,10 @@ const BusinessTravel = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
-              Batal
+              {t("travelAdmin.cancel")}
             </Button>
             <Button variant="destructive" onClick={handleReject} disabled={isProcessing}>
-              {isProcessing ? "Memproses..." : "Tolak Perjalanan Dinas"}
+              {isProcessing ? t("travelAdmin.processing") : t("travelAdmin.rejectBtn")}
             </Button>
           </DialogFooter>
         </DialogContent>
