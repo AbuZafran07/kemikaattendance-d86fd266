@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -126,6 +127,8 @@ export default function EmployeeKPI() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { t } = useTranslation();
+  const MONTHS_LOCAL = (t("common.monthsShort", { returnObjects: true }) as string[]) || MONTHS;
 
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
@@ -163,7 +166,7 @@ export default function EmployeeKPI() {
       });
       setAttachmentCounts(counts);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Gagal memuat data";
+      const msg = e instanceof Error ? e.message : t("empKpi.loadFail");
       toast({ title: "Error", description: msg, variant: "destructive" });
     } finally {
       setLoading(false);
@@ -222,13 +225,13 @@ export default function EmployeeKPI() {
       .eq("year", year)
       .eq("month", month);
     if (cntErr) {
-      toast({ title: "Gagal validasi lampiran", description: cntErr.message, variant: "destructive" });
+      toast({ title: t("empKpi.validateFail"), description: cntErr.message, variant: "destructive" });
       return false;
     }
     if (!count || count === 0) {
       toast({
-        title: "Lampiran wajib",
-        description: `Upload minimal 1 file laporan (PDF/Excel) untuk bulan ${MONTHS[month - 1]} sebelum input realisasi.`,
+        title: t("empKpi.attachRequired"),
+        description: t("empKpi.attachRequiredDesc", { month: MONTHS_LOCAL[month - 1] }),
         variant: "destructive",
       });
       // Sync state
@@ -252,7 +255,7 @@ export default function EmployeeKPI() {
       .select()
       .single();
     if (error) {
-      toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+      toast({ title: t("empKpi.saveFail"), description: error.message, variant: "destructive" });
       return false;
     }
     setRealizations((prev) => {
@@ -288,7 +291,7 @@ export default function EmployeeKPI() {
             </Button>
             <img src={logo} alt="Logo" className="w-9 h-9 object-contain" />
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold truncate">KPI Saya</h1>
+              <h1 className="text-base sm:text-lg font-bold truncate">{t("empKpi.title")}</h1>
               <p className="text-xs text-muted-foreground truncate">{profile?.full_name}</p>
             </div>
           </div>
@@ -316,16 +319,16 @@ export default function EmployeeKPI() {
           <Card>
             <CardContent className="py-16 text-center text-muted-foreground">
               <Target className="w-12 h-12 mx-auto mb-3 opacity-40" />
-              <p className="font-medium">Belum ada KPI untuk tahun {year}</p>
-              <p className="text-sm">Silakan hubungi HR/Admin untuk menetapkan indikator KPI Anda.</p>
+              <p className="font-medium">{t("empKpi.noKpi", { year })}</p>
+              <p className="text-sm">{t("empKpi.contactHr")}</p>
             </CardContent>
           </Card>
         ) : (
           <Tabs defaultValue="input" className="w-full">
             <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="input">Input Realisasi</TabsTrigger>
-              <TabsTrigger value="progress">Progress</TabsTrigger>
-              <TabsTrigger value="score">Score</TabsTrigger>
+              <TabsTrigger value="input">{t("empKpi.tabInput")}</TabsTrigger>
+              <TabsTrigger value="progress">{t("empKpi.tabProgress")}</TabsTrigger>
+              <TabsTrigger value="score">{t("empKpi.tabScore")}</TabsTrigger>
             </TabsList>
 
             {/* TAB 1: INPUT */}
@@ -335,16 +338,16 @@ export default function EmployeeKPI() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
                     <Paperclip className="w-4 h-4 text-amber-600" />
-                    Lampiran Laporan Bulanan (Wajib)
+                    {t("empKpi.monthlyAttachTitle")}
                   </CardTitle>
                   <p className="text-xs text-muted-foreground flex items-start gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                    <span>Upload laporan bulanan (PDF/Excel, max 10 MB) sebelum input realisasi KPI. Input akan dinonaktifkan jika lampiran belum tersedia.</span>
+                    <span>{t("empKpi.monthlyAttachDesc")}</span>
                   </p>
                 </CardHeader>
                 <CardContent>
                   <Accordion type="multiple" className="w-full">
-                    {MONTHS.map((m, idx) => {
+                    {MONTHS_LOCAL.map((m, idx) => {
                       const month = idx + 1;
                       const cnt = attachmentCounts[month] || 0;
                       return (
@@ -353,7 +356,7 @@ export default function EmployeeKPI() {
                             <div className="flex items-center gap-2 flex-1 mr-2">
                               <span className="font-medium">{m} {year}</span>
                               <Badge variant={cnt > 0 ? "default" : "destructive"} className="text-[10px]">
-                                {cnt > 0 ? `${cnt} file` : "Belum ada"}
+                                {cnt > 0 ? t("empKpi.filesCount", { n: cnt }) : t("empKpi.noFile")}
                               </Badge>
                             </div>
                           </AccordionTrigger>
@@ -391,8 +394,8 @@ export default function EmployeeKPI() {
                           )}
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">Target: {ind.target} {ind.unit}</Badge>
-                          <Badge variant="outline">Bobot: {ind.weight}%</Badge>
+                          <Badge variant="outline">{t("empKpi.target", { val: ind.target, unit: ind.unit })}</Badge>
+                          <Badge variant="outline">{t("empKpi.weight", { n: ind.weight })}</Badge>
                           <Badge variant="secondary">{ind.formula_type}</Badge>
                         </div>
                       </div>
@@ -400,7 +403,7 @@ export default function EmployeeKPI() {
                     <CardContent className="space-y-3">
                       {ind.formula_type !== "custom" ? (
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                          {MONTHS.map((m, idx) => {
+                          {MONTHS_LOCAL.map((m, idx) => {
                             const month = idx + 1;
                             const r = reals.find((x) => x.month === month);
                             const val = r?.value;
@@ -417,7 +420,7 @@ export default function EmployeeKPI() {
                                   step="any"
                                   defaultValue={val ?? ""}
                                   disabled={!hasAtt}
-                                  title={hasAtt ? "" : "Upload lampiran laporan bulan ini terlebih dahulu"}
+                                  title={hasAtt ? "" : t("empKpi.uploadFirst")}
                                   className={filled ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30" : ""}
                                   onBlur={async (e) => {
                                     const raw = e.target.value;
@@ -435,7 +438,7 @@ export default function EmployeeKPI() {
                       ) : (
                         <div className="space-y-3">
                           {ind.custom_vars && ind.custom_vars.length > 0 ? (
-                            MONTHS.map((m, idx) => {
+                            MONTHS_LOCAL.map((m, idx) => {
                               const month = idx + 1;
                               const r = reals.find((x) => x.month === month);
                               const cv = r?.custom_values || {};
@@ -458,7 +461,7 @@ export default function EmployeeKPI() {
                                             step="any"
                                             defaultValue={cur ?? ""}
                                             disabled={!hasAtt}
-                                            title={hasAtt ? "" : "Upload lampiran laporan bulan ini terlebih dahulu"}
+                                            title={hasAtt ? "" : t("empKpi.uploadFirst")}
                                             className={filled ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30" : ""}
                                             onBlur={async (e) => {
                                               const raw = e.target.value;
@@ -477,14 +480,14 @@ export default function EmployeeKPI() {
                               );
                             })
                           ) : (
-                            <p className="text-sm text-muted-foreground">Variabel custom belum diatur oleh admin.</p>
+                            <p className="text-sm text-muted-foreground">{t("empKpi.customNotSet")}</p>
                           )}
                         </div>
                       )}
 
                       <div className="pt-2">
                         <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                          <span>Bulan terisi</span>
+                          <span>{t("empKpi.monthsFilled")}</span>
                           <span>{filledCount}/12</span>
                         </div>
                         <Progress value={(filledCount / 12) * 100} />
@@ -506,15 +509,15 @@ export default function EmployeeKPI() {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <CardTitle className="text-base">{ind.name}</CardTitle>
                         <Badge className={`${scoreColorClass(score)} text-white border-transparent`}>
-                          Score: {score.toFixed(1)}
+                          {t("empKpi.score", { n: score.toFixed(1) })}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div>
                         <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                          <span>Realisasi: {realized.toFixed(2)} {ind.unit}</span>
-                          <span>Target: {ind.target} {ind.unit}</span>
+                          <span>{t("empKpi.realization", { val: realized.toFixed(2), unit: ind.unit })}</span>
+                          <span>{t("empKpi.target", { val: ind.target, unit: ind.unit })}</span>
                         </div>
                         <div className="h-3 w-full rounded-full bg-secondary overflow-hidden">
                           <div
@@ -527,14 +530,14 @@ export default function EmployeeKPI() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Bulan</TableHead>
-                              <TableHead>Realisasi</TableHead>
-                              <TableHead>Target</TableHead>
-                              <TableHead className="text-center">Status</TableHead>
+                              <TableHead>{t("empKpi.month")}</TableHead>
+                              <TableHead>{t("empKpi.realCol")}</TableHead>
+                              <TableHead>{t("empKpi.targetCol")}</TableHead>
+                              <TableHead className="text-center">{t("empKpi.statusCol")}</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {MONTHS.map((m, idx) => {
+                            {MONTHS_LOCAL.map((m, idx) => {
                               const month = idx + 1;
                               const r = reals.find((x) => x.month === month);
                               let realisasiVal: number | null = null;
@@ -586,7 +589,7 @@ export default function EmployeeKPI() {
                       <TrendingUp className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Score Akhir</p>
+                      <p className="text-xs text-muted-foreground">{t("empKpi.finalScore")}</p>
                       <p className="text-3xl font-bold">{finalScore.toFixed(1)}</p>
                     </div>
                   </CardContent>
@@ -597,7 +600,7 @@ export default function EmployeeKPI() {
                       <Award className="w-6 h-6 text-amber-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Grade</p>
+                      <p className="text-xs text-muted-foreground">{t("empKpi.grade")}</p>
                       <p className="text-3xl font-bold">{myGrade?.grade || "-"}</p>
                     </div>
                   </CardContent>
@@ -606,20 +609,20 @@ export default function EmployeeKPI() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Rincian Indikator</CardTitle>
+                  <CardTitle className="text-base">{t("empKpi.indicatorBreakdown")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {indicatorScores.map(({ ind, score, contribution }) => (
                     <div key={ind.id} className="flex flex-wrap items-center justify-between gap-2 p-3 border rounded-md">
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{ind.name}</p>
-                        <p className="text-xs text-muted-foreground">Bobot {ind.weight}%</p>
+                        <p className="text-xs text-muted-foreground">{t("empKpi.weightShort", { n: ind.weight })}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge className={`${scoreColorClass(score)} text-white border-transparent`}>
                           {score.toFixed(1)}
                         </Badge>
-                        <Badge variant="outline">+{contribution.toFixed(2)} poin</Badge>
+                        <Badge variant="outline">{t("empKpi.contribPoints", { n: contribution.toFixed(2) })}</Badge>
                       </div>
                     </div>
                   ))}
@@ -628,15 +631,15 @@ export default function EmployeeKPI() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Tabel Grade</CardTitle>
+                  <CardTitle className="text-base">{t("empKpi.gradeTable")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Grade</TableHead>
-                        <TableHead>Min Score</TableHead>
-                        <TableHead>% Bonus</TableHead>
+                        <TableHead>{t("empKpi.grade")}</TableHead>
+                        <TableHead>{t("empKpi.minScore")}</TableHead>
+                        <TableHead>{t("empKpi.bonusPercent")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -645,7 +648,7 @@ export default function EmployeeKPI() {
                         return (
                           <TableRow key={g.grade} className={isMine ? "bg-emerald-50 dark:bg-emerald-950/20 font-semibold" : ""}>
                             <TableCell>
-                              {g.grade} {isMine && <Badge className="ml-2 bg-emerald-600">Anda</Badge>}
+                              {g.grade} {isMine && <Badge className="ml-2 bg-emerald-600">{t("empKpi.you")}</Badge>}
                             </TableCell>
                             <TableCell>{g.min_score}</TableCell>
                             <TableCell>{g.bonus_percent}%</TableCell>

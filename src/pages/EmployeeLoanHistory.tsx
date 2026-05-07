@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -39,6 +40,9 @@ interface Installment {
 const EmployeeLoanHistory = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
+  const monthsLong = (t("common.monthsLong", { returnObjects: true }) as string[]) || [];
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
@@ -76,9 +80,8 @@ const EmployeeLoanHistory = () => {
         .from("payroll_periods")
         .select("id, month, year")
         .in("id", periodIds);
-      const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
       (periods || []).forEach((p: any) => {
-        periodMap.set(p.id, `${monthNames[p.month - 1]} ${p.year}`);
+        periodMap.set(p.id, `${monthsLong[p.month - 1]} ${p.year}`);
       });
     }
     setInstallments(insts.map(i => ({
@@ -88,13 +91,13 @@ const EmployeeLoanHistory = () => {
     setLoadingInstallments(false);
   };
 
-  const fmt = (n: number) => new Intl.NumberFormat("id-ID").format(n);
+  const fmt = (n: number) => new Intl.NumberFormat(dateLocaleStr).format(n);
 
   const statusBadge = (status: string) => {
     switch (status) {
-      case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
-      case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">Lunas</Badge>;
-      case "cancelled": return <Badge variant="destructive">Dibatalkan</Badge>;
+      case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">{t("empLoan.active")}</Badge>;
+      case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">{t("empLoan.completed")}</Badge>;
+      case "cancelled": return <Badge variant="destructive">{t("empLoan.cancelled")}</Badge>;
       default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
@@ -119,8 +122,8 @@ const EmployeeLoanHistory = () => {
 
       <div className="container mx-auto px-4 py-6 max-w-lg space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Pinjaman Saya</h1>
-          <p className="text-muted-foreground">Lihat daftar pinjaman dan progress cicilan</p>
+          <h1 className="text-2xl font-bold">{t("empLoan.title")}</h1>
+          <p className="text-muted-foreground">{t("empLoan.subtitle")}</p>
         </div>
 
         {/* Summary */}
@@ -128,23 +131,23 @@ const EmployeeLoanHistory = () => {
           <Card>
             <CardContent className="p-4 text-center">
               <Wallet className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">Total Pinjaman</p>
+              <p className="text-xs text-muted-foreground">{t("empLoan.totalLoans")}</p>
               <p className="font-bold">{loans.length}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4 text-center">
               <CreditCard className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">Sisa Pinjaman</p>
+              <p className="text-xs text-muted-foreground">{t("empLoan.remainingLoan")}</p>
               <p className="font-bold text-sm">Rp {fmt(totalActive)}</p>
             </CardContent>
           </Card>
         </div>
 
         {loading ? (
-          <p className="text-center text-muted-foreground py-8">Memuat...</p>
+          <p className="text-center text-muted-foreground py-8">{t("empLoan.loading")}</p>
         ) : loans.length === 0 ? (
-          <Card><CardContent className="p-8 text-center text-muted-foreground">Belum ada pinjaman</CardContent></Card>
+          <Card><CardContent className="p-8 text-center text-muted-foreground">{t("empLoan.empty")}</CardContent></Card>
         ) : (
           <div className="space-y-3">
             {loans.map(loan => {
@@ -155,24 +158,24 @@ const EmployeeLoanHistory = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold capitalize">{loan.loan_type}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(loan.start_date).toLocaleDateString("id-ID")}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(loan.start_date).toLocaleDateString(dateLocaleStr)}</p>
                       </div>
                       {statusBadge(loan.status)}
                     </div>
                     {loan.description && <p className="text-sm text-muted-foreground">{loan.description}</p>}
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <p className="text-muted-foreground">Total</p>
+                        <p className="text-muted-foreground">{t("empLoan.total")}</p>
                         <p className="font-medium">Rp {fmt(Number(loan.total_amount))}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground">Cicilan/bln</p>
+                        <p className="text-muted-foreground">{t("empLoan.monthlyInst")}</p>
                         <p className="font-medium">Rp {fmt(Number(loan.monthly_installment))}</p>
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                        <span>{loan.paid_installments}/{loan.total_installments} cicilan</span>
+                        <span>{loan.paid_installments}/{loan.total_installments} {t("empLoan.instCountSuffix")}</span>
                         <span>{Math.round(progress)}%</span>
                       </div>
                       <Progress value={progress} className="h-2" />
@@ -189,31 +192,31 @@ const EmployeeLoanHistory = () => {
       <Dialog open={!!selectedLoan} onOpenChange={() => setSelectedLoan(null)}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detail Pinjaman</DialogTitle>
+            <DialogTitle>{t("empLoan.detailTitle")}</DialogTitle>
           </DialogHeader>
           {selectedLoan && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><p className="text-muted-foreground">Jenis</p><p className="font-medium capitalize">{selectedLoan.loan_type}</p></div>
-                <div><p className="text-muted-foreground">Status</p>{statusBadge(selectedLoan.status)}</div>
-                <div><p className="text-muted-foreground">Total Pinjaman</p><p className="font-medium">Rp {fmt(Number(selectedLoan.total_amount))}</p></div>
-                <div><p className="text-muted-foreground">Sisa</p><p className="font-medium">Rp {fmt(Number(selectedLoan.remaining_amount))}</p></div>
-                <div><p className="text-muted-foreground">Cicilan/bulan</p><p className="font-medium">Rp {fmt(Number(selectedLoan.monthly_installment))}</p></div>
-                <div><p className="text-muted-foreground">Mulai</p><p className="font-medium">{new Date(selectedLoan.start_date).toLocaleDateString("id-ID")}</p></div>
+                <div><p className="text-muted-foreground">{t("empLoan.type")}</p><p className="font-medium capitalize">{selectedLoan.loan_type}</p></div>
+                <div><p className="text-muted-foreground">{t("empLoan.status")}</p>{statusBadge(selectedLoan.status)}</div>
+                <div><p className="text-muted-foreground">{t("empLoan.totalLoan")}</p><p className="font-medium">Rp {fmt(Number(selectedLoan.total_amount))}</p></div>
+                <div><p className="text-muted-foreground">{t("empLoan.remaining")}</p><p className="font-medium">Rp {fmt(Number(selectedLoan.remaining_amount))}</p></div>
+                <div><p className="text-muted-foreground">{t("empLoan.monthlyInstFull")}</p><p className="font-medium">Rp {fmt(Number(selectedLoan.monthly_installment))}</p></div>
+                <div><p className="text-muted-foreground">{t("empLoan.startDate")}</p><p className="font-medium">{new Date(selectedLoan.start_date).toLocaleDateString(dateLocaleStr)}</p></div>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">Riwayat Cicilan</h4>
+                <h4 className="font-semibold mb-2">{t("empLoan.instHistory")}</h4>
                 {loadingInstallments ? (
-                  <p className="text-sm text-muted-foreground">Memuat...</p>
+                  <p className="text-sm text-muted-foreground">{t("empLoan.loading")}</p>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-12">#</TableHead>
-                        <TableHead>Periode</TableHead>
-                        <TableHead>Jumlah</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>{t("empLoan.period")}</TableHead>
+                        <TableHead>{t("empLoan.amount")}</TableHead>
+                        <TableHead>{t("empLoan.status")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -225,14 +228,14 @@ const EmployeeLoanHistory = () => {
                           <TableCell>
                             {inst.status === "paid" ? (
                               <span className="flex items-center gap-1 text-green-600 text-xs">
-                                <CheckCircle className="h-3 w-3" /> Lunas
+                                <CheckCircle className="h-3 w-3" /> {t("empLoan.paid")}
                               </span>
                             ) : inst.status === "scheduled" ? (
-                              <span className="text-xs text-blue-600">Terjadwal</span>
+                              <span className="text-xs text-blue-600">{t("empLoan.scheduled")}</span>
                             ) : inst.status === "skipped" ? (
-                              <span className="text-xs text-muted-foreground">Skip</span>
+                              <span className="text-xs text-muted-foreground">{t("empLoan.skipped")}</span>
                             ) : (
-                              <span className="text-xs text-muted-foreground">Belum</span>
+                              <span className="text-xs text-muted-foreground">{t("empLoan.notYet")}</span>
                             )}
                           </TableCell>
                         </TableRow>
