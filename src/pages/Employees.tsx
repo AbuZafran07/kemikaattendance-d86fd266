@@ -1417,7 +1417,7 @@ const Employees = () => {
                           >
                             {employee.status === "Resigned" && employee.resign_date
                               ? `${t("employeesPage.table.resignedWith")} (${new Date(employee.resign_date).toLocaleDateString(localeCode)})`
-                              : t(`employeesPage.statusBadge.${(employee.status || "Active").toLowerCase()}`, employee.status || "Active")}
+                              : t(`employeesPage.statusBadge.${(employee.status || "Active").toLowerCase()}`, { defaultValue: employee.status || "Active" })}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
