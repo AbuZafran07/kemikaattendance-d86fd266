@@ -438,7 +438,7 @@ export default function EmployeeKPI() {
                       ) : (
                         <div className="space-y-3">
                           {ind.custom_vars && ind.custom_vars.length > 0 ? (
-                            MONTHS.map((m, idx) => {
+                            MONTHS_LOCAL.map((m, idx) => {
                               const month = idx + 1;
                               const r = reals.find((x) => x.month === month);
                               const cv = r?.custom_values || {};
