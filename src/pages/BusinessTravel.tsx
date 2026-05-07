@@ -116,7 +116,7 @@ const BusinessTravel = () => {
     if (requestsError) {
       logger.error("Error fetching requests:", requestsError);
       toast({
-        title: "Gagal Memuat Data",
+        title: t("travelAdmin.toastLoadFail"),
         description: requestsError.message,
         variant: "destructive",
       });
