@@ -19,8 +19,7 @@ import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
 import KPIMonthlyAttachments from "@/components/KPIMonthlyAttachments";
-
-const KPI_MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+import { useTranslation } from "react-i18next";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
 
@@ -78,14 +77,13 @@ interface ProfileLite {
   basic_salary: number | null;
 }
 
-const MONTHS = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-const FORMULA_OPTIONS: { value: FormulaType; label: string; hint: string }[] = [
-  { value: "ratio", label: "Ratio", hint: "Rata-rata realisasi / target × 100" },
-  { value: "akumulasi", label: "Akumulasi", hint: "Total realisasi / target × 100" },
-  { value: "avg", label: "Average", hint: "Rata-rata realisasi / target × 100" },
-  { value: "lower", label: "Lower is Better", hint: "Target / rata-rata × 100" },
-  { value: "threshold", label: "Threshold", hint: "Skor berdasarkan aturan" },
-  { value: "custom", label: "Custom Formula", hint: "Ekspresi dengan variabel v0..vN" },
+const FORMULA_KEYS: { value: FormulaType; labelKey: string; hintKey: string }[] = [
+  { value: "ratio", labelKey: "kpiPage.formula.ratio", hintKey: "kpiPage.formula.ratioHint" },
+  { value: "akumulasi", labelKey: "kpiPage.formula.akumulasi", hintKey: "kpiPage.formula.akumulasiHint" },
+  { value: "avg", labelKey: "kpiPage.formula.avg", hintKey: "kpiPage.formula.avgHint" },
+  { value: "lower", labelKey: "kpiPage.formula.lower", hintKey: "kpiPage.formula.lowerHint" },
+  { value: "threshold", labelKey: "kpiPage.formula.threshold", hintKey: "kpiPage.formula.thresholdHint" },
+  { value: "custom", labelKey: "kpiPage.formula.custom", hintKey: "kpiPage.formula.customHint" },
 ];
 
 const scoreColor = (s: number) => {
@@ -172,6 +170,7 @@ function FormulaTester({
   unit: string;
   formulaLowerIsBetter?: boolean;
 }) {
+  const { t } = useTranslation();
   const [samples, setSamples] = useState<Record<string, string>>({});
   const error = validateCustomExpr(expr, vars);
 
@@ -204,18 +203,18 @@ function FormulaTester({
     <div className="border border-dashed rounded-md p-3 bg-background space-y-3">
       <div className="flex items-center gap-2">
         <Settings2 className="h-4 w-4 text-primary" />
-        <span className="font-medium text-sm">Uji Formula</span>
-        <span className="text-xs text-muted-foreground">— masukkan contoh nilai untuk melihat hasil</span>
+        <span className="font-medium text-sm">{t("kpiPage.setup.testFormula")}</span>
+        <span className="text-xs text-muted-foreground">{t("kpiPage.setup.testHint")}</span>
       </div>
       {vars.length === 0 ? (
-        <p className="text-xs text-muted-foreground italic">Tambahkan variabel dahulu untuk mengetes formula.</p>
+        <p className="text-xs text-muted-foreground italic">{t("kpiPage.setup.addVarsFirst")}</p>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {vars.map((v) => (
               <div key={v.alias}>
                 <Label className="text-xs">
-                  {v.label || <span className="italic text-muted-foreground">(tanpa label)</span>}{" "}
+                  {v.label || <span className="italic text-muted-foreground">{t("kpiPage.setup.noLabel")}</span>}{" "}
                   <span className="font-mono text-muted-foreground">[{v.alias}]</span>
                 </Label>
                 <Input
@@ -233,26 +232,26 @@ function FormulaTester({
               const filled: Record<string, string> = {};
               vars.forEach((v) => { filled[v.alias] = "1"; });
               setSamples(filled);
-            }}>Isi semua = 1</Button>
-            <Button size="sm" variant="ghost" type="button" onClick={() => setSamples({})}>Reset</Button>
+            }}>{t("kpiPage.setup.fillAll")}</Button>
+            <Button size="sm" variant="ghost" type="button" onClick={() => setSamples({})}>{t("kpiPage.setup.reset")}</Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t">
             <div className="rounded-md bg-muted/50 p-2">
-              <div className="text-[10px] uppercase text-muted-foreground">Hasil Realisasi</div>
+              <div className="text-[10px] uppercase text-muted-foreground">{t("kpiPage.setup.realResult")}</div>
               <div className="text-lg font-bold">
                 {error
-                  ? <span className="text-destructive text-sm">Formula tidak valid</span>
+                  ? <span className="text-destructive text-sm">{t("kpiPage.setup.invalidFormula")}</span>
                   : !allFilled
-                    ? <span className="text-muted-foreground text-sm">Isi semua variabel</span>
+                    ? <span className="text-muted-foreground text-sm">{t("kpiPage.setup.fillAllVars")}</span>
                     : `${result?.toFixed(2)} ${unit || ""}`}
               </div>
             </div>
             <div className="rounded-md bg-muted/50 p-2">
-              <div className="text-[10px] uppercase text-muted-foreground">Target</div>
+              <div className="text-[10px] uppercase text-muted-foreground">{t("kpiPage.setup.target_label")}</div>
               <div className="text-lg font-bold">{target || 0} {unit || ""}</div>
             </div>
             <div className={`rounded-md p-2 ${score === null ? "bg-muted/50" : score >= 90 ? "bg-emerald-50 dark:bg-emerald-950/30" : score >= 75 ? "bg-blue-50 dark:bg-blue-950/30" : score >= 60 ? "bg-amber-50 dark:bg-amber-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
-              <div className="text-[10px] uppercase text-muted-foreground">Score (capped 120)</div>
+              <div className="text-[10px] uppercase text-muted-foreground">{t("kpiPage.setup.scoreCap")}</div>
               <div className="text-lg font-bold">
                 {score === null ? <span className="text-muted-foreground text-sm">—</span> : `${score.toFixed(2)}`}
               </div>
@@ -268,7 +267,11 @@ function FormulaTester({
 }
 
 export default function KPIPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
+  const MONTHS = useMemo(() => Array.from({length:12},(_,i)=>t(`kpiPage.months.${i+1}`)), [t]);
+  const KPI_MONTHS = MONTHS;
+  const FORMULA_OPTIONS = useMemo(() => FORMULA_KEYS.map(f => ({ value: f.value, label: t(f.labelKey), hint: t(f.hintKey) })), [t]);
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
@@ -358,7 +361,7 @@ export default function KPIPage() {
           setRealizations([]);
         }
       } catch (err: any) {
-        toast({ title: "Gagal memuat KPI", description: err.message, variant: "destructive" });
+        toast({ title: t("kpiPage.toast.loadFail"), description: err.message, variant: "destructive" });
       } finally {
         setLoading(false);
       }
@@ -369,7 +372,7 @@ export default function KPIPage() {
 
   const addIndicator = () => {
     if (!selectedUserId) {
-      toast({ title: "Pilih karyawan dulu", variant: "destructive" });
+      toast({ title: t("kpiPage.toast.pickFirst"), variant: "destructive" });
       return;
     }
     setIndicators((prev) => [
@@ -401,13 +404,13 @@ export default function KPIPage() {
     if (ind.id) {
       const { error } = await supabase.from("kpi_indicators").delete().eq("id", ind.id);
       if (error) {
-        toast({ title: "Gagal menghapus", description: error.message, variant: "destructive" });
+        toast({ title: t("kpiPage.toast.removeFail"), description: error.message, variant: "destructive" });
         return;
       }
     }
     setIndicators((prev) => prev.filter((_, i) => i !== idx));
     setRealizations((prev) => prev.filter((r) => r.indicator_id !== ind.id));
-    toast({ title: "Indicator dihapus" });
+    toast({ title: t("kpiPage.toast.removed") });
   };
 
   const saveAllIndicators = async () => {
@@ -415,8 +418,8 @@ export default function KPIPage() {
     const total = indicators.reduce((a, b) => a + (Number(b.weight) || 0), 0);
     if (Math.round(total) !== 100) {
       toast({
-        title: "Total bobot harus 100%",
-        description: `Saat ini total bobot = ${total}%`,
+        title: t("kpiPage.toast.weightMust"),
+        description: t("kpiPage.toast.weightCurrent", { w: total }),
         variant: "destructive",
       });
       return;
@@ -427,7 +430,7 @@ export default function KPIPage() {
       const err = validateCustomExpr(ind.custom_expr, ind.custom_vars);
       if (err) {
         toast({
-          title: `Formula tidak valid: ${ind.name || "Indicator tanpa nama"}`,
+          title: t("kpiPage.toast.invalidFormulaTitle", { n: ind.name || t("kpiPage.toast.noName") }),
           description: err,
           variant: "destructive",
         });
@@ -476,9 +479,9 @@ export default function KPIPage() {
           sort_order: i.sort_order ?? 0,
         }));
       setIndicators(refreshed);
-      toast({ title: "Tersimpan", description: "Semua indicator berhasil disimpan" });
+      toast({ title: t("kpiPage.toast.saved"), description: t("kpiPage.toast.savedDesc") });
     } catch (err: any) {
-      toast({ title: "Gagal menyimpan", description: err.message, variant: "destructive" });
+      toast({ title: t("kpiPage.toast.saveFail"), description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -532,7 +535,7 @@ export default function KPIPage() {
         ];
       });
     } catch (err: any) {
-      toast({ title: "Gagal menyimpan realisasi", description: err.message, variant: "destructive" });
+      toast({ title: t("kpiPage.toast.realFail"), description: err.message, variant: "destructive" });
     }
   };
 
@@ -576,9 +579,9 @@ export default function KPIPage() {
       }));
       const { error } = await supabase.from("kpi_grade_settings").upsert(payload, { onConflict: "grade" });
       if (error) throw error;
-      toast({ title: "Pengaturan grade tersimpan" });
+      toast({ title: t("kpiPage.toast.gradeSaved") });
     } catch (err: any) {
-      toast({ title: "Gagal menyimpan grade", description: err.message, variant: "destructive" });
+      toast({ title: t("kpiPage.toast.gradeFail"), description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -652,8 +655,8 @@ export default function KPIPage() {
         <div className="flex items-center gap-3">
           <Target className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold">KPI Management</h1>
-            <p className="text-sm text-muted-foreground">Kelola indikator, realisasi, dan output payroll KPI karyawan</p>
+            <h1 className="text-2xl font-bold">{t("kpiPage.header.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("kpiPage.header.subtitle")}</p>
           </div>
         </div>
 
@@ -661,9 +664,9 @@ export default function KPIPage() {
         <Card>
           <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label>Karyawan</Label>
+              <Label>{t("kpiPage.select.employee")}</Label>
               <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger><SelectValue placeholder="Pilih karyawan" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("kpiPage.select.employeePh")} /></SelectTrigger>
                 <SelectContent>
                   {profiles.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
@@ -674,7 +677,7 @@ export default function KPIPage() {
               </Select>
             </div>
             <div>
-              <Label>Tahun</Label>
+              <Label>{t("kpiPage.select.year")}</Label>
               <Select value={String(year)} onValueChange={(v) => setYear(parseInt(v))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -689,7 +692,7 @@ export default function KPIPage() {
                 <div className="font-semibold">{selectedProfile.full_name}</div>
                 <div className="text-muted-foreground">{selectedProfile.jabatan} • {selectedProfile.departemen}</div>
                 <div className="text-muted-foreground">
-                  Gaji Pokok: Rp {(selectedProfile.basic_salary || 0).toLocaleString("id-ID")}
+                  {t("kpiPage.select.basic")}: Rp {(selectedProfile.basic_salary || 0).toLocaleString("id-ID")}
                 </div>
               </div>
             )}
@@ -701,14 +704,14 @@ export default function KPIPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
-              Panduan Cara Mengelola KPI
+              {t("kpiPage.guide.title")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="step1">
                 <AccordionTrigger className="text-sm font-semibold">
-                  1. Langkah-Langkah Pengaturan KPI
+                  {t("kpiPage.guide.step1")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-2">
                   <p><b>a.</b> Pilih <b>Karyawan</b> dan <b>Tahun</b> di atas.</p>
@@ -723,7 +726,7 @@ export default function KPIPage() {
 
               <AccordionItem value="step2">
                 <AccordionTrigger className="text-sm font-semibold">
-                  2. Penjelasan Tipe Formula
+                  {t("kpiPage.guide.step2")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-3">
                   <div className="rounded-md border bg-background p-3">
@@ -751,7 +754,7 @@ export default function KPIPage() {
 
               <AccordionItem value="step3">
                 <AccordionTrigger className="text-sm font-semibold">
-                  3. Cara Membuat Custom Formula
+                  {t("kpiPage.guide.step3")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-3">
                   <p>Custom Formula dipakai bila perhitungan KPI butuh <b>lebih dari satu variabel input</b> per bulan (mis. konversi, efisiensi, dsb).</p>
@@ -816,7 +819,7 @@ export default function KPIPage() {
 
               <AccordionItem value="step4">
                 <AccordionTrigger className="text-sm font-semibold">
-                  4. Bobot, Grade &amp; Bonus
+                  {t("kpiPage.guide.step4")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-2">
                   <p><b>Bobot</b> menentukan kontribusi indicator ke score akhir. Total semua bobot harus 100%.</p>
@@ -834,26 +837,26 @@ export default function KPIPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              Daftar KPI Semua Karyawan — Tahun {year}
+              {t("kpiPage.recap.title", { y: year })}
             </CardTitle>
-            <Badge variant="outline">{recap.length} karyawan</Badge>
+            <Badge variant="outline">{t("kpiPage.recap.count", { n: recap.length })}</Badge>
           </CardHeader>
           <CardContent>
             {recap.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground">
-                Belum ada karyawan yang memiliki KPI di tahun {year}.
+                {t("kpiPage.recap.empty", { y: year })}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Karyawan</TableHead>
-                      <TableHead>Jabatan</TableHead>
-                      <TableHead className="text-right">Score Akhir</TableHead>
-                      <TableHead className="text-center">Grade</TableHead>
-                      <TableHead className="text-right">Estimasi Bonus</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
+                      <TableHead>{t("kpiPage.recap.colName")}</TableHead>
+                      <TableHead>{t("kpiPage.recap.colJabatan")}</TableHead>
+                      <TableHead className="text-right">{t("kpiPage.recap.colScore")}</TableHead>
+                      <TableHead className="text-center">{t("kpiPage.recap.colGrade")}</TableHead>
+                      <TableHead className="text-right">{t("kpiPage.recap.colBonus")}</TableHead>
+                      <TableHead className="text-right">{t("kpiPage.recap.colAction")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -880,7 +883,7 @@ export default function KPIPage() {
                             onClick={() => setSelectedUserId(row.user.id)}
                           >
                             <Settings2 className="h-3 w-3 mr-1" />
-                            Kelola
+                            {t("kpiPage.recap.manage")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -896,7 +899,7 @@ export default function KPIPage() {
           <Card>
             <CardContent className="py-16 text-center text-muted-foreground">
               <Users className="h-10 w-10 mx-auto mb-3 opacity-40" />
-              Pilih karyawan untuk mulai mengelola KPI
+              {t("kpiPage.pickPrompt")}
             </CardContent>
           </Card>
         ) : loading ? (
@@ -906,10 +909,10 @@ export default function KPIPage() {
         ) : (
           <Tabs defaultValue="setup">
             <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full">
-              <TabsTrigger value="setup">Setup Indicator</TabsTrigger>
-              <TabsTrigger value="realisasi">Input Realisasi</TabsTrigger>
-              <TabsTrigger value="progress">Progress &amp; Score</TabsTrigger>
-              <TabsTrigger value="payroll">Payroll Output</TabsTrigger>
+              <TabsTrigger value="setup">{t("kpiPage.tabs.setup")}</TabsTrigger>
+              <TabsTrigger value="realisasi">{t("kpiPage.tabs.realisasi")}</TabsTrigger>
+              <TabsTrigger value="progress">{t("kpiPage.tabs.progress")}</TabsTrigger>
+              <TabsTrigger value="payroll">{t("kpiPage.tabs.payroll")}</TabsTrigger>
             </TabsList>
 
             {/* TAB 1: SETUP */}
@@ -917,45 +920,45 @@ export default function KPIPage() {
               <div className="flex gap-2 rounded-md border border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 p-3 text-sm text-blue-800 dark:text-blue-200">
                 <HelpCircle className="h-5 w-5 shrink-0 mt-0.5" />
                 <div>
-                  <b>Tips:</b> Buat 3–6 indicator. Total bobot wajib 100%. Pilih tipe formula sesuai sifat KPI (Ratio untuk %, Akumulasi untuk total tahunan, Lower untuk metrik kecil-lebih-baik, Threshold untuk skor diskrit, Custom untuk rumus banyak variabel).
+                  <b>{t("kpiPage.guide.tipsTitle")}:</b> {t("kpiPage.guide.tipsBody")}
                 </div>
               </div>
               {indicators.length === 0 && (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">
-                  Belum ada indicator. Klik "Tambah Indicator" untuk memulai.
+                  {t("kpiPage.setup.empty")}
                 </CardContent></Card>
               )}
               {indicators.map((ind, idx) => (
                 <Card key={ind.id || `new-${idx}`}>
                   <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-base">Indicator #{idx + 1}</CardTitle>
+                    <CardTitle className="text-base">{t("kpiPage.setup.indicator")} #{idx + 1}</CardTitle>
                     <Button size="sm" variant="ghost" onClick={() => removeIndicator(idx)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <Label>Nama Indicator</Label>
-                      <Input value={ind.name} onChange={(e) => updateIndicator(idx, { name: e.target.value })} placeholder="e.g. Pencapaian Target Penjualan" />
+                      <Label>{t("kpiPage.setup.name")}</Label>
+                      <Input value={ind.name} onChange={(e) => updateIndicator(idx, { name: e.target.value })} placeholder={t("kpiPage.setup.namePh")} />
                     </div>
                     <div className="md:col-span-2">
-                      <Label>Deskripsi</Label>
+                      <Label>{t("kpiPage.setup.desc")}</Label>
                       <Textarea rows={2} value={ind.description} onChange={(e) => updateIndicator(idx, { description: e.target.value })} />
                     </div>
                     <div>
-                      <Label>Bobot (%)</Label>
+                      <Label>{t("kpiPage.setup.weight")}</Label>
                       <Input type="number" value={ind.weight} onChange={(e) => updateIndicator(idx, { weight: parseFloat(e.target.value) || 0 })} />
                     </div>
                     <div>
-                      <Label>Target</Label>
+                      <Label>{t("kpiPage.setup.target")}</Label>
                       <Input value={ind.target} onChange={(e) => updateIndicator(idx, { target: e.target.value })} />
                     </div>
                     <div>
-                      <Label>Satuan</Label>
-                      <Input value={ind.unit} onChange={(e) => updateIndicator(idx, { unit: e.target.value })} placeholder="%, pcs, jam" />
+                      <Label>{t("kpiPage.setup.unit")}</Label>
+                      <Input value={ind.unit} onChange={(e) => updateIndicator(idx, { unit: e.target.value })} placeholder={t("kpiPage.setup.unitPh")} />
                     </div>
                     <div>
-                      <Label>Tipe Formula</Label>
+                      <Label>{t("kpiPage.setup.type")}</Label>
                       <Select value={ind.formula_type} onValueChange={(v) => updateIndicator(idx, { formula_type: v as FormulaType })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -970,9 +973,9 @@ export default function KPIPage() {
                     {ind.formula_type === "threshold" && (
                       <div className="md:col-span-2 border rounded-md p-3 space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label>Aturan Threshold</Label>
+                          <Label>{t("kpiPage.setup.threshold")}</Label>
                           <Button size="sm" variant="outline" onClick={() => updateIndicator(idx, { thresholds: [...ind.thresholds, { op: ">=", value: 0, score: 0 }] })}>
-                            <Plus className="h-3 w-3 mr-1" /> Tambah
+                            <Plus className="h-3 w-3 mr-1" /> {t("kpiPage.setup.add")}
                           </Button>
                         </div>
                         {ind.thresholds.map((t, ti) => (
@@ -990,7 +993,7 @@ export default function KPIPage() {
                               </Select>
                             </div>
                             <div className="col-span-4">
-                              <Input type="number" placeholder="Nilai" value={t.value}
+                              <Input type="number" placeholder={t("kpiPage.setup.value")} value={t.value}
                                 onChange={(e) => {
                                   const next = [...ind.thresholds];
                                   next[ti] = { ...t, value: parseFloat(e.target.value) || 0 };
@@ -998,7 +1001,7 @@ export default function KPIPage() {
                                 }} />
                             </div>
                             <div className="col-span-4">
-                              <Input type="number" placeholder="Score" value={t.score}
+                              <Input type="number" placeholder={t("kpiPage.setup.score")} value={t.score}
                                 onChange={(e) => {
                                   const next = [...ind.thresholds];
                                   next[ti] = { ...t, score: parseFloat(e.target.value) || 0 };
@@ -1019,8 +1022,8 @@ export default function KPIPage() {
                       <div className="md:col-span-2 border rounded-md p-3 space-y-3 bg-muted/30">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
-                            <Label>Variabel Custom</Label>
-                            <p className="text-xs text-muted-foreground">Alias dikunci & tidak berubah meski variabel dihapus, agar data historis & formula tetap konsisten.</p>
+                            <Label>{t("kpiPage.setup.customVar")}</Label>
+                            <p className="text-xs text-muted-foreground">{t("kpiPage.setup.customVarHint")}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <FormulaTemplateGallery
@@ -1036,22 +1039,22 @@ export default function KPIPage() {
                               const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 0;
                               updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias: `v${nextNum}` }] });
                             }}>
-                              <Plus className="h-3 w-3 mr-1" /> Tambah Variabel
+                              <Plus className="h-3 w-3 mr-1" /> {t("kpiPage.setup.addVar")}
                             </Button>
                           </div>
                         </div>
                         {ind.custom_vars.length === 0 && (
-                          <p className="text-xs text-muted-foreground italic">Belum ada variabel. Tambahkan minimal 1 variabel untuk indikator ini.</p>
+                          <p className="text-xs text-muted-foreground italic">{t("kpiPage.setup.noVar")}</p>
                         )}
                         {ind.custom_vars.map((cv, ci) => (
                           <div key={cv.alias} className="grid grid-cols-12 gap-2 items-end">
                             <div className="col-span-2">
-                              <Label className="text-xs">Alias</Label>
+                              <Label className="text-xs">{t("kpiPage.setup.alias")}</Label>
                               <Input value={cv.alias} disabled className="font-mono text-center bg-muted" />
                             </div>
                             <div className="col-span-9">
-                              <Label className="text-xs">Label Variabel</Label>
-                              <Input placeholder="contoh: Jumlah Lead Masuk" value={cv.label}
+                              <Label className="text-xs">{t("kpiPage.setup.varLabel")}</Label>
+                              <Input placeholder={t("kpiPage.setup.varLabelPh")} value={cv.label}
                                 onChange={(e) => {
                                   const next = [...ind.custom_vars];
                                   next[ci] = { ...cv, label: e.target.value };
@@ -1059,8 +1062,8 @@ export default function KPIPage() {
                                 }} />
                             </div>
                             <div className="col-span-1">
-                              <Button size="icon" variant="ghost" title="Hapus variabel" onClick={() => {
-                                if (!confirm(`Hapus variabel ${cv.alias}? Data realisasi yang sudah diisi untuk variabel ini akan ikut terhapus.`)) return;
+                              <Button size="icon" variant="ghost" title={t("kpiPage.setup.addVar")} onClick={() => {
+                                if (!confirm(t("kpiPage.setup.confirmRemoveVar", { a: cv.alias }))) return;
                                 // Keep aliases stable for remaining vars (no renumbering)
                                 const next = ind.custom_vars.filter((_, j) => j !== ci);
                                 updateIndicator(idx, { custom_vars: next });
@@ -1074,18 +1077,18 @@ export default function KPIPage() {
                           const exprError = validateCustomExpr(ind.custom_expr, ind.custom_vars);
                           return (
                             <div>
-                              <Label>Ekspresi Formula</Label>
+                              <Label>{t("kpiPage.setup.expr")}</Label>
                               <FormulaAutocompleteInput
-                                placeholder="e.g. CLAMP(PERCENT(v0, v1), 0, 100)"
+                                placeholder={t("kpiPage.setup.exprPh")}
                                 value={ind.custom_expr}
                                 onChange={(v) => updateIndicator(idx, { custom_expr: v })}
                                 vars={ind.custom_vars}
                                 className={exprError && ind.custom_expr ? "border-destructive focus-visible:ring-destructive" : ""}
                               />
                               <p className="text-xs text-muted-foreground mt-1">
-                                Alias tersedia: {ind.custom_vars.length > 0
+                                {t("kpiPage.setup.aliasAvail")} {ind.custom_vars.length > 0
                                   ? ind.custom_vars.map((c) => `${c.alias}${c.label ? ` (${c.label})` : ""}`).join(", ")
-                                  : "belum ada variabel"}
+                                  : t("kpiPage.setup.noVarsShort")}
                               </p>
                               <p className="text-[11px] text-muted-foreground italic">💡 Ketik nama fungsi atau alias variabel — saran muncul otomatis. Pakai <kbd className="px-1 border rounded">↑</kbd>/<kbd className="px-1 border rounded">↓</kbd> + <kbd className="px-1 border rounded">Enter</kbd>/<kbd className="px-1 border rounded">Tab</kbd> untuk memilih.</p>
                               <p className="text-xs text-muted-foreground">
@@ -1110,17 +1113,17 @@ export default function KPIPage() {
               ))}
 
               <div className={`flex items-center justify-between rounded-md border p-3 ${Math.round(totalWeight) === 100 ? "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-red-50 border-red-300 text-red-700 dark:bg-red-950 dark:text-red-300"}`}>
-                <span className="font-semibold">Total Bobot: {totalWeight}%</span>
-                <span className="text-sm">{Math.round(totalWeight) === 100 ? "✓ Sesuai" : "Harus 100%"}</span>
+                <span className="font-semibold">{t("kpiPage.setup.totalWeight", { w: totalWeight })}</span>
+                <span className="text-sm">{Math.round(totalWeight) === 100 ? t("kpiPage.setup.weightOk") : t("kpiPage.setup.weightMust")}</span>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" onClick={addIndicator}>
-                  <Plus className="h-4 w-4 mr-2" /> Tambah Indicator
+                  <Plus className="h-4 w-4 mr-2" /> {t("kpiPage.setup.addIndicator")}
                 </Button>
                 <Button onClick={saveAllIndicators} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                  Simpan Semua
+                  {t("kpiPage.setup.saveAll")}
                 </Button>
               </div>
             </TabsContent>
@@ -1129,7 +1132,7 @@ export default function KPIPage() {
             <TabsContent value="realisasi" className="space-y-4 mt-4">
               {indicators.filter((i) => i.id).length === 0 && (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">
-                  Simpan indicator terlebih dahulu di tab Setup.
+                  {t("kpiPage.real.savedFirst")}
                 </CardContent></Card>
               )}
 
@@ -1137,8 +1140,8 @@ export default function KPIPage() {
               {selectedUserId && (
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Lampiran Laporan Karyawan ({year})</CardTitle>
-                    <p className="text-xs text-muted-foreground">Lihat & kelola laporan bulanan yang diupload karyawan.</p>
+                    <CardTitle className="text-base">{t("kpiPage.real.attachTitle", { y: year })}</CardTitle>
+                    <p className="text-xs text-muted-foreground">{t("kpiPage.real.attachHint")}</p>
                   </CardHeader>
                   <CardContent>
                     <Accordion type="multiple" className="w-full">
@@ -1175,10 +1178,10 @@ export default function KPIPage() {
                   <Card key={ind.id}>
                     <CardHeader>
                       <CardTitle className="text-base flex items-center justify-between">
-                        <span>{ind.name || "(Tanpa nama)"}</span>
+                        <span>{ind.name || t("kpiPage.real.noName")}</span>
                         <Badge variant="outline">{FORMULA_OPTIONS.find((f) => f.value === ind.formula_type)?.label}</Badge>
                       </CardTitle>
-                      <p className="text-sm text-muted-foreground">Target: {ind.target} {ind.unit} • Bobot: {ind.weight}%</p>
+                      <p className="text-sm text-muted-foreground">{t("kpiPage.real.target")}: {ind.target} {ind.unit} • {t("kpiPage.setup.weight")}: {ind.weight}%</p>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {ind.formula_type !== "custom" ? (
@@ -1204,7 +1207,7 @@ export default function KPIPage() {
                           })}
                         </div>
                       ) : ind.custom_vars.length === 0 ? (
-                        <p className="text-sm text-muted-foreground italic">Belum ada variabel custom. Tambahkan variabel di tab Setup Indicator terlebih dahulu.</p>
+                        <p className="text-sm text-muted-foreground italic">{t("kpiPage.real.noVarYet")}</p>
                       ) : (
                         <div className="space-y-3">
                           {MONTHS.map((m, mi) => {
@@ -1218,7 +1221,7 @@ export default function KPIPage() {
                                   {ind.custom_vars.map((v) => (
                                     <div key={v.alias}>
                                       <Label className="text-xs">
-                                        {v.label || <span className="italic text-muted-foreground">(tanpa label)</span>}{" "}
+                                        {v.label || <span className="italic text-muted-foreground">{t("kpiPage.setup.noLabel")}</span>}{" "}
                                         <span className="font-mono text-muted-foreground">[{v.alias}]</span>
                                       </Label>
                                       <Input
@@ -1243,10 +1246,10 @@ export default function KPIPage() {
                       )}
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t">
-                        <Metric label="Bulan Terisi" value={`${filled}/12`} />
-                        <Metric label="Realisasi" value={realized.toFixed(2)} />
-                        <Metric label="Target" value={ind.target} />
-                        <Metric label="Score" value={`${score.toFixed(1)}`} />
+                        <Metric label={t("kpiPage.real.filled")} value={`${filled}/12`} />
+                        <Metric label={t("kpiPage.real.realized")} value={realized.toFixed(2)} />
+                        <Metric label={t("kpiPage.real.target")} value={ind.target} />
+                        <Metric label={t("kpiPage.real.score")} value={`${score.toFixed(1)}`} />
                       </div>
                       <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                         <div className={`h-full ${scoreColor(score)}`} style={{ width: `${Math.min(100, score)}%` }} />
@@ -1260,16 +1263,16 @@ export default function KPIPage() {
             {/* TAB 3: PROGRESS */}
             <TabsContent value="progress" className="space-y-4 mt-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <SummaryCard icon={<TrendingUp className="h-5 w-5" />} label="Score Akhir (Weighted)" value={finalScore.toFixed(1)} />
-                <SummaryCard icon={<Award className="h-5 w-5" />} label="Grade Proyeksi" value={finalGrade?.grade || "-"} />
-                <SummaryCard icon={<Target className="h-5 w-5" />} label="Total Indicator" value={String(indicators.length)} />
+                <SummaryCard icon={<TrendingUp className="h-5 w-5" />} label={t("kpiPage.progress.finalScore")} value={finalScore.toFixed(1)} />
+                <SummaryCard icon={<Award className="h-5 w-5" />} label={t("kpiPage.progress.projGrade")} value={finalGrade?.grade || "-"} />
+                <SummaryCard icon={<Target className="h-5 w-5" />} label={t("kpiPage.progress.totalInd")} value={String(indicators.length)} />
               </div>
 
               {indicatorScores.map((it) => (
                 <Card key={it.indicator.id}>
                   <CardHeader>
                     <CardTitle className="text-base flex items-center justify-between">
-                      <span>{it.indicator.name || "(Tanpa nama)"}</span>
+                      <span>{it.indicator.name || t("kpiPage.real.noName")}</span>
                       <Badge className={scoreColor(it.score) + " text-white"}>{it.score.toFixed(1)}</Badge>
                     </CardTitle>
                   </CardHeader>
@@ -1281,10 +1284,10 @@ export default function KPIPage() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Bulan</TableHead>
-                            <TableHead>Realisasi</TableHead>
-                            <TableHead>Target</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>{t("kpiPage.progress.colMonth")}</TableHead>
+                            <TableHead>{t("kpiPage.progress.colReal")}</TableHead>
+                            <TableHead>{t("kpiPage.progress.colTarget")}</TableHead>
+                            <TableHead>{t("kpiPage.progress.colStatus")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -1311,10 +1314,10 @@ export default function KPIPage() {
                             );
                           })}
                           <TableRow className="font-semibold bg-muted/50">
-                            <TableCell>Total / Rata-rata</TableCell>
+                            <TableCell>{t("kpiPage.progress.totalAvg")}</TableCell>
                             <TableCell>{it.realized.toFixed(2)}</TableCell>
                             <TableCell>{it.indicator.target}</TableCell>
-                            <TableCell>Score: {it.score.toFixed(1)}</TableCell>
+                            <TableCell>{t("kpiPage.progress.scoreLabel")} {it.score.toFixed(1)}</TableCell>
                           </TableRow>
                         </TableBody>
                       </Table>
@@ -1328,33 +1331,33 @@ export default function KPIPage() {
             <TabsContent value="payroll" className="space-y-4 mt-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Card>
-                  <CardHeader><CardTitle className="text-base">Konfigurasi Grade</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-base">{t("kpiPage.payroll.gradeConfig")}</CardTitle></CardHeader>
                   <CardContent className="space-y-3">
                     {grades.map((g, gi) => (
                       <div key={g.id || g.grade} className="grid grid-cols-12 gap-2 items-end">
                         <div className="col-span-2">
-                          <Label className="text-xs">Grade</Label>
+                          <Label className="text-xs">{t("kpiPage.payroll.grade")}</Label>
                           <Input value={g.grade} disabled />
                         </div>
                         <div className="col-span-5">
-                          <Label className="text-xs">Min Score</Label>
+                          <Label className="text-xs">{t("kpiPage.payroll.minScore")}</Label>
                           <Input type="number" value={g.min_score} onChange={(e) => updateGrade(gi, { min_score: parseFloat(e.target.value) || 0 })} />
                         </div>
                         <div className="col-span-5">
-                          <Label className="text-xs">Bonus (%)</Label>
+                          <Label className="text-xs">{t("kpiPage.payroll.bonusPct")}</Label>
                           <Input type="number" value={g.bonus_percent} onChange={(e) => updateGrade(gi, { bonus_percent: parseFloat(e.target.value) || 0 })} />
                         </div>
                       </div>
                     ))}
                     <Button onClick={saveGrades} disabled={saving} className="w-full">
                       {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                      Simpan Grade
+                      {t("kpiPage.payroll.saveGrade")}
                     </Button>
                   </CardContent>
                 </Card>
 
                 <Card>
-                  <CardHeader><CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" /> Slip Payroll KPI</CardTitle></CardHeader>
+                  <CardHeader><CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" /> {t("kpiPage.payroll.slipTitle")}</CardTitle></CardHeader>
                   <CardContent>
                     {selectedProfile ? (() => {
                       const basic = selectedProfile.basic_salary || 0;
@@ -1367,44 +1370,44 @@ export default function KPIPage() {
                             </div>
                             <div>
                               <div className="font-semibold">{selectedProfile.full_name}</div>
-                              <div className="text-sm text-muted-foreground">{selectedProfile.jabatan} • Tahun {year}</div>
+                              <div className="text-sm text-muted-foreground">{selectedProfile.jabatan} • {t("kpiPage.payroll.year")} {year}</div>
                             </div>
                           </div>
                           <div className="space-y-2 text-sm border-t pt-3">
-                            <Row label="Score Akhir" value={finalScore.toFixed(1)} />
-                            <Row label="Grade" value={finalGrade?.grade || "-"} />
-                            <Row label="Gaji Pokok" value={`Rp ${basic.toLocaleString("id-ID")}`} />
-                            <Row label={`Bonus KPI (${finalGrade?.bonus_percent || 0}%)`} value={`Rp ${bonus.toLocaleString("id-ID")}`} />
+                            <Row label={t("kpiPage.payroll.finalScore")} value={finalScore.toFixed(1)} />
+                            <Row label={t("kpiPage.payroll.gradeLbl")} value={finalGrade?.grade || "-"} />
+                            <Row label={t("kpiPage.payroll.basic")} value={`Rp ${basic.toLocaleString("id-ID")}`} />
+                            <Row label={t("kpiPage.payroll.bonus", { p: finalGrade?.bonus_percent || 0 })} value={`Rp ${bonus.toLocaleString("id-ID")}`} />
                             <div className="border-t pt-2 flex justify-between font-bold text-base">
-                              <span>Total Take-Home</span>
+                              <span>{t("kpiPage.payroll.total")}</span>
                               <span>Rp {(basic + bonus).toLocaleString("id-ID")}</span>
                             </div>
                           </div>
                         </div>
                       );
                     })() : (
-                      <div className="text-sm text-muted-foreground text-center py-6">Pilih karyawan</div>
+                      <div className="text-sm text-muted-foreground text-center py-6">{t("kpiPage.payroll.pickEmployee")}</div>
                     )}
                   </CardContent>
                 </Card>
               </div>
 
               <Card>
-                <CardHeader><CardTitle className="text-base">Rekap Semua Karyawan ({year})</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-base">{t("kpiPage.payroll.recapTitle", { y: year })}</CardTitle></CardHeader>
                 <CardContent>
                   {recap.length === 0 ? (
-                    <div className="text-sm text-muted-foreground text-center py-6">Belum ada data score</div>
+                    <div className="text-sm text-muted-foreground text-center py-6">{t("kpiPage.payroll.noScore")}</div>
                   ) : (
                     <div className="overflow-x-auto">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Karyawan</TableHead>
-                            <TableHead>Departemen</TableHead>
-                            <TableHead>Score</TableHead>
-                            <TableHead>Grade</TableHead>
-                            <TableHead>Gaji Pokok</TableHead>
-                            <TableHead>Bonus KPI</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colName")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colDept")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colScore")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colGrade")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colBasic")}</TableHead>
+                            <TableHead>{t("kpiPage.payroll.colBonus")}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>

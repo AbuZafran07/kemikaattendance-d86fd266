@@ -749,7 +749,15 @@
     "submitting": "Submitting...",
     "successTitle": "Success",
     "successDesc": "Business travel request submitted successfully and pending approval.",
-    "failTitle": "Submission Failed"
+    "failTitle": "Submission Failed",
+    "errDestRequired": "Destination is required",
+    "errDestMax": "Destination must be at most 200 characters",
+    "errPurposeRequired": "Purpose is required",
+    "errPurposeMax": "Purpose must be at most 500 characters",
+    "errStartRequired": "Start date is required",
+    "errEndRequired": "End date is required",
+    "errNotesMax": "Notes must be at most 1000 characters",
+    "errEndAfterStart": "End date must be on or after start date"
   },
   "travelHistory": {
     "title": "Business Travel History",
@@ -1272,6 +1280,11 @@
       "noActive": "No active employees yet",
       "noArchive": "No employees in archive (Inactive / Resigned)"
     },
+    "statusBadge": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "resigned": "Resigned"
+    },
     "resetPassword": {
       "title": "Reset Employee Password",
       "description": "Reset password for {{name}}",
@@ -1324,7 +1337,15 @@
   },
   "companyCalendar": {
     "title": "Company Calendar",
-    "dayNames": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "dayNames": [
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ],
     "travelPrefix": "Travel",
     "leaveTypes": {
       "cuti_tahunan": "Annual Leave",
@@ -1400,8 +1421,18 @@
       "overrides": "Override History"
     },
     "months": {
-      "1": "January", "2": "February", "3": "March", "4": "April", "5": "May", "6": "June",
-      "7": "July", "8": "August", "9": "September", "10": "October", "11": "November", "12": "December"
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
     },
     "actions": {
       "generate": "Generate",
@@ -1651,6 +1682,191 @@
       "cancel": "Cancel",
       "download": "Download e-Payroll",
       "downloadThr": "Download e-Payroll THR"
+    }
+  },
+  "kpiPage": {
+    "header": {
+      "title": "KPI Management",
+      "subtitle": "Manage indicators, realizations, and KPI payroll output for employees"
+    },
+    "select": {
+      "employee": "Employee",
+      "employeePh": "Select employee",
+      "year": "Year",
+      "basic": "Basic Salary"
+    },
+    "guide": {
+      "title": "KPI Management Guide",
+      "step1": "1. KPI Setup Steps",
+      "step1a": "a. Choose Employee and Year above.",
+      "step1b": "b. Open the Setup Indicator tab → click Add Indicator to create a new KPI.",
+      "step1c": "c. Fill in Name, Description, Weight (%), Target, Unit, and choose the Formula Type.",
+      "step1d": "d. Total weight of all indicators MUST = 100% before saving.",
+      "step1e": "e. Click Save All.",
+      "step1f": "f. Open the Input Realization tab → input monthly achievement values (Jan–Dec).",
+      "step1g": "g. View aggregated results in Progress & Score and bonus estimates in Payroll Output.",
+      "step2": "2. Formula Type Explanations",
+      "step3": "3. How to Build a Custom Formula",
+      "step4": "4. Weight, Grade & Bonus",
+      "tipsTitle": "Tips",
+      "tipsBody": "Create 3–6 indicators. Total weight must be 100%. Choose the formula type that fits the KPI nature."
+    },
+    "recap": {
+      "title": "KPI List All Employees — Year {{y}}",
+      "count": "{{n}} employees",
+      "empty": "No employees have KPIs in year {{y}} yet.",
+      "colName": "Employee",
+      "colJabatan": "Position",
+      "colScore": "Final Score",
+      "colGrade": "Grade",
+      "colBonus": "Estimated Bonus",
+      "colAction": "Action",
+      "manage": "Manage"
+    },
+    "pickPrompt": "Select an employee to start managing KPI",
+    "tabs": {
+      "setup": "Setup Indicator",
+      "realisasi": "Input Realization",
+      "progress": "Progress & Score",
+      "payroll": "Payroll Output"
+    },
+    "setup": {
+      "empty": "No indicators yet. Click \"Add Indicator\" to start.",
+      "indicator": "Indicator",
+      "name": "Indicator Name",
+      "namePh": "e.g. Sales Target Achievement",
+      "desc": "Description",
+      "weight": "Weight (%)",
+      "target": "Target",
+      "unit": "Unit",
+      "unitPh": "%, pcs, hours",
+      "type": "Formula Type",
+      "threshold": "Threshold Rules",
+      "add": "Add",
+      "value": "Value",
+      "score": "Score",
+      "customVar": "Custom Variables",
+      "customVarHint": "Aliases are locked and remain stable so historical data and formulas stay consistent.",
+      "templateGallery": "Template Gallery",
+      "addVar": "Add Variable",
+      "noVar": "No variables yet. Add at least 1 variable for this indicator.",
+      "alias": "Alias",
+      "varLabel": "Variable Label",
+      "varLabelPh": "e.g. Number of Incoming Leads",
+      "expr": "Formula Expression",
+      "exprPh": "e.g. CLAMP(PERCENT(v0, v1), 0, 100)",
+      "aliasAvail": "Available aliases:",
+      "noVarsShort": "no variables yet",
+      "autocompleteHint": "Type a function name or variable alias — suggestions appear automatically. Use ↑/↓ + Enter/Tab to select.",
+      "operatorsLine": "Operators:",
+      "functionsLine": "Functions:",
+      "seeGuide": "(see guide above for full list)",
+      "testFormula": "Test Formula",
+      "testHint": "— enter sample values to see the result",
+      "noLabel": "(no label)",
+      "addVarsFirst": "Add variables first to test the formula.",
+      "fillAll": "Fill all = 1",
+      "reset": "Reset",
+      "realResult": "Result",
+      "target_label": "Target",
+      "scoreCap": "Score (capped 120)",
+      "invalidFormula": "Invalid formula",
+      "fillAllVars": "Fill all variables",
+      "totalWeight": "Total Weight: {{w}}%",
+      "weightOk": "✓ OK",
+      "weightMust": "Must be 100%",
+      "addIndicator": "Add Indicator",
+      "saveAll": "Save All",
+      "confirmRemoveVar": "Remove variable {{a}}? Realization data already filled for this variable will also be deleted."
+    },
+    "real": {
+      "savedFirst": "Save indicators first in the Setup tab.",
+      "attachTitle": "Employee Report Attachments ({{y}})",
+      "attachHint": "View & manage monthly reports uploaded by employees.",
+      "noName": "(No name)",
+      "filled": "Filled Months",
+      "realized": "Realized",
+      "target": "Target",
+      "score": "Score",
+      "noVarYet": "No custom variables yet. Add variables in the Setup Indicator tab first."
+    },
+    "progress": {
+      "finalScore": "Final Score (Weighted)",
+      "projGrade": "Projected Grade",
+      "totalInd": "Total Indicators",
+      "colMonth": "Month",
+      "colReal": "Realized",
+      "colTarget": "Target",
+      "colStatus": "Status",
+      "totalAvg": "Total / Average",
+      "scoreLabel": "Score:"
+    },
+    "payroll": {
+      "gradeConfig": "Grade Configuration",
+      "grade": "Grade",
+      "minScore": "Min Score",
+      "bonusPct": "Bonus (%)",
+      "saveGrade": "Save Grades",
+      "slipTitle": "KPI Payroll Slip",
+      "year": "Year",
+      "finalScore": "Final Score",
+      "gradeLbl": "Grade",
+      "basic": "Basic Salary",
+      "bonus": "KPI Bonus ({{p}}%)",
+      "total": "Total Take-Home",
+      "pickEmployee": "Select employee",
+      "recapTitle": "All Employees Recap ({{y}})",
+      "noScore": "No score data yet",
+      "colName": "Employee",
+      "colDept": "Department",
+      "colScore": "Score",
+      "colGrade": "Grade",
+      "colBasic": "Basic Salary",
+      "colBonus": "KPI Bonus"
+    },
+    "toast": {
+      "loadFail": "Failed to load KPI",
+      "pickFirst": "Select employee first",
+      "removed": "Indicator removed",
+      "removeFail": "Failed to remove",
+      "weightMust": "Total weight must be 100%",
+      "weightCurrent": "Current total weight = {{w}}%",
+      "invalidFormulaTitle": "Invalid formula: {{n}}",
+      "noName": "Indicator without name",
+      "saved": "Saved",
+      "savedDesc": "All indicators saved successfully",
+      "saveFail": "Failed to save",
+      "realFail": "Failed to save realization",
+      "gradeSaved": "Grade settings saved",
+      "gradeFail": "Failed to save grade"
+    },
+    "formula": {
+      "ratio": "Ratio",
+      "akumulasi": "Accumulation",
+      "avg": "Average",
+      "lower": "Lower is Better",
+      "threshold": "Threshold",
+      "custom": "Custom Formula",
+      "ratioHint": "Average realization / target × 100",
+      "akumulasiHint": "Total realization / target × 100",
+      "avgHint": "Average realization / target × 100",
+      "lowerHint": "Target / average × 100",
+      "thresholdHint": "Score based on rules",
+      "customHint": "Expression with v0..vN variables"
+    },
+    "months": {
+      "1": "Jan",
+      "2": "Feb",
+      "3": "Mar",
+      "4": "Apr",
+      "5": "May",
+      "6": "Jun",
+      "7": "Jul",
+      "8": "Aug",
+      "9": "Sep",
+      "10": "Oct",
+      "11": "Nov",
+      "12": "Dec"
     }
   }
 }
