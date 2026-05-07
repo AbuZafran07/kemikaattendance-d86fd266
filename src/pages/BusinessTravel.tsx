@@ -377,11 +377,11 @@ const BusinessTravel = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-primary">Disetujui</Badge>;
+        return <Badge className="bg-primary">{t("travelAdmin.approved")}</Badge>;
       case "rejected":
-        return <Badge variant="destructive">Ditolak</Badge>;
+        return <Badge variant="destructive">{t("travelAdmin.rejected")}</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("travelAdmin.pending")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
