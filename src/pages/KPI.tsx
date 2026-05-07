@@ -925,40 +925,40 @@ export default function KPIPage() {
               </div>
               {indicators.length === 0 && (
                 <Card><CardContent className="py-10 text-center text-muted-foreground">
-                  Belum ada indicator. Klik "Tambah Indicator" untuk memulai.
+                  {t("kpiPage.setup.empty")}
                 </CardContent></Card>
               )}
               {indicators.map((ind, idx) => (
                 <Card key={ind.id || `new-${idx}`}>
                   <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-base">Indicator #{idx + 1}</CardTitle>
+                    <CardTitle className="text-base">{t("kpiPage.setup.indicator")} #{idx + 1}</CardTitle>
                     <Button size="sm" variant="ghost" onClick={() => removeIndicator(idx)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </CardHeader>
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <Label>Nama Indicator</Label>
-                      <Input value={ind.name} onChange={(e) => updateIndicator(idx, { name: e.target.value })} placeholder="e.g. Pencapaian Target Penjualan" />
+                      <Label>{t("kpiPage.setup.name")}</Label>
+                      <Input value={ind.name} onChange={(e) => updateIndicator(idx, { name: e.target.value })} placeholder={t("kpiPage.setup.namePh")} />
                     </div>
                     <div className="md:col-span-2">
-                      <Label>Deskripsi</Label>
+                      <Label>{t("kpiPage.setup.desc")}</Label>
                       <Textarea rows={2} value={ind.description} onChange={(e) => updateIndicator(idx, { description: e.target.value })} />
                     </div>
                     <div>
-                      <Label>Bobot (%)</Label>
+                      <Label>{t("kpiPage.setup.weight")}</Label>
                       <Input type="number" value={ind.weight} onChange={(e) => updateIndicator(idx, { weight: parseFloat(e.target.value) || 0 })} />
                     </div>
                     <div>
-                      <Label>Target</Label>
+                      <Label>{t("kpiPage.setup.target")}</Label>
                       <Input value={ind.target} onChange={(e) => updateIndicator(idx, { target: e.target.value })} />
                     </div>
                     <div>
-                      <Label>Satuan</Label>
-                      <Input value={ind.unit} onChange={(e) => updateIndicator(idx, { unit: e.target.value })} placeholder="%, pcs, jam" />
+                      <Label>{t("kpiPage.setup.unit")}</Label>
+                      <Input value={ind.unit} onChange={(e) => updateIndicator(idx, { unit: e.target.value })} placeholder={t("kpiPage.setup.unitPh")} />
                     </div>
                     <div>
-                      <Label>Tipe Formula</Label>
+                      <Label>{t("kpiPage.setup.type")}</Label>
                       <Select value={ind.formula_type} onValueChange={(v) => updateIndicator(idx, { formula_type: v as FormulaType })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -973,9 +973,9 @@ export default function KPIPage() {
                     {ind.formula_type === "threshold" && (
                       <div className="md:col-span-2 border rounded-md p-3 space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label>Aturan Threshold</Label>
+                          <Label>{t("kpiPage.setup.threshold")}</Label>
                           <Button size="sm" variant="outline" onClick={() => updateIndicator(idx, { thresholds: [...ind.thresholds, { op: ">=", value: 0, score: 0 }] })}>
-                            <Plus className="h-3 w-3 mr-1" /> Tambah
+                            <Plus className="h-3 w-3 mr-1" /> {t("kpiPage.setup.add")}
                           </Button>
                         </div>
                         {ind.thresholds.map((t, ti) => (
@@ -993,7 +993,7 @@ export default function KPIPage() {
                               </Select>
                             </div>
                             <div className="col-span-4">
-                              <Input type="number" placeholder="Nilai" value={t.value}
+                              <Input type="number" placeholder={t("kpiPage.setup.value")} value={t.value}
                                 onChange={(e) => {
                                   const next = [...ind.thresholds];
                                   next[ti] = { ...t, value: parseFloat(e.target.value) || 0 };
@@ -1001,7 +1001,7 @@ export default function KPIPage() {
                                 }} />
                             </div>
                             <div className="col-span-4">
-                              <Input type="number" placeholder="Score" value={t.score}
+                              <Input type="number" placeholder={t("kpiPage.setup.score")} value={t.score}
                                 onChange={(e) => {
                                   const next = [...ind.thresholds];
                                   next[ti] = { ...t, score: parseFloat(e.target.value) || 0 };
@@ -1022,8 +1022,8 @@ export default function KPIPage() {
                       <div className="md:col-span-2 border rounded-md p-3 space-y-3 bg-muted/30">
                         <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
-                            <Label>Variabel Custom</Label>
-                            <p className="text-xs text-muted-foreground">Alias dikunci & tidak berubah meski variabel dihapus, agar data historis & formula tetap konsisten.</p>
+                            <Label>{t("kpiPage.setup.customVar")}</Label>
+                            <p className="text-xs text-muted-foreground">{t("kpiPage.setup.customVarHint")}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <FormulaTemplateGallery
@@ -1039,22 +1039,22 @@ export default function KPIPage() {
                               const nextNum = usedNums.length > 0 ? Math.max(...usedNums) + 1 : 0;
                               updateIndicator(idx, { custom_vars: [...ind.custom_vars, { label: "", alias: `v${nextNum}` }] });
                             }}>
-                              <Plus className="h-3 w-3 mr-1" /> Tambah Variabel
+                              <Plus className="h-3 w-3 mr-1" /> {t("kpiPage.setup.addVar")}
                             </Button>
                           </div>
                         </div>
                         {ind.custom_vars.length === 0 && (
-                          <p className="text-xs text-muted-foreground italic">Belum ada variabel. Tambahkan minimal 1 variabel untuk indikator ini.</p>
+                          <p className="text-xs text-muted-foreground italic">{t("kpiPage.setup.noVar")}</p>
                         )}
                         {ind.custom_vars.map((cv, ci) => (
                           <div key={cv.alias} className="grid grid-cols-12 gap-2 items-end">
                             <div className="col-span-2">
-                              <Label className="text-xs">Alias</Label>
+                              <Label className="text-xs">{t("kpiPage.setup.alias")}</Label>
                               <Input value={cv.alias} disabled className="font-mono text-center bg-muted" />
                             </div>
                             <div className="col-span-9">
-                              <Label className="text-xs">Label Variabel</Label>
-                              <Input placeholder="contoh: Jumlah Lead Masuk" value={cv.label}
+                              <Label className="text-xs">{t("kpiPage.setup.varLabel")}</Label>
+                              <Input placeholder={t("kpiPage.setup.varLabelPh")} value={cv.label}
                                 onChange={(e) => {
                                   const next = [...ind.custom_vars];
                                   next[ci] = { ...cv, label: e.target.value };
@@ -1062,8 +1062,8 @@ export default function KPIPage() {
                                 }} />
                             </div>
                             <div className="col-span-1">
-                              <Button size="icon" variant="ghost" title="Hapus variabel" onClick={() => {
-                                if (!confirm(`Hapus variabel ${cv.alias}? Data realisasi yang sudah diisi untuk variabel ini akan ikut terhapus.`)) return;
+                              <Button size="icon" variant="ghost" title={t("kpiPage.setup.addVar")} onClick={() => {
+                                if (!confirm(t("kpiPage.setup.confirmRemoveVar", { a: cv.alias }))) return;
                                 // Keep aliases stable for remaining vars (no renumbering)
                                 const next = ind.custom_vars.filter((_, j) => j !== ci);
                                 updateIndicator(idx, { custom_vars: next });
@@ -1077,18 +1077,18 @@ export default function KPIPage() {
                           const exprError = validateCustomExpr(ind.custom_expr, ind.custom_vars);
                           return (
                             <div>
-                              <Label>Ekspresi Formula</Label>
+                              <Label>{t("kpiPage.setup.expr")}</Label>
                               <FormulaAutocompleteInput
-                                placeholder="e.g. CLAMP(PERCENT(v0, v1), 0, 100)"
+                                placeholder={t("kpiPage.setup.exprPh")}
                                 value={ind.custom_expr}
                                 onChange={(v) => updateIndicator(idx, { custom_expr: v })}
                                 vars={ind.custom_vars}
                                 className={exprError && ind.custom_expr ? "border-destructive focus-visible:ring-destructive" : ""}
                               />
                               <p className="text-xs text-muted-foreground mt-1">
-                                Alias tersedia: {ind.custom_vars.length > 0
+                                {t("kpiPage.setup.aliasAvail")} {ind.custom_vars.length > 0
                                   ? ind.custom_vars.map((c) => `${c.alias}${c.label ? ` (${c.label})` : ""}`).join(", ")
-                                  : "belum ada variabel"}
+                                  : t("kpiPage.setup.noVarsShort")}
                               </p>
                               <p className="text-[11px] text-muted-foreground italic">💡 Ketik nama fungsi atau alias variabel — saran muncul otomatis. Pakai <kbd className="px-1 border rounded">↑</kbd>/<kbd className="px-1 border rounded">↓</kbd> + <kbd className="px-1 border rounded">Enter</kbd>/<kbd className="px-1 border rounded">Tab</kbd> untuk memilih.</p>
                               <p className="text-xs text-muted-foreground">
@@ -1113,17 +1113,17 @@ export default function KPIPage() {
               ))}
 
               <div className={`flex items-center justify-between rounded-md border p-3 ${Math.round(totalWeight) === 100 ? "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" : "bg-red-50 border-red-300 text-red-700 dark:bg-red-950 dark:text-red-300"}`}>
-                <span className="font-semibold">Total Bobot: {totalWeight}%</span>
-                <span className="text-sm">{Math.round(totalWeight) === 100 ? "✓ Sesuai" : "Harus 100%"}</span>
+                <span className="font-semibold">{t("kpiPage.setup.totalWeight", { w: totalWeight })}</span>
+                <span className="text-sm">{Math.round(totalWeight) === 100 ? t("kpiPage.setup.weightOk") : t("kpiPage.setup.weightMust")}</span>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" onClick={addIndicator}>
-                  <Plus className="h-4 w-4 mr-2" /> Tambah Indicator
+                  <Plus className="h-4 w-4 mr-2" /> {t("kpiPage.setup.addIndicator")}
                 </Button>
                 <Button onClick={saveAllIndicators} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-                  Simpan Semua
+                  {t("kpiPage.setup.saveAll")}
                 </Button>
               </div>
             </TabsContent>
