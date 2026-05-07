@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Award, Loader2, Search, Trophy, TrendingUp, Users, Target as TargetIcon, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 type FormulaType = "ratio" | "akumulasi" | "avg" | "lower" | "threshold" | "custom";
 
@@ -108,6 +109,7 @@ const scoreColor = (s: number) => {
 
 export default function KPIRecap() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState<number>(currentYear);
@@ -154,7 +156,7 @@ export default function KPIRecap() {
       })));
       setGrades((grd || []) as GradeSetting[]);
     } catch (err: unknown) {
-      toast({ title: "Gagal memuat data", description: (err as Error).message, variant: "destructive" });
+      toast({ title: t("kpiRecap.loadFail"), description: (err as Error).message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -229,12 +231,12 @@ export default function KPIRecap() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Trophy className="h-6 w-6 text-primary" /> Daftar KPI Semua Karyawan
+              <Trophy className="h-6 w-6 text-primary" /> {t("kpiRecap.title")}
             </h1>
-            <p className="text-sm text-muted-foreground">Pencapaian KPI seluruh karyawan untuk tahun {year}.</p>
+            <p className="text-sm text-muted-foreground">{t("kpiRecap.subtitle", { year })}</p>
           </div>
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Tahun</Label>
+            <Label className="text-sm">{t("kpiRecap.year")}</Label>
             <Select value={String(year)} onValueChange={(v) => setYear(parseInt(v))}>
               <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -249,21 +251,21 @@ export default function KPIRecap() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Users className="h-4 w-4" /> Total Karyawan</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Users className="h-4 w-4" /> {t("kpiRecap.totalEmployees")}</div>
             <div className="text-2xl font-bold mt-1">{summary.totalEmployees}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TargetIcon className="h-4 w-4" /> Punya KPI</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TargetIcon className="h-4 w-4" /> {t("kpiRecap.withKpi")}</div>
             <div className="text-2xl font-bold mt-1">{summary.withKpi}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TrendingUp className="h-4 w-4" /> Rata-rata Score</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TrendingUp className="h-4 w-4" /> {t("kpiRecap.avgScore")}</div>
             <div className="text-2xl font-bold mt-1">{summary.avgScore.toFixed(2)}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Award className="h-4 w-4" /> Top Performer</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Award className="h-4 w-4" /> {t("kpiRecap.topPerformer")}</div>
             <div className="text-sm font-semibold mt-1 truncate">{summary.topName}</div>
-            <div className="text-xs text-muted-foreground">Score {summary.topScore.toFixed(2)}</div>
+            <div className="text-xs text-muted-foreground">{t("kpiRecap.score")} {summary.topScore.toFixed(2)}</div>
           </CardContent></Card>
         </div>
 
@@ -271,30 +273,30 @@ export default function KPIRecap() {
         <Card>
           <CardContent className="p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
             <div className="md:col-span-2">
-              <Label className="text-xs">Cari nama / jabatan / departemen</Label>
+              <Label className="text-xs">{t("kpiRecap.searchLabel")}</Label>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input className="pl-8" placeholder="Ketik untuk mencari..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <Input className="pl-8" placeholder={t("kpiRecap.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             </div>
             <div>
-              <Label className="text-xs">Departemen</Label>
+              <Label className="text-xs">{t("kpiRecap.department")}</Label>
               <Select value={deptFilter} onValueChange={setDeptFilter}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Semua Departemen</SelectItem>
+                  <SelectItem value="all">{t("kpiRecap.allDepartments")}</SelectItem>
                   {departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-xs">Status KPI</Label>
+              <Label className="text-xs">{t("kpiRecap.kpiStatus")}</Label>
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Semua</SelectItem>
-                  <SelectItem value="with">Sudah Ada KPI</SelectItem>
-                  <SelectItem value="without">Belum Ada KPI</SelectItem>
+                  <SelectItem value="all">{t("kpiRecap.all")}</SelectItem>
+                  <SelectItem value="with">{t("kpiRecap.withKpiOpt")}</SelectItem>
+                  <SelectItem value="without">{t("kpiRecap.withoutKpiOpt")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -303,27 +305,27 @@ export default function KPIRecap() {
 
         {/* Table */}
         <Card>
-          <CardHeader><CardTitle className="text-base">Pencapaian KPI Karyawan</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">{t("kpiRecap.tableTitle")}</CardTitle></CardHeader>
           <CardContent className="p-0">
             {loading ? (
               <div className="flex items-center justify-center py-12 text-muted-foreground">
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" /> Memuat data...
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" /> {t("kpiRecap.loading")}
               </div>
             ) : filteredRows.length === 0 ? (
-              <div className="py-12 text-center text-sm text-muted-foreground">Tidak ada karyawan yang cocok dengan filter.</div>
+              <div className="py-12 text-center text-sm text-muted-foreground">{t("kpiRecap.empty")}</div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12">#</TableHead>
-                      <TableHead>Karyawan</TableHead>
-                      <TableHead>Departemen</TableHead>
-                      <TableHead className="text-center">Indikator</TableHead>
-                      <TableHead className="text-center">Bobot Total</TableHead>
-                      <TableHead className="text-center">Score Akhir</TableHead>
-                      <TableHead className="text-center">Grade</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
+                      <TableHead>{t("kpiRecap.colEmployee")}</TableHead>
+                      <TableHead>{t("kpiRecap.colDept")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colIndicator")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colTotalWeight")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colFinalScore")}</TableHead>
+                      <TableHead className="text-center">{t("kpiRecap.colGrade")}</TableHead>
+                      <TableHead className="text-right">{t("kpiRecap.colAction")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -337,7 +339,7 @@ export default function KPIRecap() {
                         <TableCell className="text-sm">{r.profile.departemen}</TableCell>
                         <TableCell className="text-center">
                           {r.indicatorCount === 0
-                            ? <Badge variant="outline" className="text-muted-foreground">Belum diatur</Badge>
+                            ? <Badge variant="outline" className="text-muted-foreground">{t("kpiRecap.notSet")}</Badge>
                             : <Badge variant="secondary">{r.indicatorCount}</Badge>}
                         </TableCell>
                         <TableCell className="text-center text-sm">
@@ -361,7 +363,7 @@ export default function KPIRecap() {
                         </TableCell>
                         <TableCell className="text-right">
                           <Button size="sm" variant="ghost" onClick={() => navigate(`/dashboard/kpi?user=${r.profile.id}&year=${year}`)}>
-                            Detail <ArrowRight className="h-3 w-3 ml-1" />
+                            {t("kpiRecap.detail")} <ArrowRight className="h-3 w-3 ml-1" />
                           </Button>
                         </TableCell>
                       </TableRow>
