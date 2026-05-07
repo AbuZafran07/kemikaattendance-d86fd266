@@ -10,7 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { id, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
