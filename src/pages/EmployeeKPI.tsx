@@ -347,7 +347,7 @@ export default function EmployeeKPI() {
                 </CardHeader>
                 <CardContent>
                   <Accordion type="multiple" className="w-full">
-                    {MONTHS.map((m, idx) => {
+                    {MONTHS_LOCAL.map((m, idx) => {
                       const month = idx + 1;
                       const cnt = attachmentCounts[month] || 0;
                       return (
@@ -356,7 +356,7 @@ export default function EmployeeKPI() {
                             <div className="flex items-center gap-2 flex-1 mr-2">
                               <span className="font-medium">{m} {year}</span>
                               <Badge variant={cnt > 0 ? "default" : "destructive"} className="text-[10px]">
-                                {cnt > 0 ? `${cnt} file` : "Belum ada"}
+                                {cnt > 0 ? t("empKpi.filesCount", { n: cnt }) : t("empKpi.noFile")}
                               </Badge>
                             </div>
                           </AccordionTrigger>
