@@ -631,15 +631,15 @@ export default function EmployeeKPI() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Tabel Grade</CardTitle>
+                  <CardTitle className="text-base">{t("empKpi.gradeTable")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Grade</TableHead>
-                        <TableHead>Min Score</TableHead>
-                        <TableHead>% Bonus</TableHead>
+                        <TableHead>{t("empKpi.grade")}</TableHead>
+                        <TableHead>{t("empKpi.minScore")}</TableHead>
+                        <TableHead>{t("empKpi.bonusPercent")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -648,7 +648,7 @@ export default function EmployeeKPI() {
                         return (
                           <TableRow key={g.grade} className={isMine ? "bg-emerald-50 dark:bg-emerald-950/20 font-semibold" : ""}>
                             <TableCell>
-                              {g.grade} {isMine && <Badge className="ml-2 bg-emerald-600">Anda</Badge>}
+                              {g.grade} {isMine && <Badge className="ml-2 bg-emerald-600">{t("empKpi.you")}</Badge>}
                             </TableCell>
                             <TableCell>{g.min_score}</TableCell>
                             <TableCell>{g.bonus_percent}%</TableCell>
