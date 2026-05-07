@@ -173,8 +173,8 @@ const BusinessTravel = () => {
       const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
         toast({
-          title: "Format File Tidak Didukung",
-          description: "Gunakan format PDF, DOC, DOCX, JPG, atau PNG",
+          title: t("travelAdmin.toastFormatTitle"),
+          description: t("travelAdmin.toastFormatDesc"),
           variant: "destructive",
         });
         return;
@@ -182,8 +182,8 @@ const BusinessTravel = () => {
       // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         toast({
-          title: "File Terlalu Besar",
-          description: "Maksimal ukuran file adalah 10MB",
+          title: t("travelAdmin.toastSizeTitle"),
+          description: t("travelAdmin.toastSizeDesc"),
           variant: "destructive",
         });
         return;
