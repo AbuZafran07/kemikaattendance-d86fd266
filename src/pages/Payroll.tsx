@@ -305,12 +305,12 @@ const Payroll = () => {
       }
 
       toast({
-        title: "Data Tersimpan",
-        description: `Override ${MONTHS[selectedMonth - 1].label} ${selectedYear} berhasil disimpan. Catatan: total Take Home Pay & PPh21 tetap nilai lama sampai Generate Payroll dijalankan ulang.`,
+        title: t("payrollPage.toast.savedTitle"),
+        description: t("payrollPage.toast.savedDesc", { month: monthLabel(selectedMonth), year: selectedYear }),
       });
     } catch (error: any) {
       console.error("Error saving overrides:", error);
-      toast({ title: "Gagal Simpan", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.saveFailed"), description: error.message, variant: "destructive" });
     }
   };
 
@@ -602,8 +602,8 @@ const Payroll = () => {
 
       if (idulFitriHolidays.length === 0) {
         toast({
-          title: "Tanggal Idul Fitri Tidak Ditemukan",
-          description: "Tambahkan hari libur Idul Fitri di Pengaturan Lembur > Hari Libur Nasional terlebih dahulu.",
+          title: t("payrollPage.toast.thrNotFoundTitle"),
+          description: t("payrollPage.toast.thrNotFoundDesc"),
           variant: "destructive",
         });
         return;
@@ -624,7 +624,7 @@ const Payroll = () => {
       const cutoffDay = (cutoffResult.data?.value as any)?.cutoff_day || 21;
 
       if (!profiles || profiles.length === 0) {
-        toast({ title: "Gagal", description: "Data karyawan tidak ditemukan.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.failed"), description: t("payrollPage.toast.employeeNotFound"), variant: "destructive" });
         return;
       }
 
@@ -646,7 +646,7 @@ const Payroll = () => {
         .filter(Boolean) as { id: string; full_name: string; join_date: string; basic_salary: number }[];
 
       if (eligibleProfiles.length === 0) {
-        toast({ title: "Tidak Ada Karyawan Berhak", description: "Semua karyawan memiliki masa kerja < 1 bulan sebelum Idul Fitri.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.noEligibleTitle"), description: t("payrollPage.toast.noEligibleDesc"), variant: "destructive" });
         return;
       }
 
@@ -658,7 +658,7 @@ const Payroll = () => {
       });
     } catch (error: any) {
       console.error("Error fetching THR data:", error);
-      toast({ title: "Gagal", description: error.message, variant: "destructive" });
+      toast({ title: t("payrollPage.toast.failed"), description: error.message, variant: "destructive" });
     } finally {
       setCalculatingThr(false);
     }
@@ -702,8 +702,8 @@ const Payroll = () => {
 
     const formattedDate = format(refDate, "dd MMM yyyy");
     toast({
-      title: "THR Berhasil Dihitung",
-      description: `${updatedCount} karyawan dihitung berdasarkan ${thrConfirmData.idulFitriName} (${formattedDate}). Basis: Gaji Pokok.`,
+      title: t("payrollPage.toast.thrCalculatedTitle"),
+      description: t("payrollPage.toast.thrCalculatedDesc", { count: updatedCount, name: thrConfirmData.idulFitriName, date: formattedDate }),
     });
     setThrConfirmData(null);
   };
@@ -730,7 +730,7 @@ const Payroll = () => {
         .eq("month", selectedMonth).eq("year", selectedYear).maybeSingle();
 
       if (existingPeriod?.status === "finalized") {
-        toast({ title: "Payroll Terkunci", description: "Payroll periode ini sudah difinalisasi.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.lockedTitle"), description: t("payrollPage.toast.lockedDesc"), variant: "destructive" });
         setGenerating(false); return;
       }
 
@@ -813,7 +813,7 @@ const Payroll = () => {
       const emps = (empsRaw || []).filter(e => !adminIds.has(e.id));
 
       if (!emps || emps.length === 0) {
-        toast({ title: "Tidak ada karyawan", description: "Tidak ditemukan karyawan aktif.", variant: "destructive" });
+        toast({ title: t("payrollPage.toast.noEmployeesTitle"), description: t("payrollPage.toast.noEmployeesDesc"), variant: "destructive" });
         setGenerating(false); return;
       }
 
@@ -870,7 +870,7 @@ const Payroll = () => {
         if (!periodCheck.valid) {
           console.error("Medical reimbursement period mismatch:", periodCheck.reason);
           toast({
-            title: "Periode klaim tidak sinkron",
+            title: t("payrollPage.toast.claimMismatch"),
             description: periodCheck.reason,
             variant: "destructive",
           });
@@ -956,8 +956,8 @@ const Payroll = () => {
             }
 
             toast({
-              title: "Medical Reimbursement Disinkronkan",
-              description: `${medicalMap.size} karyawan menerima total ${[...medicalMap.values()].reduce((s, v) => s + v.count, 0)} klaim dari Budget Expense.`,
+              title: t("payrollPage.toast.medicalSyncedTitle"),
+              description: t("payrollPage.toast.medicalSyncedDesc", { count: medicalMap.size, claims: [...medicalMap.values()].reduce((s, v) => s + v.count, 0) }),
             });
           }
         }
@@ -1198,8 +1198,8 @@ const Payroll = () => {
         }
       }
       toast({
-        title: "Payroll Berhasil Di-generate",
-        description: `${payrollRecords.length} karyawan dihitung untuk ${MONTHS[selectedMonth - 1].label} ${selectedYear}.`,
+        title: t("payrollPage.toast.generateSuccessTitle"),
+        description: t("payrollPage.toast.thrCalculatedDesc", { count: payrollRecords.length, name: monthLabel(selectedMonth), date: selectedYear }).replace(/\.$/, '.'),
       });
 
       // === AUDIT LOG: regenerate after unlock ===
