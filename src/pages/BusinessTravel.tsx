@@ -55,6 +55,8 @@ const BusinessTravel = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const { userRole } = useAuth();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage?.startsWith("en") ? enUS : id;
   const isAdmin = userRole === "admin";
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
