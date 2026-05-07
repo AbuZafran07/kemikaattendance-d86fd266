@@ -704,14 +704,14 @@ export default function KPIPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
-              Panduan Cara Mengelola KPI
+              {t("kpiPage.guide.title")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="step1">
                 <AccordionTrigger className="text-sm font-semibold">
-                  1. Langkah-Langkah Pengaturan KPI
+                  {t("kpiPage.guide.step1")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-2">
                   <p><b>a.</b> Pilih <b>Karyawan</b> dan <b>Tahun</b> di atas.</p>
@@ -726,7 +726,7 @@ export default function KPIPage() {
 
               <AccordionItem value="step2">
                 <AccordionTrigger className="text-sm font-semibold">
-                  2. Penjelasan Tipe Formula
+                  {t("kpiPage.guide.step2")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-3">
                   <div className="rounded-md border bg-background p-3">
@@ -754,7 +754,7 @@ export default function KPIPage() {
 
               <AccordionItem value="step3">
                 <AccordionTrigger className="text-sm font-semibold">
-                  3. Cara Membuat Custom Formula
+                  {t("kpiPage.guide.step3")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-3">
                   <p>Custom Formula dipakai bila perhitungan KPI butuh <b>lebih dari satu variabel input</b> per bulan (mis. konversi, efisiensi, dsb).</p>
@@ -819,7 +819,7 @@ export default function KPIPage() {
 
               <AccordionItem value="step4">
                 <AccordionTrigger className="text-sm font-semibold">
-                  4. Bobot, Grade &amp; Bonus
+                  {t("kpiPage.guide.step4")}
                 </AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground space-y-2">
                   <p><b>Bobot</b> menentukan kontribusi indicator ke score akhir. Total semua bobot harus 100%.</p>
@@ -837,26 +837,26 @@ export default function KPIPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              Daftar KPI Semua Karyawan — Tahun {year}
+              {t("kpiPage.recap.title", { y: year })}
             </CardTitle>
-            <Badge variant="outline">{recap.length} karyawan</Badge>
+            <Badge variant="outline">{t("kpiPage.recap.count", { n: recap.length })}</Badge>
           </CardHeader>
           <CardContent>
             {recap.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground">
-                Belum ada karyawan yang memiliki KPI di tahun {year}.
+                {t("kpiPage.recap.empty", { y: year })}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Karyawan</TableHead>
-                      <TableHead>Jabatan</TableHead>
-                      <TableHead className="text-right">Score Akhir</TableHead>
-                      <TableHead className="text-center">Grade</TableHead>
-                      <TableHead className="text-right">Estimasi Bonus</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
+                      <TableHead>{t("kpiPage.recap.colName")}</TableHead>
+                      <TableHead>{t("kpiPage.recap.colJabatan")}</TableHead>
+                      <TableHead className="text-right">{t("kpiPage.recap.colScore")}</TableHead>
+                      <TableHead className="text-center">{t("kpiPage.recap.colGrade")}</TableHead>
+                      <TableHead className="text-right">{t("kpiPage.recap.colBonus")}</TableHead>
+                      <TableHead className="text-right">{t("kpiPage.recap.colAction")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -883,7 +883,7 @@ export default function KPIPage() {
                             onClick={() => setSelectedUserId(row.user.id)}
                           >
                             <Settings2 className="h-3 w-3 mr-1" />
-                            Kelola
+                            {t("kpiPage.recap.manage")}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -899,7 +899,7 @@ export default function KPIPage() {
           <Card>
             <CardContent className="py-16 text-center text-muted-foreground">
               <Users className="h-10 w-10 mx-auto mb-3 opacity-40" />
-              Pilih karyawan untuk mulai mengelola KPI
+              {t("kpiPage.pickPrompt")}
             </CardContent>
           </Card>
         ) : loading ? (
@@ -909,10 +909,10 @@ export default function KPIPage() {
         ) : (
           <Tabs defaultValue="setup">
             <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full">
-              <TabsTrigger value="setup">Setup Indicator</TabsTrigger>
-              <TabsTrigger value="realisasi">Input Realisasi</TabsTrigger>
-              <TabsTrigger value="progress">Progress &amp; Score</TabsTrigger>
-              <TabsTrigger value="payroll">Payroll Output</TabsTrigger>
+              <TabsTrigger value="setup">{t("kpiPage.tabs.setup")}</TabsTrigger>
+              <TabsTrigger value="realisasi">{t("kpiPage.tabs.realisasi")}</TabsTrigger>
+              <TabsTrigger value="progress">{t("kpiPage.tabs.progress")}</TabsTrigger>
+              <TabsTrigger value="payroll">{t("kpiPage.tabs.payroll")}</TabsTrigger>
             </TabsList>
 
             {/* TAB 1: SETUP */}
@@ -920,7 +920,7 @@ export default function KPIPage() {
               <div className="flex gap-2 rounded-md border border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 p-3 text-sm text-blue-800 dark:text-blue-200">
                 <HelpCircle className="h-5 w-5 shrink-0 mt-0.5" />
                 <div>
-                  <b>Tips:</b> Buat 3–6 indicator. Total bobot wajib 100%. Pilih tipe formula sesuai sifat KPI (Ratio untuk %, Akumulasi untuk total tahunan, Lower untuk metrik kecil-lebih-baik, Threshold untuk skor diskrit, Custom untuk rumus banyak variabel).
+                  <b>{t("kpiPage.guide.tipsTitle")}:</b> {t("kpiPage.guide.tipsBody")}
                 </div>
               </div>
               {indicators.length === 0 && (
