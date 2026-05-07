@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useDepartmentJabatan } from "@/hooks/useDepartmentJabatan";
@@ -48,6 +49,8 @@ import { compressEmployeePhoto, blobToFile } from "@/lib/imageCompression";
 import logger from "@/lib/logger";
 
 const Employees = () => {
+  const { t, i18n } = useTranslation();
+  const localeCode = i18n.language === 'en' ? 'en-US' : 'id-ID';
   const { departments: DEPARTMENT_OPTIONS, jabatanOptions: JABATAN_OPTIONS } = useDepartmentJabatan();
   const [employees, setEmployees] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -186,8 +189,8 @@ const Employees = () => {
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: "File terlalu besar",
-          description: "Maksimal ukuran foto 5MB",
+          title: t("employeesPage.toast.fileTooLargeTitle"),
+          description: t("employeesPage.toast.fileTooLargeDesc"),
           variant: "destructive",
         });
         return;
@@ -241,8 +244,8 @@ const Employees = () => {
       });
       setFormErrors(errors);
       toast({
-        title: "Validasi Gagal",
-        description: "Periksa kembali data yang dimasukkan",
+        title: t("employeesPage.toast.validationFailedTitle"),
+        description: t("employeesPage.toast.validationFailedDesc"),
         variant: "destructive",
       });
       return;
@@ -286,8 +289,8 @@ const Employees = () => {
       }
 
       toast({
-        title: "Berhasil",
-        description: "Karyawan berhasil ditambahkan",
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.addedDesc"),
       });
 
       setIsDialogOpen(false);
@@ -296,7 +299,7 @@ const Employees = () => {
       fetchEmployeeRoles();
     } catch (error: any) {
       toast({
-        title: "Gagal Menambahkan Karyawan",
+        title: t("employeesPage.toast.addFailedTitle"),
         description: error.message,
         variant: "destructive",
       });
@@ -320,8 +323,8 @@ const Employees = () => {
       });
       setEditFormErrors(errors);
       toast({
-        title: "Validasi Gagal",
-        description: "Periksa kembali data yang dimasukkan",
+        title: t("employeesPage.toast.validationFailedTitle"),
+        description: t("employeesPage.toast.validationFailedDesc"),
         variant: "destructive",
       });
       return;
@@ -329,10 +332,10 @@ const Employees = () => {
 
     // Extra validation: resign_date wajib jika status Resigned
     if (editFormData.status === "Resigned" && !editFormData.resign_date) {
-      setEditFormErrors({ resign_date: "Tanggal resign wajib diisi untuk status Resigned" });
+      setEditFormErrors({ resign_date: t("employeesPage.toast.resignDateRequiredField") });
       toast({
-        title: "Tanggal Resign Diperlukan",
-        description: "Mohon isi tanggal resign untuk karyawan dengan status Resigned",
+        title: t("employeesPage.toast.resignDateRequiredTitle"),
+        description: t("employeesPage.toast.resignDateRequiredDesc"),
         variant: "destructive",
       });
       return;
@@ -392,8 +395,8 @@ const Employees = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: "Data karyawan berhasil diperbarui",
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.updatedDesc"),
       });
 
       setIsEditDialogOpen(false);
@@ -402,7 +405,7 @@ const Employees = () => {
       fetchEmployees();
     } catch (error: any) {
       toast({
-        title: "Gagal Memperbarui",
+        title: t("employeesPage.toast.updateFailedTitle"),
         description: error.message,
         variant: "destructive",
       });
@@ -498,7 +501,7 @@ const Employees = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Yakin ingin menghapus karyawan ini?")) return;
+    if (!confirm(t("employeesPage.confirmDelete"))) return;
 
     const { error } = await supabase
       .from('profiles')
@@ -507,14 +510,14 @@ const Employees = () => {
 
     if (error) {
       toast({
-        title: "Gagal Menghapus",
+        title: t("employeesPage.toast.deleteFailedTitle"),
         description: error.message,
         variant: "destructive",
       });
     } else {
       toast({
-        title: "Berhasil",
-        description: "Karyawan berhasil dihapus",
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.deletedDesc"),
       });
       fetchEmployees();
     }
@@ -529,20 +532,18 @@ const Employees = () => {
   const handleAdminResetPassword = async () => {
     if (!resetPasswordEmployee || !newPassword) {
       toast({
-        title: "Password Diperlukan",
-        description: "Masukkan password baru",
+        title: t("employeesPage.toast.passwordRequiredTitle"),
+        description: t("employeesPage.toast.passwordRequiredDesc"),
         variant: "destructive",
       });
       return;
     }
 
-    // Validate password with same requirements as backend (admin-reset-password edge function)
-    // Minimum 8 characters, at least one uppercase, one lowercase, one number, one special character
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       toast({
-        title: "Password Lemah",
-        description: "Password minimal 8 karakter dengan huruf besar, huruf kecil, angka, dan simbol (!@#$%^&*)",
+        title: t("employeesPage.toast.weakPasswordTitle"),
+        description: t("employeesPage.toast.weakPasswordDesc"),
         variant: "destructive",
       });
       return;
@@ -561,8 +562,8 @@ const Employees = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: `Password untuk ${resetPasswordEmployee.full_name} berhasil direset`,
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.resetSuccess", { name: resetPasswordEmployee.full_name }),
       });
 
       setIsResetPasswordDialogOpen(false);
@@ -570,8 +571,8 @@ const Employees = () => {
       setNewPassword("");
     } catch (error: any) {
       toast({
-        title: "Gagal Reset Password",
-        description: error.message || "Terjadi kesalahan",
+        title: t("employeesPage.toast.resetFailedTitle"),
+        description: error.message || t("employeesPage.toast.genericError"),
         variant: "destructive",
       });
     } finally {
@@ -601,8 +602,11 @@ const Employees = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: `${setAdminEmployee.full_name} sekarang menjadi ${newRole === 'admin' ? 'Admin' : 'Karyawan'}`,
+        title: t("employeesPage.toast.successTitle"),
+        description: t("employeesPage.toast.roleSuccess", {
+          name: setAdminEmployee.full_name,
+          role: newRole === 'admin' ? t("employeesPage.toast.roleAdmin") : t("employeesPage.toast.roleEmployee"),
+        }),
       });
 
       setIsSetAdminDialogOpen(false);
@@ -610,8 +614,8 @@ const Employees = () => {
       fetchEmployeeRoles();
     } catch (error: any) {
       toast({
-        title: "Gagal Mengubah Role",
-        description: error.message || "Terjadi kesalahan",
+        title: t("employeesPage.toast.roleFailedTitle"),
+        description: error.message || t("employeesPage.toast.genericError"),
         variant: "destructive",
       });
     } finally {
