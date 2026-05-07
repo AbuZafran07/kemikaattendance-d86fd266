@@ -3,9 +3,22 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { playNotificationSound } from '@/lib/notificationSound';
 
+const getLastSeenKey = (userId: string) => `notif_last_seen_${userId}`;
+
+const getLastSeen = (userId: string): string => {
+  try {
+    const v = localStorage.getItem(getLastSeenKey(userId));
+    if (v) return v;
+  } catch {}
+  // Default: 7 days ago
+  const d = new Date();
+  d.setDate(d.getDate() - 7);
+  return d.toISOString();
+};
+
 export const useNotificationBadge = () => {
   const [badgeCount, setBadgeCount] = useState(0);
-  const prevCountRef = useRef(-1); // -1 means first fetch, skip sound
+  const prevCountRef = useRef(-1);
   const { profile } = useAuth();
 
   const updateAppBadge = useCallback((count: number) => {
@@ -22,60 +35,35 @@ export const useNotificationBadge = () => {
     if (!profile?.id) return;
 
     try {
-      // For employees: count pending leave & overtime requests (their own)
-      const [leaveRes, overtimeRes, travelRes] = await Promise.all([
-        supabase
-          .from('leave_requests')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', profile.id)
-          .eq('status', 'pending'),
-        supabase
-          .from('overtime_requests')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', profile.id)
-          .eq('status', 'pending'),
-        supabase
-          .from('business_travel_requests')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', profile.id)
-          .eq('status', 'pending'),
-      ]);
+      const lastSeen = getLastSeen(profile.id);
 
-      // Also check for recently approved/rejected (last 7 days) that employee might not have seen
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const cutoff = sevenDaysAgo.toISOString();
-
+      // Only count approved/rejected items updated AFTER user last visited notifications page
       const [leaveUpdated, overtimeUpdated, travelUpdated] = await Promise.all([
         supabase
           .from('leave_requests')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', profile.id)
           .in('status', ['approved', 'rejected'])
-          .gte('updated_at', cutoff),
+          .gt('updated_at', lastSeen),
         supabase
           .from('overtime_requests')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', profile.id)
           .in('status', ['approved', 'rejected'])
-          .gte('updated_at', cutoff),
+          .gt('updated_at', lastSeen),
         supabase
           .from('business_travel_requests')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', profile.id)
           .in('status', ['approved', 'rejected'])
-          .gte('updated_at', cutoff),
+          .gt('updated_at', lastSeen),
       ]);
 
       const total =
-        (leaveRes.count || 0) +
-        (overtimeRes.count || 0) +
-        (travelRes.count || 0) +
         (leaveUpdated.count || 0) +
         (overtimeUpdated.count || 0) +
         (travelUpdated.count || 0);
 
-      // Play sound only if count increased AND it's not the first fetch
       if (prevCountRef.current >= 0 && total > prevCountRef.current) {
         playNotificationSound();
       }
@@ -90,10 +78,8 @@ export const useNotificationBadge = () => {
   useEffect(() => {
     fetchBadgeCount();
 
-    // Refresh every 60 seconds as fallback
     const interval = setInterval(fetchBadgeCount, 60000);
 
-    // Real-time subscriptions for instant badge updates
     const channel = supabase
       .channel('badge-realtime')
       .on(
@@ -123,11 +109,17 @@ export const useNotificationBadge = () => {
   }, [fetchBadgeCount]);
 
   const clearBadge = useCallback(() => {
+    if (profile?.id) {
+      try {
+        localStorage.setItem(getLastSeenKey(profile.id), new Date().toISOString());
+      } catch {}
+    }
+    prevCountRef.current = 0;
     setBadgeCount(0);
     if ('clearAppBadge' in navigator) {
       (navigator as any).clearAppBadge();
     }
-  }, []);
+  }, [profile?.id]);
 
   return { badgeCount, refreshBadge: fetchBadgeCount, clearBadge };
 };
