@@ -176,9 +176,9 @@ const EmployeePayrollHistory = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <DollarSign className="h-6 w-6 text-primary" /> Slip Gaji
+              <DollarSign className="h-6 w-6 text-primary" /> {t("empPayroll.title")}
             </h1>
-            <p className="text-sm text-muted-foreground">Riwayat slip gaji Anda</p>
+            <p className="text-sm text-muted-foreground">{t("empPayroll.subtitle")}</p>
           </div>
           <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
             <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
