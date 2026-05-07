@@ -955,6 +955,135 @@
     "daysShort": "({{n}} hari)",
     "hoursReason": "{{n}} jam - {{reason}}"
   },
+  "loanMgmt": {
+    "title": "Manajemen Potongan",
+    "subtitle": "Kelola pinjaman, kasbon, dan potongan lain karyawan dengan tracking cicilan otomatis",
+    "addDeduction": "Tambah Potongan",
+    "summary": {
+      "totalDeductions": "Total Potongan",
+      "filterSuffix": " (filter)",
+      "activeDeductions": "Potongan Aktif",
+      "totalRemaining": "Total Sisa Potongan"
+    },
+    "tabs": {
+      "active": "Aktif",
+      "archived": "Archived ({{count}})"
+    },
+    "list": {
+      "archivedTitle": "Arsip Potongan (Lunas)",
+      "activeTitle": "Daftar Potongan Karyawan",
+      "description": "Klik baris untuk melihat detail cicilan",
+      "searchPlaceholder": "Cari nama, NIK, atau departemen...",
+      "noMatch": "Tidak ada data yang cocok dengan pencarian",
+      "noData": "Belum ada data pinjaman",
+      "archivedAt": "Diarsipkan {{date}}",
+      "loading": "Memuat..."
+    },
+    "table": {
+      "employee": "Karyawan",
+      "type": "Tipe",
+      "amount": "Jumlah",
+      "monthly": "Cicilan/bln",
+      "progress": "Progress",
+      "remaining": "Sisa",
+      "status": "Status",
+      "viewDetail": "Lihat detail",
+      "edit": "Edit potongan",
+      "delete": "Hapus potongan"
+    },
+    "pagination": {
+      "show": "Tampilkan",
+      "of": "dari {{total}} ({{from}}-{{to}})",
+      "prev": "Sebelumnya",
+      "next": "Berikutnya",
+      "page": "Hal {{current}} / {{total}}"
+    },
+    "create": {
+      "title": "Tambah Potongan Baru",
+      "description": "Buat pinjaman atau kasbon baru untuk karyawan",
+      "employee": "Karyawan",
+      "pickEmployee": "Pilih karyawan",
+      "searchEmployee": "Cari nama atau departemen...",
+      "noEmployee": "Karyawan tidak ditemukan.",
+      "type": "Tipe",
+      "amount": "Jumlah Pinjaman (Rp)",
+      "amountPlaceholder": "5000000",
+      "installments": "Jumlah Cicilan (bulan)",
+      "installmentsPlaceholder": "12",
+      "perMonth": "Cicilan/bulan: ",
+      "startDate": "Tanggal Mulai",
+      "notes": "Keterangan",
+      "notesPlaceholder": "Keterangan pinjaman...",
+      "create": "Buat Pinjaman"
+    },
+    "loanType": {
+      "pinjaman": "Pinjaman",
+      "kasbon": "Kasbon",
+      "potongan_lain": "Potongan Lain"
+    },
+    "detail": {
+      "title": "Detail Pinjaman",
+      "type": "Tipe",
+      "totalAmount": "Total Pinjaman",
+      "perMonth": "Cicilan/bulan",
+      "progress": "Progress",
+      "installmentsCount": "{{paid}}/{{total}} cicilan",
+      "remaining": "Sisa",
+      "status": "Status",
+      "notes": "Keterangan",
+      "archivedAt": "Diarsipkan",
+      "archiveReason": "Alasan Arsip",
+      "history": "Riwayat Cicilan",
+      "installmentNo": "Cicilan #{{n}}",
+      "period": "Periode {{label}}",
+      "cancel": "Batalkan Pinjaman"
+    },
+    "edit": {
+      "title": "Edit Potongan",
+      "description": "{{name}} — perubahan akan membuat ulang jadwal cicilan.",
+      "amount": "Jumlah (Rp)",
+      "save": "Simpan Perubahan"
+    },
+    "delete": {
+      "title": "Hapus Pinjaman?",
+      "warning1Prefix": "Anda akan menghapus pinjaman ",
+      "warning1Middle": " sebesar ",
+      "warning1Suffix": ".",
+      "warning2": "Tindakan ini permanen dan akan menghapus seluruh riwayat cicilannya. Tidak dapat dibatalkan.",
+      "cancel": "Batal",
+      "confirm": "Hapus Permanen"
+    },
+    "status": {
+      "active": "Aktif",
+      "completed": "Lunas",
+      "cancelled": "Dibatalkan"
+    },
+    "instStatus": {
+      "paid": "Lunas",
+      "scheduled": "Terjadwal",
+      "pending": "Pending",
+      "skipped": "Skip"
+    },
+    "archive": {
+      "completed": "Otomatis diarsipkan: seluruh cicilan telah lunas",
+      "cancelled": "Diarsipkan: pinjaman dibatalkan"
+    },
+    "toast": {
+      "incompleteTitle": "Data belum lengkap",
+      "incompleteDesc": "Isi semua field yang diperlukan.",
+      "createdTitle": "Pinjaman Dibuat",
+      "createdDesc": "{{n}}x cicilan @ {{amount}}",
+      "failedTitle": "Gagal",
+      "cancelled": "Pinjaman Dibatalkan",
+      "deletedTitle": "Pinjaman Dihapus",
+      "deletedDesc": "Pinjaman {{name}} berhasil dihapus.",
+      "deleteFailedTitle": "Gagal Menghapus",
+      "cantEditTitle": "Tidak Bisa Diedit",
+      "cantEditDesc": "Pinjaman ini sudah memiliki cicilan yang terbayar. Hapus dan buat ulang jika perlu mengubah.",
+      "updatedTitle": "Pinjaman Diperbarui",
+      "updateFailedTitle": "Gagal Memperbarui"
+    }
+  },
   "companyCalendar": {
     "title": "Kalender Perusahaan",
     "dayNames": ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"],
