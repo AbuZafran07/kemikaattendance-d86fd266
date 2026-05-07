@@ -170,6 +170,7 @@ function FormulaTester({
   unit: string;
   formulaLowerIsBetter?: boolean;
 }) {
+  const { t } = useTranslation();
   const [samples, setSamples] = useState<Record<string, string>>({});
   const error = validateCustomExpr(expr, vars);
 
@@ -202,18 +203,18 @@ function FormulaTester({
     <div className="border border-dashed rounded-md p-3 bg-background space-y-3">
       <div className="flex items-center gap-2">
         <Settings2 className="h-4 w-4 text-primary" />
-        <span className="font-medium text-sm">Uji Formula</span>
-        <span className="text-xs text-muted-foreground">— masukkan contoh nilai untuk melihat hasil</span>
+        <span className="font-medium text-sm">{t("kpiPage.setup.testFormula")}</span>
+        <span className="text-xs text-muted-foreground">{t("kpiPage.setup.testHint")}</span>
       </div>
       {vars.length === 0 ? (
-        <p className="text-xs text-muted-foreground italic">Tambahkan variabel dahulu untuk mengetes formula.</p>
+        <p className="text-xs text-muted-foreground italic">{t("kpiPage.setup.addVarsFirst")}</p>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {vars.map((v) => (
               <div key={v.alias}>
                 <Label className="text-xs">
-                  {v.label || <span className="italic text-muted-foreground">(tanpa label)</span>}{" "}
+                  {v.label || <span className="italic text-muted-foreground">{t("kpiPage.setup.noLabel")}</span>}{" "}
                   <span className="font-mono text-muted-foreground">[{v.alias}]</span>
                 </Label>
                 <Input
@@ -231,26 +232,26 @@ function FormulaTester({
               const filled: Record<string, string> = {};
               vars.forEach((v) => { filled[v.alias] = "1"; });
               setSamples(filled);
-            }}>Isi semua = 1</Button>
-            <Button size="sm" variant="ghost" type="button" onClick={() => setSamples({})}>Reset</Button>
+            }}>{t("kpiPage.setup.fillAll")}</Button>
+            <Button size="sm" variant="ghost" type="button" onClick={() => setSamples({})}>{t("kpiPage.setup.reset")}</Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t">
             <div className="rounded-md bg-muted/50 p-2">
-              <div className="text-[10px] uppercase text-muted-foreground">Hasil Realisasi</div>
+              <div className="text-[10px] uppercase text-muted-foreground">{t("kpiPage.setup.realResult")}</div>
               <div className="text-lg font-bold">
                 {error
-                  ? <span className="text-destructive text-sm">Formula tidak valid</span>
+                  ? <span className="text-destructive text-sm">{t("kpiPage.setup.invalidFormula")}</span>
                   : !allFilled
-                    ? <span className="text-muted-foreground text-sm">Isi semua variabel</span>
+                    ? <span className="text-muted-foreground text-sm">{t("kpiPage.setup.fillAllVars")}</span>
                     : `${result?.toFixed(2)} ${unit || ""}`}
               </div>
             </div>
             <div className="rounded-md bg-muted/50 p-2">
-              <div className="text-[10px] uppercase text-muted-foreground">Target</div>
+              <div className="text-[10px] uppercase text-muted-foreground">{t("kpiPage.setup.target_label")}</div>
               <div className="text-lg font-bold">{target || 0} {unit || ""}</div>
             </div>
             <div className={`rounded-md p-2 ${score === null ? "bg-muted/50" : score >= 90 ? "bg-emerald-50 dark:bg-emerald-950/30" : score >= 75 ? "bg-blue-50 dark:bg-blue-950/30" : score >= 60 ? "bg-amber-50 dark:bg-amber-950/30" : "bg-red-50 dark:bg-red-950/30"}`}>
-              <div className="text-[10px] uppercase text-muted-foreground">Score (capped 120)</div>
+              <div className="text-[10px] uppercase text-muted-foreground">{t("kpiPage.setup.scoreCap")}</div>
               <div className="text-lg font-bold">
                 {score === null ? <span className="text-muted-foreground text-sm">—</span> : `${score.toFixed(2)}`}
               </div>
