@@ -609,20 +609,20 @@ export default function EmployeeKPI() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Rincian Indikator</CardTitle>
+                  <CardTitle className="text-base">{t("empKpi.indicatorBreakdown")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {indicatorScores.map(({ ind, score, contribution }) => (
                     <div key={ind.id} className="flex flex-wrap items-center justify-between gap-2 p-3 border rounded-md">
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{ind.name}</p>
-                        <p className="text-xs text-muted-foreground">Bobot {ind.weight}%</p>
+                        <p className="text-xs text-muted-foreground">{t("empKpi.weightShort", { n: ind.weight })}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge className={`${scoreColorClass(score)} text-white border-transparent`}>
                           {score.toFixed(1)}
                         </Badge>
-                        <Badge variant="outline">+{contribution.toFixed(2)} poin</Badge>
+                        <Badge variant="outline">{t("empKpi.contribPoints", { n: contribution.toFixed(2) })}</Badge>
                       </div>
                     </div>
                   ))}
