@@ -241,7 +241,7 @@ const CompanyCalendar = () => {
     return day === 0 || day === 6;
   };
 
-  const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+  const dayNames = (t("companyCalendar.dayNames", { returnObjects: true }) as string[]) || ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 
   const handleAddEvent = async () => {
     if (!addEventDate || !newEventTitle.trim() || !user) return;
@@ -257,11 +257,11 @@ const CompanyCalendar = () => {
         created_by: user.id,
       });
       if (error) throw error;
-      toast.success("Event berhasil ditambahkan");
+      toast.success(t("companyCalendar.toast.eventAdded"));
       setAddEventDate(null);
       fetchCompanyEvents();
     } catch (err: any) {
-      toast.error("Gagal menambah event: " + err.message);
+      toast.error(t("companyCalendar.toast.eventAddFailed") + err.message);
     } finally {
       setAddingEvent(false);
     }
@@ -286,10 +286,10 @@ const CompanyCalendar = () => {
       }
       setHolidays(updatedHolidays);
       setFullOvertimeConfig(updatedConfig);
-      toast.success("Hari libur berhasil ditambahkan");
+      toast.success(t("companyCalendar.toast.holidayAdded"));
       setAddEventDate(null);
     } catch (err: any) {
-      toast.error("Gagal menambah hari libur: " + err.message);
+      toast.error(t("companyCalendar.toast.holidayAddFailed") + err.message);
     } finally {
       setAddingEvent(false);
     }
@@ -303,10 +303,10 @@ const CompanyCalendar = () => {
       if (error) throw error;
       setHolidays(updatedHolidays);
       setFullOvertimeConfig(updatedConfig);
-      toast.success("Hari libur berhasil dihapus");
+      toast.success(t("companyCalendar.toast.holidayDeleted"));
       setSelectedDate(null);
     } catch (err: any) {
-      toast.error("Gagal menghapus: " + err.message);
+      toast.error(t("companyCalendar.toast.deleteFailed") + err.message);
     }
   };
 
@@ -319,11 +319,11 @@ const CompanyCalendar = () => {
       if (error) throw error;
       setHolidays(updatedHolidays);
       setFullOvertimeConfig(updatedConfig);
-      toast.success("Hari libur berhasil diperbarui");
+      toast.success(t("companyCalendar.toast.holidayUpdated"));
       setEditingHoliday(null);
       setSelectedDate(null);
     } catch (err: any) {
-      toast.error("Gagal mengubah: " + err.message);
+      toast.error(t("companyCalendar.toast.updateFailed") + err.message);
     }
   };
 
@@ -331,11 +331,11 @@ const CompanyCalendar = () => {
     try {
       const { error } = await supabase.from("company_events").delete().eq("id", eventId);
       if (error) throw error;
-      toast.success("Event berhasil dihapus");
+      toast.success(t("companyCalendar.toast.eventDeleted"));
       setSelectedDate(null);
       fetchCompanyEvents();
     } catch (err: any) {
-      toast.error("Gagal menghapus event: " + err.message);
+      toast.error(t("companyCalendar.toast.eventDeleteFailed") + err.message);
     }
   };
 
@@ -350,12 +350,12 @@ const CompanyCalendar = () => {
         updated_at: new Date().toISOString(),
       }).eq("id", editingEvent.id);
       if (error) throw error;
-      toast.success("Event berhasil diperbarui");
+      toast.success(t("companyCalendar.toast.eventUpdated"));
       setEditingEvent(null);
       setSelectedDate(null);
       fetchCompanyEvents();
     } catch (err: any) {
-      toast.error("Gagal mengubah event: " + err.message);
+      toast.error(t("companyCalendar.toast.eventUpdateFailed") + err.message);
     }
   };
 
@@ -365,7 +365,7 @@ const CompanyCalendar = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Calendar className="h-4 w-4" />
-            Kalender Perusahaan
+            {t("companyCalendar.title")}
           </CardTitle>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
@@ -454,7 +454,7 @@ const CompanyCalendar = () => {
                 )}
                 {!holidayName && !companyEvents && !leaveDays && travelDays && (
                   <span className="text-[7px] leading-tight text-green-600 text-center line-clamp-2 mt-0.5 px-0.5">
-                    Dinas: {travelDays[0].destination}
+                    {t("companyCalendar.travelPrefix")}: {travelDays[0].destination}
                   </span>
                 )}
                 {!holidayName && !companyEvents && !leaveDays && !travelDays && specialPeriod && (
@@ -492,7 +492,7 @@ const CompanyCalendar = () => {
                           <span>{specialPeriod.name}</span>
                           {specialPeriod.check_out_start && (
                             <span className="text-muted-foreground">
-                              (Pulang: {specialPeriod.check_out_start})
+                              ({t("companyCalendar.tooltip.checkOutPrefix")}: {specialPeriod.check_out_start})
                             </span>
                           )}
                         </div>
@@ -513,7 +513,7 @@ const CompanyCalendar = () => {
                       {travelDays && travelDays.map((t, i) => (
                         <div key={`t-${i}`} className="flex items-center gap-1 text-xs">
                           <Plane className="h-3 w-3 text-green-500" />
-                          <span>Dinas: {t.destination}</span>
+                          <span>{t("companyCalendar.travelPrefix")}: {tr.destination}</span>
                         </div>
                       ))}
                     </div>
@@ -530,27 +530,27 @@ const CompanyCalendar = () => {
         <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <div className="h-2 w-2 rounded-full bg-destructive" />
-            Hari Libur
+            {t("companyCalendar.legend.holiday")}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <div className="h-2 w-2 rounded-full bg-chart-4" />
-            Jam Kerja Khusus
+            {t("companyCalendar.legend.specialHours")}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <div className="h-2 w-2 rounded-full bg-blue-500" />
-            Event Kantor
+            {t("companyCalendar.legend.officeEvent")}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <div className="h-2 w-2 rounded-full bg-indigo-500" />
-            Cuti Saya
+            {t("companyCalendar.legend.myLeave")}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <div className="h-2 w-2 rounded-full bg-green-500" />
-            Dinas
+            {t("companyCalendar.legend.travel")}
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <div className="h-2 w-2 rounded-full bg-primary" />
-            Hari Ini
+            {t("companyCalendar.legend.today")}
           </div>
         </div>
       </CardContent>
@@ -579,7 +579,7 @@ const CompanyCalendar = () => {
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-destructive/10">
                     <Palmtree className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
                     <div className="flex-1">
-                      <p className="font-medium text-sm">Hari Libur</p>
+                      <p className="font-medium text-sm">{t("companyCalendar.detail.holiday")}</p>
                       <p className="text-sm text-muted-foreground">{holidayName}</p>
                     </div>
                     {isAdmin && holidayObj && (
@@ -602,13 +602,13 @@ const CompanyCalendar = () => {
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-chart-4/10">
                     <Clock className="h-5 w-5 text-chart-4 mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-medium text-sm">Jam Kerja Khusus</p>
+                      <p className="font-medium text-sm">{t("companyCalendar.detail.specialHours")}</p>
                       <p className="text-sm text-muted-foreground">{specialPeriod.name}</p>
                       {specialPeriod.check_in_end && (
-                        <p className="text-xs text-muted-foreground">Masuk: s.d. {specialPeriod.check_in_end}</p>
+                        <p className="text-xs text-muted-foreground">{t("companyCalendar.detail.checkInUntil", { time: specialPeriod.check_in_end })}</p>
                       )}
                       {specialPeriod.check_out_start && (
-                        <p className="text-xs text-muted-foreground">Pulang: mulai {specialPeriod.check_out_start}</p>
+                        <p className="text-xs text-muted-foreground">{t("companyCalendar.detail.checkOutFrom", { time: specialPeriod.check_out_start })}</p>
                       )}
                     </div>
                   </div>
@@ -617,7 +617,7 @@ const CompanyCalendar = () => {
                   <div key={`ce-${i}`} className="flex items-start gap-3 p-3 rounded-lg bg-blue-500/10">
                     <CalendarDays className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
                     <div className="flex-1">
-                      <p className="font-medium text-sm">Event Kantor</p>
+                      <p className="font-medium text-sm">{t("companyCalendar.detail.officeEvent")}</p>
                       <p className="text-sm text-foreground">{e.title}</p>
                       {e.description && <p className="text-xs text-muted-foreground mt-1">{e.description}</p>}
                     </div>
@@ -644,11 +644,11 @@ const CompanyCalendar = () => {
                   <div key={`l-${i}`} className="flex items-start gap-3 p-3 rounded-lg bg-indigo-500/10">
                     <Briefcase className="h-5 w-5 text-indigo-500 mt-0.5 shrink-0" />
                     <div className="flex-1">
-                      <p className="font-medium text-sm">Cuti / Izin</p>
+                      <p className="font-medium text-sm">{t("companyCalendar.detail.leavePermit")}</p>
                       <p className="text-sm text-muted-foreground">{l.label}</p>
                       {l.delegate_name && (
                         <div className="mt-2 pt-2 border-t border-indigo-500/20 space-y-0.5">
-                          <p className="text-xs text-muted-foreground">Tugas didelegasikan ke:</p>
+                          <p className="text-xs text-muted-foreground">{t("companyCalendar.detail.delegateTo")}</p>
                           <p className="text-xs font-medium">
                             {l.delegate_name}
                             {l.delegate_jabatan ? ` - ${l.delegate_jabatan}` : ""}
@@ -667,14 +667,14 @@ const CompanyCalendar = () => {
                   <div key={`t-${i}`} className="flex items-start gap-3 p-3 rounded-lg bg-green-500/10">
                     <Plane className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                     <div>
-                      <p className="font-medium text-sm">Perjalanan Dinas</p>
+                      <p className="font-medium text-sm">{t("companyCalendar.detail.travel")}</p>
                       <p className="text-sm text-foreground">{t.destination}</p>
                       <p className="text-xs text-muted-foreground mt-1">{t.purpose}</p>
                     </div>
                   </div>
                 ))}
                 {!holidayName && !specialPeriod && !companyEvents && !leaveDays && !travelDays && (
-                  <p className="text-sm text-muted-foreground text-center py-4">Tidak ada event pada tanggal ini.</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">{t("companyCalendar.detail.noEvent")}</p>
                 )}
 
                 {/* Admin quick add buttons */}
@@ -687,7 +687,7 @@ const CompanyCalendar = () => {
                       setSelectedDate(null);
                     }}>
                       <Palmtree className="h-3.5 w-3.5 mr-1" />
-                      Tambah Libur
+                      {t("companyCalendar.detail.addHoliday")}
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1" onClick={() => {
                       setAddEventDate(selectedDate);
@@ -698,7 +698,7 @@ const CompanyCalendar = () => {
                       setSelectedDate(null);
                     }}>
                       <CalendarDays className="h-3.5 w-3.5 mr-1" />
-                      Tambah Event
+                      {t("companyCalendar.detail.addEvent")}
                     </Button>
                   </div>
                 )}
@@ -714,7 +714,7 @@ const CompanyCalendar = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              {addMode === "holiday" ? "Tambah Hari Libur" : "Tambah Event Kantor"}
+              {addMode === "holiday" ? t("companyCalendar.form.addHoliday") : t("companyCalendar.form.addOfficeEvent")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -726,18 +726,18 @@ const CompanyCalendar = () => {
             <div className="flex gap-2">
               <Button variant={addMode === "event" ? "default" : "outline"} size="sm" onClick={() => setAddMode("event")} className="flex-1">
                 <CalendarDays className="h-3.5 w-3.5 mr-1" />
-                Event Kantor
+                {t("companyCalendar.form.officeEvent")}
               </Button>
               <Button variant={addMode === "holiday" ? "default" : "outline"} size="sm" onClick={() => setAddMode("holiday")} className="flex-1">
                 <Palmtree className="h-3.5 w-3.5 mr-1" />
-                Hari Libur
+                {t("companyCalendar.form.holiday")}
               </Button>
             </div>
 
             <div className="space-y-2">
-              <Label>{addMode === "holiday" ? "Nama Hari Libur *" : "Judul Event *"}</Label>
+              <Label>{addMode === "holiday" ? t("companyCalendar.form.holidayName") : t("companyCalendar.form.eventTitle")}</Label>
               <Input
-                placeholder={addMode === "holiday" ? "Contoh: Hari Raya Idul Fitri" : "Contoh: Rapat Bulanan"}
+                placeholder={addMode === "holiday" ? t("companyCalendar.form.holidayPlaceholder") : t("companyCalendar.form.eventPlaceholder")}
                 value={newEventTitle}
                 onChange={(e) => setNewEventTitle(e.target.value)}
               />
@@ -746,7 +746,7 @@ const CompanyCalendar = () => {
             {addMode === "event" && (
               <>
                 <div className="space-y-2">
-                  <Label>Tanggal Selesai</Label>
+                  <Label>{t("companyCalendar.form.endDate")}</Label>
                   <Input
                     type="date"
                     value={newEventEndDate}
@@ -755,9 +755,9 @@ const CompanyCalendar = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Deskripsi (opsional)</Label>
+                  <Label>{t("companyCalendar.form.descriptionOptional")}</Label>
                   <Textarea
-                    placeholder="Deskripsi event..."
+                    placeholder={t("companyCalendar.form.descriptionPlaceholder")}
                     value={newEventDescription}
                     onChange={(e) => setNewEventDescription(e.target.value)}
                     rows={3}
@@ -767,9 +767,9 @@ const CompanyCalendar = () => {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAddEventDate(null)}>Batal</Button>
+            <Button variant="outline" onClick={() => setAddEventDate(null)}>{t("companyCalendar.form.cancel")}</Button>
             <Button onClick={addMode === "holiday" ? handleAddHoliday : handleAddEvent} disabled={!newEventTitle.trim() || addingEvent}>
-              {addingEvent ? "Menyimpan..." : "Simpan"}
+              {addingEvent ? t("companyCalendar.form.saving") : t("companyCalendar.form.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -781,7 +781,7 @@ const CompanyCalendar = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pencil className="h-4 w-4" />
-              Edit Hari Libur
+              {t("companyCalendar.form.editHoliday")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -789,13 +789,13 @@ const CompanyCalendar = () => {
               <p className="text-sm text-muted-foreground">{editingHoliday.date}</p>
             )}
             <div className="space-y-2">
-              <Label>Nama Hari Libur</Label>
+              <Label>{t("companyCalendar.form.holidayNameLabel")}</Label>
               <Input value={editHolidayName} onChange={(e) => setEditHolidayName(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingHoliday(null)}>Batal</Button>
-            <Button onClick={handleEditHoliday} disabled={!editHolidayName.trim()}>Simpan</Button>
+            <Button variant="outline" onClick={() => setEditingHoliday(null)}>{t("companyCalendar.form.cancel")}</Button>
+            <Button onClick={handleEditHoliday} disabled={!editHolidayName.trim()}>{t("companyCalendar.form.save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -806,32 +806,32 @@ const CompanyCalendar = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pencil className="h-4 w-4" />
-              Edit Event Kantor
+              {t("companyCalendar.form.editEvent")}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Judul Event</Label>
+              <Label>{t("companyCalendar.form.eventTitleLabel")}</Label>
               <Input value={editEventTitle} onChange={(e) => setEditEventTitle(e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Tanggal Mulai</Label>
+                <Label>{t("companyCalendar.form.startDate")}</Label>
                 <Input type="date" value={editEventStartDate} onChange={(e) => setEditEventStartDate(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Tanggal Selesai</Label>
+                <Label>{t("companyCalendar.form.endDate")}</Label>
                 <Input type="date" value={editEventEndDate} onChange={(e) => setEditEventEndDate(e.target.value)} min={editEventStartDate} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Deskripsi (opsional)</Label>
+              <Label>{t("companyCalendar.form.descriptionOptional")}</Label>
               <Textarea value={editEventDescription} onChange={(e) => setEditEventDescription(e.target.value)} rows={3} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingEvent(null)}>Batal</Button>
-            <Button onClick={handleEditEvent} disabled={!editEventTitle.trim()}>Simpan</Button>
+            <Button variant="outline" onClick={() => setEditingEvent(null)}>{t("companyCalendar.form.cancel")}</Button>
+            <Button onClick={handleEditEvent} disabled={!editEventTitle.trim()}>{t("companyCalendar.form.save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
