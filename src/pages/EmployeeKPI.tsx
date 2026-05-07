@@ -255,7 +255,7 @@ export default function EmployeeKPI() {
       .select()
       .single();
     if (error) {
-      toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+      toast({ title: t("empKpi.saveFail"), description: error.message, variant: "destructive" });
       return false;
     }
     setRealizations((prev) => {
