@@ -589,7 +589,7 @@ export default function EmployeeKPI() {
                       <TrendingUp className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Score Akhir</p>
+                      <p className="text-xs text-muted-foreground">{t("empKpi.finalScore")}</p>
                       <p className="text-3xl font-bold">{finalScore.toFixed(1)}</p>
                     </div>
                   </CardContent>
