@@ -1199,7 +1199,7 @@ const Payroll = () => {
       }
       toast({
         title: t("payrollPage.toast.generateSuccessTitle"),
-        description: t("payrollPage.toast.thrCalculatedDesc", { count: payrollRecords.length, name: monthLabel(selectedMonth), date: selectedYear }).replace(/\.$/, '.'),
+        description: t("payrollPage.toast.generateSuccessDesc", { count: payrollRecords.length, month: monthLabel(selectedMonth), year: selectedYear }),
       });
 
       // === AUDIT LOG: regenerate after unlock ===

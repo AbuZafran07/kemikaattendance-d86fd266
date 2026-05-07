@@ -1519,6 +1519,7 @@
       "medicalSyncedTitle": "Medical Reimbursement Synced",
       "medicalSyncedDesc": "{{count}} employees received a total of {{claims}} claims from Budget Expense.",
       "generateSuccessTitle": "Payroll Generated Successfully",
+      "generateSuccessDesc": "{{count}} employees calculated for {{month}} {{year}}.",
       "generateFailed": "Failed to Generate Payroll",
       "unlockSuccessTitle": "Payroll Unlocked Successfully",
       "unlockSuccessDesc": "The period has been returned to Draft. Make revisions, then Re-Generate & Finalize.",

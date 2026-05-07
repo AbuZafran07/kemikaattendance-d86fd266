@@ -1519,6 +1519,7 @@
       "medicalSyncedTitle": "Medical Reimbursement Disinkronkan",
       "medicalSyncedDesc": "{{count}} karyawan menerima total {{claims}} klaim dari Budget Expense.",
       "generateSuccessTitle": "Payroll Berhasil Di-generate",
+      "generateSuccessDesc": "{{count}} karyawan dihitung untuk {{month}} {{year}}.",
       "generateFailed": "Gagal Generate Payroll",
       "unlockSuccessTitle": "Payroll Berhasil Dibuka",
       "unlockSuccessDesc": "Periode kembali ke Draft. Lakukan revisi lalu Generate ulang & Finalisasi.",
