@@ -1046,7 +1046,9 @@
     },
     "delete": {
       "title": "Hapus Pinjaman?",
-      "warning1": "Anda akan menghapus pinjaman <strong>{{name}}</strong> sebesar <strong>{{amount}}</strong>.",
+      "warning1Prefix": "Anda akan menghapus pinjaman ",
+      "warning1Middle": " sebesar ",
+      "warning1Suffix": ".",
       "warning2": "Tindakan ini permanen dan akan menghapus seluruh riwayat cicilannya. Tidak dapat dibatalkan.",
       "cancel": "Batal",
       "confirm": "Hapus Permanen"
