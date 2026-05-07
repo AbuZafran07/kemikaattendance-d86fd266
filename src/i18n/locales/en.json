@@ -954,5 +954,75 @@
     "rejected": "Rejected",
     "daysShort": "({{n}} days)",
     "hoursReason": "{{n}}h - {{reason}}"
+  },
+  "companyCalendar": {
+    "title": "Company Calendar",
+    "dayNames": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "travelPrefix": "Travel",
+    "leaveTypes": {
+      "cuti_tahunan": "Annual Leave",
+      "izin": "Permit",
+      "sakit": "Sick",
+      "lupa_absen": "Forgot to Check-in"
+    },
+    "tooltip": {
+      "checkOutPrefix": "Check-out"
+    },
+    "legend": {
+      "holiday": "Public Holiday",
+      "specialHours": "Special Working Hours",
+      "officeEvent": "Office Event",
+      "myLeave": "My Leave",
+      "travel": "Business Travel",
+      "today": "Today"
+    },
+    "detail": {
+      "holiday": "Public Holiday",
+      "specialHours": "Special Working Hours",
+      "checkInUntil": "Check-in: until {{time}}",
+      "checkOutFrom": "Check-out: from {{time}}",
+      "officeEvent": "Office Event",
+      "leavePermit": "Leave / Permit",
+      "delegateTo": "Tasks delegated to:",
+      "travel": "Business Travel",
+      "noEvent": "No events on this date.",
+      "addHoliday": "Add Holiday",
+      "addEvent": "Add Event"
+    },
+    "form": {
+      "addHoliday": "Add Public Holiday",
+      "addOfficeEvent": "Add Office Event",
+      "officeEvent": "Office Event",
+      "holiday": "Public Holiday",
+      "holidayName": "Holiday Name *",
+      "eventTitle": "Event Title *",
+      "holidayPlaceholder": "e.g. Eid al-Fitr",
+      "eventPlaceholder": "e.g. Monthly Meeting",
+      "endDate": "End Date",
+      "startDate": "Start Date",
+      "descriptionOptional": "Description (optional)",
+      "descriptionPlaceholder": "Event description...",
+      "saving": "Saving...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "editHoliday": "Edit Holiday",
+      "editEvent": "Edit Office Event",
+      "holidayNameLabel": "Holiday Name",
+      "eventTitleLabel": "Event Title"
+    },
+    "toast": {
+      "eventAdded": "Event added successfully",
+      "eventAddFailed": "Failed to add event: ",
+      "holidayAdded": "Holiday added successfully",
+      "holidayAddFailed": "Failed to add holiday: ",
+      "holidayDeleted": "Holiday deleted successfully",
+      "deleteFailed": "Failed to delete: ",
+      "holidayUpdated": "Holiday updated successfully",
+      "updateFailed": "Failed to update: ",
+      "eventDeleted": "Event deleted successfully",
+      "eventDeleteFailed": "Failed to delete event: ",
+      "eventUpdated": "Event updated successfully",
+      "eventUpdateFailed": "Failed to update event: "
+    }
   }
 }
