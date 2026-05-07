@@ -725,13 +725,13 @@ const Employees = () => {
                       onChange={(e) => handlePhotoSelect(e, false)}
                     />
                     <p className="text-sm text-muted-foreground">
-                      Klik untuk upload foto (maks 5MB)
+                      {t("employeesPage.addDialog.uploadHint")}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="nik">NIK *</Label>
+                      <Label htmlFor="nik">{t("employeesPage.addDialog.nik")} *</Label>
                       <Input
                         id="nik"
                         value={formData.nik}
@@ -740,7 +740,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="full_name">Nama Lengkap *</Label>
+                      <Label htmlFor="full_name">{t("employeesPage.addDialog.fullName")} *</Label>
                       <Input
                         id="full_name"
                         value={formData.full_name}
@@ -749,7 +749,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email *</Label>
+                      <Label htmlFor="email">{t("employeesPage.addDialog.email")} *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -759,7 +759,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password *</Label>
+                      <Label htmlFor="password">{t("employeesPage.addDialog.password")} *</Label>
                       <Input
                         id="password"
                         type="password"
@@ -770,14 +770,14 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="jabatan">Jabatan *</Label>
+                      <Label htmlFor="jabatan">{t("employeesPage.addDialog.jabatan")} *</Label>
                       <Select
                         value={formData.jabatan}
                         onValueChange={(value) => setFormData({ ...formData, jabatan: value })}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih Jabatan" />
+                          <SelectValue placeholder={t("employeesPage.addDialog.selectJabatan")} />
                         </SelectTrigger>
                         <SelectContent>
                           {JABATAN_OPTIONS.map((jabatan) => (
@@ -789,14 +789,14 @@ const Employees = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="departemen">Departemen *</Label>
+                      <Label htmlFor="departemen">{t("employeesPage.addDialog.departemen")} *</Label>
                       <Select
                         value={formData.departemen}
                         onValueChange={(value) => setFormData({ ...formData, departemen: value })}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih Departemen" />
+                          <SelectValue placeholder={t("employeesPage.addDialog.selectDepartemen")} />
                         </SelectTrigger>
                         <SelectContent>
                           {DEPARTMENT_OPTIONS.map((dept) => (
@@ -808,7 +808,7 @@ const Employees = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Telepon</Label>
+                      <Label htmlFor="phone">{t("employeesPage.addDialog.phone")}</Label>
                       <Input
                         id="phone"
                         value={formData.phone}
@@ -816,7 +816,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="join_date">Tanggal Bergabung *</Label>
+                      <Label htmlFor="join_date">{t("employeesPage.addDialog.joinDate")} *</Label>
                       <Input
                         id="join_date"
                         type="date"
@@ -826,26 +826,26 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="work_type">Tipe Kerja *</Label>
+                      <Label htmlFor="work_type">{t("employeesPage.addDialog.workType")} *</Label>
                       <Select
                         value={formData.work_type}
                         onValueChange={(value) => setFormData({ ...formData, work_type: value })}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih Tipe Kerja" />
+                          <SelectValue placeholder={t("employeesPage.addDialog.selectWorkType")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="wfo">WFO (Work From Office)</SelectItem>
-                          <SelectItem value="wfa">Hybrid (Work From Anywhere)</SelectItem>
+                          <SelectItem value="wfo">{t("employeesPage.addDialog.wfo")}</SelectItem>
+                          <SelectItem value="wfa">{t("employeesPage.addDialog.wfa")}</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground">
-                        Hybrid: Bisa absen dari mana saja
+                        {t("employeesPage.addDialog.hybridHint")}
                       </p>
                     </div>
                     <div className="space-y-2 col-span-2">
-                      <Label htmlFor="address">Alamat</Label>
+                      <Label htmlFor="address">{t("employeesPage.addDialog.address")}</Label>
                       <Input
                         id="address"
                         value={formData.address}
@@ -855,10 +855,10 @@ const Employees = () => {
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                      Batal
+                      {t("employeesPage.addDialog.cancel")}
                     </Button>
                     <Button type="submit" disabled={isUploading}>
-                      {isUploading ? "Menyimpan..." : "Simpan"}
+                      {isUploading ? t("employeesPage.addDialog.saving") : t("employeesPage.addDialog.save")}
                     </Button>
                   </div>
                 </form>
