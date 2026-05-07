@@ -562,25 +562,25 @@ const BusinessTravel = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedRequest?.status === "approved" ? "Upload Surat Dinas" : "Setujui Perjalanan Dinas"}
+              {selectedRequest?.status === "approved" ? t("travelAdmin.uploadTitle") : t("travelAdmin.approveTitle")}
             </DialogTitle>
             <DialogDescription>
               {selectedRequest?.status === "approved"
-                ? "Upload dokumen surat dinas untuk karyawan"
-                : "Anda dapat mengupload surat dinas sekarang atau nanti setelah disetujui"}
+                ? t("travelAdmin.uploadDesc")
+                : t("travelAdmin.approveDesc")}
             </DialogDescription>
           </DialogHeader>
 
           {selectedRequest && (
             <div className="space-y-4">
               <div className="text-sm space-y-1">
-                <p><strong>Nama:</strong> {selectedRequest.profiles?.full_name}</p>
-                <p><strong>Tujuan:</strong> {selectedRequest.destination}</p>
-                <p><strong>Tanggal:</strong> {format(new Date(selectedRequest.start_date), "d MMM yyyy", { locale: id })} - {format(new Date(selectedRequest.end_date), "d MMM yyyy", { locale: id })}</p>
+                <p><strong>{t("travelAdmin.fName")}:</strong> {selectedRequest.profiles?.full_name}</p>
+                <p><strong>{t("travelAdmin.fDestination")}:</strong> {selectedRequest.destination}</p>
+                <p><strong>{t("travelAdmin.fDate")}:</strong> {format(new Date(selectedRequest.start_date), "d MMM yyyy", { locale: dateLocale })} - {format(new Date(selectedRequest.end_date), "d MMM yyyy", { locale: dateLocale })}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="document">Upload Surat Dinas (Opsional)</Label>
+                <Label htmlFor="document">{t("travelAdmin.uploadLabel")}</Label>
                 <Input
                   id="document"
                   type="file"
@@ -590,11 +590,11 @@ const BusinessTravel = () => {
                 />
                 {uploadingFile && (
                   <p className="text-xs text-muted-foreground">
-                    File dipilih: {uploadingFile.name}
+                    {t("travelAdmin.fileSelected", { name: uploadingFile.name })}
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Format: PDF, DOC, DOCX, JPG, PNG (Maks. 10MB)
+                  {t("travelAdmin.fileFormatHint")}
                 </p>
               </div>
             </div>
