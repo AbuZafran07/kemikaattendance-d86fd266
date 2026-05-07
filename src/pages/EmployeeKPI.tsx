@@ -403,7 +403,7 @@ export default function EmployeeKPI() {
                     <CardContent className="space-y-3">
                       {ind.formula_type !== "custom" ? (
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                          {MONTHS.map((m, idx) => {
+                          {MONTHS_LOCAL.map((m, idx) => {
                             const month = idx + 1;
                             const r = reals.find((x) => x.month === month);
                             const val = r?.value;
