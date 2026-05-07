@@ -251,21 +251,21 @@ export default function KPIRecap() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Users className="h-4 w-4" /> Total Karyawan</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Users className="h-4 w-4" /> {t("kpiRecap.totalEmployees")}</div>
             <div className="text-2xl font-bold mt-1">{summary.totalEmployees}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TargetIcon className="h-4 w-4" /> Punya KPI</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TargetIcon className="h-4 w-4" /> {t("kpiRecap.withKpi")}</div>
             <div className="text-2xl font-bold mt-1">{summary.withKpi}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TrendingUp className="h-4 w-4" /> Rata-rata Score</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><TrendingUp className="h-4 w-4" /> {t("kpiRecap.avgScore")}</div>
             <div className="text-2xl font-bold mt-1">{summary.avgScore.toFixed(2)}</div>
           </CardContent></Card>
           <Card><CardContent className="p-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Award className="h-4 w-4" /> Top Performer</div>
+            <div className="flex items-center gap-2 text-muted-foreground text-xs"><Award className="h-4 w-4" /> {t("kpiRecap.topPerformer")}</div>
             <div className="text-sm font-semibold mt-1 truncate">{summary.topName}</div>
-            <div className="text-xs text-muted-foreground">Score {summary.topScore.toFixed(2)}</div>
+            <div className="text-xs text-muted-foreground">{t("kpiRecap.score")} {summary.topScore.toFixed(2)}</div>
           </CardContent></Card>
         </div>
 
