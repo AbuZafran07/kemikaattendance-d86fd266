@@ -43,6 +43,7 @@ const formatSize = (b: number) => {
 
 export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthLabel, readOnly, onCountChange }: Props) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [items, setItems] = useState<AttachmentRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -58,14 +59,14 @@ export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthL
       .eq("month", month)
       .order("created_at", { ascending: false });
     if (error) {
-      toast({ title: "Gagal memuat lampiran", description: error.message, variant: "destructive" });
+      toast({ title: t("kpiAtt.errLoad"), description: error.message, variant: "destructive" });
     } else {
       const rows = (data || []) as AttachmentRow[];
       setItems(rows);
       onCountChange?.(rows.length);
     }
     setLoading(false);
-  }, [ownerUserId, year, month, toast, onCountChange]);
+  }, [ownerUserId, year, month, toast, onCountChange, t]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
@@ -75,11 +76,11 @@ export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthL
     if (!file) return;
 
     if (!(ALLOWED_MIME.includes(file.type) || ALLOWED_EXT.test(file.name))) {
-      toast({ title: "Format tidak didukung", description: "Hanya PDF dan Excel (.xls/.xlsx) yang diperbolehkan.", variant: "destructive" });
+      toast({ title: t("kpiAtt.errFormat"), description: t("kpiAtt.errFormatDesc"), variant: "destructive" });
       return;
     }
     if (file.size > MAX_BYTES) {
-      toast({ title: "Ukuran terlalu besar", description: "Maksimum 10 MB per file.", variant: "destructive" });
+      toast({ title: t("kpiAtt.errSize"), description: t("kpiAtt.errSizeDesc"), variant: "destructive" });
       return;
     }
 
@@ -109,11 +110,11 @@ export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthL
         await supabase.storage.from("kpi-attachments").remove([path]);
         throw insErr;
       }
-      toast({ title: "Lampiran terupload", description: `${file.name} • ${monthLabel}` });
+      toast({ title: t("kpiAtt.uploaded"), description: `${file.name} • ${monthLabel}` });
       await fetchItems();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Upload gagal";
-      toast({ title: "Upload gagal", description: msg, variant: "destructive" });
+      const msg = err instanceof Error ? err.message : t("kpiAtt.uploadFail");
+      toast({ title: t("kpiAtt.uploadFail"), description: msg, variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -122,25 +123,25 @@ export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthL
   const handleDownload = async (row: AttachmentRow) => {
     const { data, error } = await supabase.storage.from("kpi-attachments").createSignedUrl(row.file_path, 60);
     if (error || !data?.signedUrl) {
-      toast({ title: "Gagal membuka file", description: error?.message || "Unknown", variant: "destructive" });
+      toast({ title: t("kpiAtt.openFail"), description: error?.message || "Unknown", variant: "destructive" });
       return;
     }
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   };
 
   const handleDelete = async (row: AttachmentRow) => {
-    if (!confirm(`Hapus "${row.file_name}"?`)) return;
+    if (!confirm(t("kpiAtt.deleteConfirm", { name: row.file_name }))) return;
     const { error: stErr } = await supabase.storage.from("kpi-attachments").remove([row.file_path]);
     if (stErr) {
-      toast({ title: "Gagal hapus file", description: stErr.message, variant: "destructive" });
+      toast({ title: t("kpiAtt.deleteFileFail"), description: stErr.message, variant: "destructive" });
       return;
     }
     const { error: dbErr } = await supabase.from("kpi_monthly_attachments").delete().eq("id", row.id);
     if (dbErr) {
-      toast({ title: "Gagal hapus record", description: dbErr.message, variant: "destructive" });
+      toast({ title: t("kpiAtt.deleteRecordFail"), description: dbErr.message, variant: "destructive" });
       return;
     }
-    toast({ title: "Lampiran dihapus" });
+    toast({ title: t("kpiAtt.deleted") });
     await fetchItems();
   };
 
