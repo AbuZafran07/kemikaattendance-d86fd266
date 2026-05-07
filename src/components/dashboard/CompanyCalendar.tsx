@@ -178,8 +178,8 @@ const CompanyCalendar = () => {
     const map = new Map<string, TravelDay[]>();
     if (data) {
       data.forEach((tr) => {
-        const start = parseISO(t.start_date);
-        const end = parseISO(t.end_date);
+        const start = parseISO(tr.start_date);
+        const end = parseISO(tr.end_date);
         eachDayOfInterval({ start, end }).forEach((d) => {
           const key = format(d, "yyyy-MM-dd");
           const existing = map.get(key) || [];
