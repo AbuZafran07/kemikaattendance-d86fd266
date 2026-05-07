@@ -1247,10 +1247,10 @@ const Employees = () => {
                   return (
                     <div className="col-span-2 mb-2">
                       <div className={`text-xs rounded-md px-3 py-2 border ${isEligible ? 'bg-green-50 border-green-200 text-green-700 dark:bg-green-950 dark:border-green-800 dark:text-green-300' : 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-300'}`}>
-                        <p className="font-medium">{isEligible ? '✅' : '⏳'} Masa kerja: {diffMonths} bulan (bergabung {editFormData.join_date})</p>
+                        <p className="font-medium">{isEligible ? '✅' : '⏳'} {t("employeesPage.editDialog.tenurePrefix")} {diffMonths} {t("employeesPage.editDialog.tenureMonths")} {editFormData.join_date})</p>
                         {isEligible 
-                          ? <p>Karyawan sudah memenuhi syarat masa kerja minimum 12 bulan untuk mendapatkan cuti.</p>
-                          : <p>Cuti akan otomatis aktif setelah 12 bulan masa kerja (tanggal {eligibleDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}).</p>
+                          ? <p>{t("employeesPage.editDialog.tenureEligible")}</p>
+                          : <p>{t("employeesPage.editDialog.tenureNotEligibleBefore")} {eligibleDate.toLocaleDateString(localeCode, { day: 'numeric', month: 'long', year: 'numeric' })}{t("employeesPage.editDialog.tenureNotEligibleAfter")}</p>
                         }
                       </div>
                     </div>
@@ -1263,18 +1263,18 @@ const Employees = () => {
                     onCheckedChange={(checked) => setEditFormData({ ...editFormData, leave_active: !!checked })}
                   />
                   <Label htmlFor="edit_leave_active" className="text-sm font-normal cursor-pointer">
-                    Cuti Aktif
+                    {t("employeesPage.editDialog.leaveActive")}
                   </Label>
                   {editFormData.leave_active ? (
-                    <Badge className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">Cuti Aktif</Badge>
+                    <Badge className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">{t("employeesPage.editDialog.leaveActiveBadge")}</Badge>
                   ) : (
-                    <Badge variant="destructive" className="text-xs">Belum Dapat Cuti</Badge>
+                    <Badge variant="destructive" className="text-xs">{t("employeesPage.editDialog.leaveInactiveBadge")}</Badge>
                   )}
                 </div>
                 {editFormData.leave_active && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_annual_leave_quota">Kuota Cuti Tahunan</Label>
+                      <Label htmlFor="edit_annual_leave_quota">{t("employeesPage.editDialog.annualQuota")}</Label>
                       <Input
                         id="edit_annual_leave_quota"
                         type="number"
@@ -1284,7 +1284,7 @@ const Employees = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_remaining_leave">Sisa Cuti</Label>
+                      <Label htmlFor="edit_remaining_leave">{t("employeesPage.editDialog.remainingLeave")}</Label>
                       <Input
                         id="edit_remaining_leave"
                         type="number"
@@ -1298,10 +1298,10 @@ const Employees = () => {
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Batal
+                  {t("employeesPage.editDialog.cancel")}
                 </Button>
                 <Button type="submit" disabled={isUploading}>
-                  {isUploading ? "Menyimpan..." : "Simpan Perubahan"}
+                  {isUploading ? t("employeesPage.editDialog.saving") : t("employeesPage.editDialog.saveChanges")}
                 </Button>
               </div>
             </form>
@@ -1325,18 +1325,18 @@ const Employees = () => {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <CardTitle>
-                    {viewMode === "active" ? "Daftar Karyawan Aktif" : "Arsip Karyawan"}
+                    {viewMode === "active" ? t("employeesPage.table.activeTitle") : t("employeesPage.table.archiveTitle")}
                   </CardTitle>
                   <CardDescription>
                     {viewMode === "active"
-                      ? `Total ${activeCount} karyawan aktif`
-                      : `Total ${archiveCount} karyawan (Inactive / Resigned)`}
+                      ? t("employeesPage.table.activeTotal", { count: activeCount })
+                      : t("employeesPage.table.archiveTotal", { count: archiveCount })}
                   </CardDescription>
                 </div>
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Cari karyawan..."
+                    placeholder={t("employeesPage.table.search")}
                     className="pl-10"
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
@@ -1347,11 +1347,11 @@ const Employees = () => {
                 <TabsList className="grid w-full sm:w-auto sm:inline-grid grid-cols-2">
                   <TabsTrigger value="active" className="gap-2">
                     <Users className="h-4 w-4" />
-                    Karyawan Aktif ({activeCount})
+                    {t("employeesPage.table.tabActive")} ({activeCount})
                   </TabsTrigger>
                   <TabsTrigger value="archive" className="gap-2">
                     <Archive className="h-4 w-4" />
-                    Arsip ({archiveCount})
+                    {t("employeesPage.table.tabArchive")} ({archiveCount})
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -1362,15 +1362,15 @@ const Employees = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Foto</TableHead>
-                    <TableHead>NIK</TableHead>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Jabatan</TableHead>
-                    <TableHead>Departemen</TableHead>
-                    <TableHead>Bergabung</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Aksi</TableHead>
+                    <TableHead>{t("employeesPage.table.photo")}</TableHead>
+                    <TableHead>{t("employeesPage.table.nik")}</TableHead>
+                    <TableHead>{t("employeesPage.table.name")}</TableHead>
+                    <TableHead>{t("employeesPage.table.email")}</TableHead>
+                    <TableHead>{t("employeesPage.table.jabatan")}</TableHead>
+                    <TableHead>{t("employeesPage.table.departemen")}</TableHead>
+                    <TableHead>{t("employeesPage.table.joined")}</TableHead>
+                    <TableHead>{t("employeesPage.table.status")}</TableHead>
+                    <TableHead className="text-right">{t("employeesPage.table.action")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1390,13 +1390,13 @@ const Employees = () => {
                             {employeeRoles[employee.id] === 'admin' && (
                               <Badge variant="outline" className="text-xs">
                                 <ShieldCheck className="h-3 w-3 mr-1" />
-                                Admin
+                                {t("employeesPage.table.adminBadge")}
                               </Badge>
                             )}
                             {employee.work_type === 'wfa' && (
                               <Badge variant="secondary" className="text-xs">
                                 <MapPin className="h-3 w-3 mr-1" />
-                                Hybrid
+                                {t("employeesPage.table.hybridBadge")}
                               </Badge>
                             )}
                           </div>
@@ -1404,7 +1404,7 @@ const Employees = () => {
                         <TableCell className="text-muted-foreground">{employee.email}</TableCell>
                         <TableCell>{employee.jabatan}</TableCell>
                         <TableCell>{employee.departemen}</TableCell>
-                        <TableCell>{new Date(employee.join_date).toLocaleDateString('id-ID')}</TableCell>
+                        <TableCell>{new Date(employee.join_date).toLocaleDateString(localeCode)}</TableCell>
                         <TableCell>
                           <Badge
                             variant={
@@ -1416,7 +1416,7 @@ const Employees = () => {
                             }
                           >
                             {employee.status === "Resigned" && employee.resign_date
-                              ? `Resigned (${new Date(employee.resign_date).toLocaleDateString('id-ID')})`
+                              ? `${t("employeesPage.table.resignedWith")} (${new Date(employee.resign_date).toLocaleDateString(localeCode)})`
                               : employee.status}
                           </Badge>
                         </TableCell>
@@ -1430,26 +1430,26 @@ const Employees = () => {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => openDetailDialog(employee)}>
                                 <Eye className="h-4 w-4 mr-2" />
-                                Lihat Detail
+                                {t("employeesPage.table.viewDetail")}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openEditDialog(employee)}>
                                 <Pencil className="h-4 w-4 mr-2" />
-                                Edit
+                                {t("employeesPage.table.edit")}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openResetPasswordDialog(employee)}>
                                 <KeyRound className="h-4 w-4 mr-2" />
-                                Reset Password
+                                {t("employeesPage.table.resetPassword")}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openSetAdminDialog(employee)}>
                                 {employeeRoles[employee.id] === 'admin' ? (
                                   <>
                                     <Shield className="h-4 w-4 mr-2" />
-                                    Hapus Admin
+                                    {t("employeesPage.table.removeAdmin")}
                                   </>
                                 ) : (
                                   <>
                                     <ShieldCheck className="h-4 w-4 mr-2" />
-                                    Jadikan Admin
+                                    {t("employeesPage.table.makeAdmin")}
                                   </>
                                 )}
                               </DropdownMenuItem>
@@ -1457,7 +1457,7 @@ const Employees = () => {
                                 className="text-destructive"
                                 onClick={() => handleDelete(employee.id)}
                               >
-                                Hapus
+                                {t("employeesPage.table.delete")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -1468,10 +1468,10 @@ const Employees = () => {
                     <TableRow>
                       <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                         {searchQuery
-                          ? 'Tidak ada karyawan yang sesuai dengan pencarian'
+                          ? t("employeesPage.table.noMatch")
                           : viewMode === "active"
-                          ? 'Belum ada karyawan aktif'
-                          : 'Belum ada karyawan di arsip (Inactive / Resigned)'}
+                          ? t("employeesPage.table.noActive")
+                          : t("employeesPage.table.noArchive")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -1501,29 +1501,29 @@ const Employees = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <KeyRound className="h-5 w-5" />
-                Reset Password Karyawan
+                {t("employeesPage.resetPassword.title")}
               </DialogTitle>
               <DialogDescription>
-                Reset password untuk {resetPasswordEmployee?.full_name}
+                {t("employeesPage.resetPassword.description", { name: resetPasswordEmployee?.full_name })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="new-password">Password Baru</Label>
+                <Label htmlFor="new-password">{t("employeesPage.resetPassword.newPassword")}</Label>
                 <Input
                   id="new-password"
                   type="password"
-                  placeholder="Minimal 6 karakter"
+                  placeholder={t("employeesPage.resetPassword.placeholder")}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)}>
-                  Batal
+                  {t("employeesPage.resetPassword.cancel")}
                 </Button>
                 <Button onClick={handleAdminResetPassword} disabled={isResettingPassword}>
-                  {isResettingPassword ? "Menyimpan..." : "Reset Password"}
+                  {isResettingPassword ? t("employeesPage.resetPassword.saving") : t("employeesPage.resetPassword.submit")}
                 </Button>
               </div>
             </div>
@@ -1542,32 +1542,32 @@ const Employees = () => {
               <DialogTitle className="flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5" />
                 {setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin' 
-                  ? 'Hapus Role Admin' 
-                  : 'Jadikan Admin'}
+                  ? t("employeesPage.adminDialog.removeTitle") 
+                  : t("employeesPage.adminDialog.makeTitle")}
               </DialogTitle>
               <DialogDescription>
                 {setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin'
-                  ? `Apakah Anda yakin ingin menghapus role admin dari ${setAdminEmployee?.full_name}?`
-                  : `Apakah Anda yakin ingin menjadikan ${setAdminEmployee?.full_name} sebagai Admin?`}
+                  ? t("employeesPage.adminDialog.removeConfirm", { name: setAdminEmployee?.full_name })
+                  : t("employeesPage.adminDialog.makeConfirm", { name: setAdminEmployee?.full_name })}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-muted/50">
                 <p className="text-sm text-muted-foreground">
                   {setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin'
-                    ? 'Karyawan ini akan kehilangan akses ke dashboard admin dan hanya bisa mengakses tampilan karyawan.'
-                    : 'Karyawan ini akan mendapatkan akses penuh ke dashboard admin termasuk mengelola karyawan, pengaturan, dan laporan.'}
+                    ? t("employeesPage.adminDialog.removeInfo")
+                    : t("employeesPage.adminDialog.makeInfo")}
                 </p>
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsSetAdminDialogOpen(false)}>
-                  Batal
+                  {t("employeesPage.adminDialog.cancel")}
                 </Button>
                 <Button onClick={handleSetAdminRole} disabled={isSettingAdmin}>
-                  {isSettingAdmin ? "Menyimpan..." : (
+                  {isSettingAdmin ? t("employeesPage.adminDialog.saving") : (
                     setAdminEmployee && employeeRoles[setAdminEmployee.id] === 'admin' 
-                      ? "Hapus Admin" 
-                      : "Jadikan Admin"
+                      ? t("employeesPage.adminDialog.removeAction") 
+                      : t("employeesPage.adminDialog.makeAction")
                   )}
                 </Button>
               </div>
