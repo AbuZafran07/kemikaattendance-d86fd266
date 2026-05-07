@@ -392,11 +392,11 @@ const BusinessTravel = () => {
     try {
       const { error } = await supabase.from("business_travel_requests").delete().eq("id", deleteTargetId);
       if (error) throw error;
-      toast({ title: "Berhasil", description: "Permintaan perjalanan dinas berhasil dihapus" });
+      toast({ title: t("travelAdmin.toastOk"), description: t("travelAdmin.toastDeleteOk") });
       fetchRequests();
     } catch (err) {
       logger.error("Failed to delete business travel request:", err);
-      toast({ title: "Gagal", description: "Gagal menghapus permintaan perjalanan dinas", variant: "destructive" });
+      toast({ title: t("travelAdmin.toastFail"), description: t("travelAdmin.toastDeleteFail"), variant: "destructive" });
     } finally {
       setDeleteConfirmOpen(false);
       setDeleteTargetId(null);
