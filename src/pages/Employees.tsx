@@ -998,23 +998,23 @@ const Employees = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit_status">Status</Label>
+                  <Label htmlFor="edit_status">{t("employeesPage.editDialog.status")}</Label>
                   <Select
                     value={editFormData.status}
                     onValueChange={(value) => setEditFormData({ ...editFormData, status: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih Status" />
+                      <SelectValue placeholder={t("employeesPage.editDialog.selectStatus")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive (Non-aktif Sementara)</SelectItem>
-                      <SelectItem value="Resigned">Resigned (Sudah Keluar)</SelectItem>
+                      <SelectItem value="Active">{t("employeesPage.editDialog.statusActive")}</SelectItem>
+                      <SelectItem value="Inactive">{t("employeesPage.editDialog.statusInactive")}</SelectItem>
+                      <SelectItem value="Resigned">{t("employeesPage.editDialog.statusResigned")}</SelectItem>
                     </SelectContent>
                   </Select>
                   {editFormData.status === "Resigned" && (
                     <p className="text-xs text-muted-foreground">
-                      Karyawan akan dikecualikan dari absensi, payroll, dan laporan aktif. Akun otomatis logout.
+                      {t("employeesPage.editDialog.resignedHint")}
                     </p>
                   )}
                 </div>
