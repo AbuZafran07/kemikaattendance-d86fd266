@@ -1046,7 +1046,9 @@
     },
     "delete": {
       "title": "Delete Loan?",
-      "warning1": "You are about to delete <strong>{{name}}</strong>'s loan of <strong>{{amount}}</strong>.",
+      "warning1Prefix": "You are about to delete ",
+      "warning1Middle": "'s loan of ",
+      "warning1Suffix": ".",
       "warning2": "This action is permanent and will remove all installment history. It cannot be undone.",
       "cancel": "Cancel",
       "confirm": "Delete Permanently"
