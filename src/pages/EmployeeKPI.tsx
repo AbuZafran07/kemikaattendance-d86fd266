@@ -166,7 +166,7 @@ export default function EmployeeKPI() {
       });
       setAttachmentCounts(counts);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Gagal memuat data";
+      const msg = e instanceof Error ? e.message : t("empKpi.loadFail");
       toast({ title: "Error", description: msg, variant: "destructive" });
     } finally {
       setLoading(false);
