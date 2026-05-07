@@ -978,12 +978,12 @@ export default function KPIPage() {
                             <Plus className="h-3 w-3 mr-1" /> {t("kpiPage.setup.add")}
                           </Button>
                         </div>
-                        {ind.thresholds.map((t, ti) => (
+                        {ind.thresholds.map((th, ti) => (
                           <div key={ti} className="grid grid-cols-12 gap-2 items-end">
                             <div className="col-span-3">
-                              <Select value={t.op} onValueChange={(v) => {
+                              <Select value={th.op} onValueChange={(v) => {
                                 const next = [...ind.thresholds];
-                                next[ti] = { ...t, op: v as ThresholdRule["op"] };
+                                next[ti] = { ...th, op: v as ThresholdRule["op"] };
                                 updateIndicator(idx, { thresholds: next });
                               }}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -993,18 +993,18 @@ export default function KPIPage() {
                               </Select>
                             </div>
                             <div className="col-span-4">
-                              <Input type="number" placeholder={t("kpiPage.setup.value")} value={t.value}
+                              <Input type="number" placeholder={t("kpiPage.setup.value")} value={th.value}
                                 onChange={(e) => {
                                   const next = [...ind.thresholds];
-                                  next[ti] = { ...t, value: parseFloat(e.target.value) || 0 };
+                                  next[ti] = { ...th, value: parseFloat(e.target.value) || 0 };
                                   updateIndicator(idx, { thresholds: next });
                                 }} />
                             </div>
                             <div className="col-span-4">
-                              <Input type="number" placeholder={t("kpiPage.setup.score")} value={t.score}
+                              <Input type="number" placeholder={t("kpiPage.setup.score")} value={th.score}
                                 onChange={(e) => {
                                   const next = [...ind.thresholds];
-                                  next[ti] = { ...t, score: parseFloat(e.target.value) || 0 };
+                                  next[ti] = { ...th, score: parseFloat(e.target.value) || 0 };
                                   updateIndicator(idx, { thresholds: next });
                                 }} />
                             </div>
