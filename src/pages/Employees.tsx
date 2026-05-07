@@ -670,15 +670,15 @@ const Employees = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Data Karyawan</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("employeesPage.header.title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Kelola informasi karyawan PT. Kemika Karya Pratama
+              {t("employeesPage.header.subtitle")}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Export
+              {t("employeesPage.header.export")}
             </Button>
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
@@ -687,14 +687,14 @@ const Employees = () => {
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Tambah Karyawan
+                  {t("employeesPage.header.addEmployee")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Tambah Karyawan Baru</DialogTitle>
+                  <DialogTitle>{t("employeesPage.addDialog.title")}</DialogTitle>
                   <DialogDescription>
-                    Masukkan data karyawan baru
+                    {t("employeesPage.addDialog.description")}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleAddEmployee} className="space-y-4">
