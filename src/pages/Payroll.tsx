@@ -1919,32 +1919,32 @@ const Payroll = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5">
-                    <Download className="h-3.5 w-3.5" /> Export
+                    <Download className="h-3.5 w-3.5" /> {t("payrollPage.actions.export")}
                     <ChevronDown className="h-3 w-3 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem onClick={handleExportExcel} className="gap-2">
-                    <FileSpreadsheet className="h-4 w-4" /> Export Excel
+                    <FileSpreadsheet className="h-4 w-4" /> {t("payrollPage.actions.exportExcel")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportPayrollReport} disabled={generatingReport} className="gap-2">
-                    <Printer className="h-4 w-4" /> Laporan PDF
+                    <Printer className="h-4 w-4" /> {t("payrollPage.actions.reportPdf")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleDownloadAllPDF} disabled={downloadingAllPDF} className="gap-2">
-                    <Download className="h-4 w-4" /> Semua Slip PDF
+                    <Download className="h-4 w-4" /> {t("payrollPage.actions.allSlipPdf")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleOpenBankPreview} disabled={loadingBankPreview} className="gap-2">
-                    <Landmark className="h-4 w-4" /> e-Payroll Bank
+                    <Landmark className="h-4 w-4" /> {t("payrollPage.actions.ePayrollBank")}
                   </DropdownMenuItem>
                   {hasIdulFitriInPeriod && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleExportThrPDF} disabled={generatingThrPdf} className="gap-2">
-                        <Gift className="h-4 w-4" /> PDF THR
+                        <Gift className="h-4 w-4" /> {t("payrollPage.actions.thrPdf")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleOpenThrBankPreview} disabled={loadingThrBankPreview} className="gap-2">
-                        <Landmark className="h-4 w-4" /> e-Payroll THR
+                        <Landmark className="h-4 w-4" /> {t("payrollPage.actions.ePayrollThr")}
                       </DropdownMenuItem>
                     </>
                   )}
@@ -1957,20 +1957,20 @@ const Payroll = () => {
         <TabsContent value="payroll" className="space-y-6 mt-0">
         {period && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Status Periode:</span>
+            <span className="text-sm text-muted-foreground">{t("payrollPage.status.label")}</span>
             <Badge variant={period.status === "finalized" ? "default" : "secondary"}>
-              {period.status === "finalized" ? "🔒 Finalized" : "📝 Draft"}
+              {period.status === "finalized" ? t("payrollPage.status.finalized") : t("payrollPage.status.draft")}
             </Badge>
           </div>
         )}
 
         {payrollData.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Users className="h-8 w-8 text-primary/60" /><div><p className="text-2xl font-bold">{payrollData.length}</p><p className="text-xs text-muted-foreground">Total Karyawan</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalBruto)}</p><p className="text-xs text-muted-foreground">Total Bruto</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><FileText className="h-8 w-8 text-destructive/40" /><div><p className="text-lg font-bold">{formatRupiah(totalPPh)}</p><p className="text-xs text-muted-foreground">Total PPh 21</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><DollarSign className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalTHP)}</p><p className="text-xs text-muted-foreground">Total THP</p></div></div></CardContent></Card>
-            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Building2 className="h-8 w-8 text-muted-foreground/40" /><div><p className="text-lg font-bold">{formatRupiah(totalEmployerBpjs)}</p><p className="text-xs text-muted-foreground">BPJS Perusahaan</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Users className="h-8 w-8 text-primary/60" /><div><p className="text-2xl font-bold">{payrollData.length}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalEmployees")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><TrendingUp className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalBruto)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalBruto")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><FileText className="h-8 w-8 text-destructive/40" /><div><p className="text-lg font-bold">{formatRupiah(totalPPh)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalPph")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><DollarSign className="h-8 w-8 text-primary/40" /><div><p className="text-lg font-bold">{formatRupiah(totalTHP)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.totalThp")}</p></div></div></CardContent></Card>
+            <Card><CardContent className="pt-6"><div className="flex items-center gap-3"><Building2 className="h-8 w-8 text-muted-foreground/40" /><div><p className="text-lg font-bold">{formatRupiah(totalEmployerBpjs)}</p><p className="text-xs text-muted-foreground">{t("payrollPage.summary.employerBpjs")}</p></div></div></CardContent></Card>
           </div>
         )}
 
@@ -1978,14 +1978,14 @@ const Payroll = () => {
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <CardTitle className="text-lg">Data Payroll — {MONTHS[selectedMonth - 1].label} {selectedYear}</CardTitle>
-                <CardDescription>Daftar penggajian karyawan beserta tunjangan, potongan, dan pajak</CardDescription>
+                <CardTitle className="text-lg">{t("payrollPage.card.dataTitle", { month: monthLabel(selectedMonth), year: selectedYear })}</CardTitle>
+                <CardDescription>{t("payrollPage.card.dataDesc")}</CardDescription>
               </div>
               {payrollData.length > 0 && (
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Cari nama, NIK, dept..."
+                    placeholder={t("payrollPage.card.searchPlaceholder")}
                     value={payrollSearch}
                     onChange={(e) => { setPayrollSearch(e.target.value); setPayrollPage(1); }}
                     className="pl-9"
@@ -2000,14 +2000,14 @@ const Payroll = () => {
             ) : payrollData.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Calculator className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Belum ada data payroll</p>
-                <p className="text-sm mt-1">Klik "Generate Payroll" untuk menghitung gaji periode ini</p>
+                <p className="font-medium">{t("payrollPage.card.emptyTitle")}</p>
+                <p className="text-sm mt-1">{t("payrollPage.card.emptyHint")}</p>
               </div>
             ) : filteredPayroll.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Search className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">Tidak ada hasil</p>
-                <p className="text-sm mt-1">Coba kata kunci lain</p>
+                <p className="font-medium">{t("payrollPage.card.noResultsTitle")}</p>
+                <p className="text-sm mt-1">{t("payrollPage.card.noResultsHint")}</p>
               </div>
             ) : (
               <>
@@ -2015,18 +2015,18 @@ const Payroll = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[40px]">No</TableHead>
-                        <TableHead>Nama</TableHead>
-                        <TableHead>Dept</TableHead>
-                        <TableHead className="text-right">Gaji Pokok</TableHead>
-                        <TableHead className="text-right">Tunjangan</TableHead>
-                        <TableHead className="text-right">Lembur</TableHead>
-                        <TableHead className="text-right">Bruto</TableHead>
-                        <TableHead className="text-right">BPJS</TableHead>
-                        <TableHead className="text-right">Potongan</TableHead>
-                        <TableHead className="text-center">PPh 21 Mode</TableHead>
-                        <TableHead className="text-right">PPh 21</TableHead>
-                        <TableHead className="text-right">THP</TableHead>
+                        <TableHead className="w-[40px]">{t("payrollPage.table.no")}</TableHead>
+                        <TableHead>{t("payrollPage.table.name")}</TableHead>
+                        <TableHead>{t("payrollPage.table.dept")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.basicSalary")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.allowance")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.overtime")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.bruto")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.bpjs")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.deduction")}</TableHead>
+                        <TableHead className="text-center">{t("payrollPage.table.pphMode")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.pph")}</TableHead>
+                        <TableHead className="text-right">{t("payrollPage.table.thp")}</TableHead>
                         <TableHead className="w-[100px]"></TableHead>
                       </TableRow>
                     </TableHeader>
