@@ -354,8 +354,8 @@ const BusinessTravel = () => {
       if (error) throw error;
 
       toast({
-        title: "Berhasil",
-        description: "Dokumen berhasil diunggah",
+        title: t("travelAdmin.toastOk"),
+        description: t("travelAdmin.toastUploadOk"),
       });
 
       setUploadDialogOpen(false);
@@ -365,7 +365,7 @@ const BusinessTravel = () => {
     } catch (error: any) {
       logger.error("Error uploading document:", error);
       toast({
-        title: "Gagal Mengunggah",
+        title: t("travelAdmin.toastUploadFail"),
         description: error.message,
         variant: "destructive",
       });
