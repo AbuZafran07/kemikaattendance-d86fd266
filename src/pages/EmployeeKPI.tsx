@@ -600,7 +600,7 @@ export default function EmployeeKPI() {
                       <Award className="w-6 h-6 text-amber-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Grade</p>
+                      <p className="text-xs text-muted-foreground">{t("empKpi.grade")}</p>
                       <p className="text-3xl font-bold">{myGrade?.grade || "-"}</p>
                     </div>
                   </CardContent>
