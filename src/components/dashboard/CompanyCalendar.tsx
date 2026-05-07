@@ -12,7 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isToday, parseISO } from "date-fns";
-import { id } from "date-fns/locale";
+import { id as idLocale, enUS } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 interface Holiday {
   id: string;
