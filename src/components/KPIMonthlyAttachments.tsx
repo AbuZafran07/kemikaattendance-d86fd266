@@ -150,9 +150,9 @@ export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthL
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
           <Paperclip className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">Lampiran Laporan {monthLabel}</span>
+          <span className="text-sm font-medium">{t("kpiAtt.headerLabel", { label: monthLabel })}</span>
           <Badge variant={items.length > 0 ? "default" : "destructive"} className="text-[10px]">
-            {items.length > 0 ? `${items.length} file` : "Wajib"}
+            {items.length > 0 ? t("kpiAtt.filesCount", { n: items.length }) : t("kpiAtt.required")}
           </Badge>
         </div>
         {!readOnly && (
@@ -172,7 +172,7 @@ export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthL
               onClick={() => inputRef.current?.click()}
             >
               {uploading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Upload className="w-3 h-3 mr-1" />}
-              Upload
+              {t("kpiAtt.upload")}
             </Button>
           </>
         )}
@@ -182,7 +182,7 @@ export default function KPIMonthlyAttachments({ ownerUserId, year, month, monthL
         <div className="flex justify-center py-2"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
       ) : items.length === 0 ? (
         <p className="text-xs text-muted-foreground italic">
-          {readOnly ? "Belum ada lampiran." : "Wajib upload minimal 1 file (PDF/Excel, max 10MB) sebelum input realisasi."}
+          {readOnly ? t("kpiAtt.emptyReadOnly") : t("kpiAtt.emptyHint")}
         </p>
       ) : (
         <ul className="space-y-1">
