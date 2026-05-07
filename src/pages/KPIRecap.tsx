@@ -273,30 +273,30 @@ export default function KPIRecap() {
         <Card>
           <CardContent className="p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
             <div className="md:col-span-2">
-              <Label className="text-xs">Cari nama / jabatan / departemen</Label>
+              <Label className="text-xs">{t("kpiRecap.searchLabel")}</Label>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input className="pl-8" placeholder="Ketik untuk mencari..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <Input className="pl-8" placeholder={t("kpiRecap.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             </div>
             <div>
-              <Label className="text-xs">Departemen</Label>
+              <Label className="text-xs">{t("kpiRecap.department")}</Label>
               <Select value={deptFilter} onValueChange={setDeptFilter}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Semua Departemen</SelectItem>
+                  <SelectItem value="all">{t("kpiRecap.allDepartments")}</SelectItem>
                   {departments.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-xs">Status KPI</Label>
+              <Label className="text-xs">{t("kpiRecap.kpiStatus")}</Label>
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Semua</SelectItem>
-                  <SelectItem value="with">Sudah Ada KPI</SelectItem>
-                  <SelectItem value="without">Belum Ada KPI</SelectItem>
+                  <SelectItem value="all">{t("kpiRecap.all")}</SelectItem>
+                  <SelectItem value="with">{t("kpiRecap.withKpiOpt")}</SelectItem>
+                  <SelectItem value="without">{t("kpiRecap.withoutKpiOpt")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
