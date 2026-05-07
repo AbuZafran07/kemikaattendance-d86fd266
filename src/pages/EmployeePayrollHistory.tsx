@@ -194,8 +194,8 @@ const EmployeePayrollHistory = () => {
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
               <DollarSign className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p className="font-medium">Belum ada slip gaji</p>
-              <p className="text-sm">Slip gaji akan muncul setelah payroll difinalisasi oleh admin.</p>
+              <p className="font-medium">{t("empPayroll.empty")}</p>
+              <p className="text-sm">{t("empPayroll.emptyDesc")}</p>
             </CardContent>
           </Card>
         ) : (
