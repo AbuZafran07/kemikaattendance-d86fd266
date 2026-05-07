@@ -1543,6 +1543,35 @@
       "thrPdfDesc": "Dokumen pengajuan pembayaran THR berhasil di-download.",
       "thrPdfFailed": "Gagal Generate PDF",
       "reportSuccessDesc": "Laporan payroll detail berhasil di-download."
+    },
+    "bankPreview": {
+      "title": "Preview e-Payroll Bank",
+      "thrTitle": "Preview e-Payroll THR",
+      "desc": "Review data transfer gaji sebelum download file — {{month}} {{year}}",
+      "thrDesc": "Review data transfer THR sebelum download file — {{month}} {{year}}",
+      "incompleteTitle": "{{count}} karyawan belum memiliki data rekening bank lengkap:",
+      "noAccount": "No. Rekening kosong",
+      "noBank": "Nama Bank kosong",
+      "completeHint": "Lengkapi data di halaman Karyawan sebelum export.",
+      "senderAccount": "Rekening Pengirim:",
+      "bank": "Bank:",
+      "total": "Total:",
+      "totalThr": "Total THR:",
+      "thrNote": "Catatan:",
+      "thrNoteDesc": "Nominal THP sudah dikurangi THR karena THR dibayarkan terpisah melalui e-Payroll THR.",
+      "colNo": "No",
+      "colName": "Nama",
+      "colAccount": "No. Rekening",
+      "colBank": "Bank",
+      "colNik": "NIK",
+      "colThp": "THP",
+      "colThr": "THR",
+      "colType": "Tipe",
+      "notFilled": "⚠ Belum diisi",
+      "footer": "{{count}} karyawan • Format: TXT (semicolon-separated)",
+      "cancel": "Batal",
+      "download": "Download e-Payroll",
+      "downloadThr": "Download e-Payroll THR"
     }
   }
 }
