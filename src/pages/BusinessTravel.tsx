@@ -92,8 +92,8 @@ const BusinessTravel = () => {
 
           if (payload.eventType === "INSERT") {
             toast({
-              title: "Pengajuan Perjalanan Dinas Baru",
-              description: "Ada permintaan perjalanan dinas baru masuk",
+              title: t("travelAdmin.toastNewTitle"),
+              description: t("travelAdmin.toastNewDesc"),
             });
           }
         }
