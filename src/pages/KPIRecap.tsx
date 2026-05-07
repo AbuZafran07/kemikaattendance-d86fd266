@@ -231,12 +231,12 @@ export default function KPIRecap() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Trophy className="h-6 w-6 text-primary" /> Daftar KPI Semua Karyawan
+              <Trophy className="h-6 w-6 text-primary" /> {t("kpiRecap.title")}
             </h1>
-            <p className="text-sm text-muted-foreground">Pencapaian KPI seluruh karyawan untuk tahun {year}.</p>
+            <p className="text-sm text-muted-foreground">{t("kpiRecap.subtitle", { year })}</p>
           </div>
           <div className="flex items-center gap-2">
-            <Label className="text-sm">Tahun</Label>
+            <Label className="text-sm">{t("kpiRecap.year")}</Label>
             <Select value={String(year)} onValueChange={(v) => setYear(parseInt(v))}>
               <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
               <SelectContent>
