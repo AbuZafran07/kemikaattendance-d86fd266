@@ -109,6 +109,7 @@ const scoreColor = (s: number) => {
 
 export default function KPIRecap() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState<number>(currentYear);
