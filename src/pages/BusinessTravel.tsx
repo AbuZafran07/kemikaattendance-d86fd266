@@ -298,7 +298,7 @@ const BusinessTravel = () => {
       // Send notification to employee
       const notification = NotificationTemplates.businessTravelRejected(
         selectedRequest.destination, 
-        rejectionReason || "Ditolak oleh admin"
+        rejectionReason || t("travelAdmin.rejectedByAdmin")
       );
       notifyEmployee(selectedRequest.user_id, notification.title, notification.body, { type: 'business_travel_rejected' });
 
