@@ -2122,131 +2122,128 @@ const Payroll = () => {
         <Dialog open={!!detailItem} onOpenChange={(open) => !open && setDetailItem(null)}>
           <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Detail Slip Gaji</DialogTitle>
-              <DialogDescription>{detailItem?.employee_name} — {MONTHS[selectedMonth - 1].label} {selectedYear}</DialogDescription>
+              <DialogTitle>{t("payrollPage.detail.title")}</DialogTitle>
+              <DialogDescription>{detailItem?.employee_name} — {monthLabel(selectedMonth)} {selectedYear}</DialogDescription>
             </DialogHeader>
             {detailItem && (
               <div className="space-y-3 text-sm">
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="text-muted-foreground">Gaji Pokok</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.basicSalary")}</span>
                   <span className="text-right font-medium">{formatRupiah(detailItem.basic_salary)}</span>
-                  <span className="text-muted-foreground">Tunjangan Kehadiran</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.attendanceAllowance")}</span>
                   <span className="text-right">{formatRupiah(detailItem.allowance - (detailItem.tunjangan_komunikasi || 0) - (detailItem.tunjangan_jabatan || 0) - (detailItem.tunjangan_operasional || 0) - (detailItem.tunjangan_kesehatan || 0) - (detailItem.bonus_tahunan || 0) - (detailItem.thr || 0) - (detailItem.insentif_kinerja || 0) - (detailItem.bonus_lainnya || 0) - (detailItem.pengembalian_employee || 0) - (detailItem.insentif_penjualan || 0))}</span>
-                  <span className="text-muted-foreground">Lembur ({detailItem.overtime_hours} jam)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.overtimeWithHours", { hours: detailItem.overtime_hours })}</span>
                   <span className="text-right">{formatRupiah(detailItem.overtime_total)}</span>
                 </div>
-                {/* Fixed Allowances Breakdown */}
                 {((detailItem.tunjangan_komunikasi || 0) + (detailItem.tunjangan_jabatan || 0) + (detailItem.tunjangan_operasional || 0)) > 0 && (
                   <div className="grid grid-cols-2 gap-2 border-b border-border pb-3 bg-muted/30 rounded p-2">
-                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">📋 Tunjangan Tetap</span>
+                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">{t("payrollPage.detail.fixedAllowances")}</span>
                     {(detailItem.tunjangan_komunikasi || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Komunikasi</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjKomunikasi")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_komunikasi!)}</span>
                     </>}
                     {(detailItem.tunjangan_jabatan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Jabatan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjJabatan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_jabatan!)}</span>
                     </>}
                     {(detailItem.tunjangan_operasional || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Operasional</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjOperasional")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_operasional!)}</span>
                     </>}
                   </div>
                 )}
-                {/* Incidental Income Breakdown */}
                 {((detailItem.tunjangan_kesehatan || 0) + (detailItem.bonus_tahunan || 0) + (detailItem.thr || 0) + (detailItem.insentif_kinerja || 0) + (detailItem.bonus_lainnya || 0) + (detailItem.pengembalian_employee || 0) + (detailItem.insentif_penjualan || 0)) > 0 && (
                   <div className="grid grid-cols-2 gap-2 border-b border-border pb-3 bg-primary/5 rounded p-2">
-                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">💰 Penghasilan Insidental</span>
+                    <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">{t("payrollPage.detail.incidentalIncome")}</span>
                     {(detailItem.tunjangan_kesehatan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Tunjangan Kesehatan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.tunjKesehatan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.tunjangan_kesehatan!)}</span>
                     </>}
                     {(detailItem.bonus_tahunan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Bonus Tahunan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.bonusTahunan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.bonus_tahunan!)}</span>
                     </>}
                     {(detailItem.thr || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">THR</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.thr")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.thr!)}</span>
                     </>}
                     {(detailItem.insentif_kinerja || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Insentif Kinerja</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.insentifKinerja")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.insentif_kinerja!)}</span>
                     </>}
                     {(detailItem.bonus_lainnya || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Bonus Lainnya</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.bonusLainnya")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.bonus_lainnya!)}</span>
                     </>}
                     {(detailItem.pengembalian_employee || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Pengembalian Employee</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.pengembalian")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.pengembalian_employee!)}</span>
                     </>}
                     {(detailItem.insentif_penjualan || 0) > 0 && <>
-                      <span className="text-muted-foreground text-xs">Insentif Penjualan</span>
+                      <span className="text-muted-foreground text-xs">{t("payrollPage.detail.insentifPenjualan")}</span>
                       <span className="text-right text-xs">{formatRupiah(detailItem.insentif_penjualan!)}</span>
                     </>}
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="font-semibold">Bruto</span>
+                  <span className="font-semibold">{t("payrollPage.detail.bruto")}</span>
                   <span className="text-right font-semibold">{formatRupiah(detailItem.bruto_income)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="text-muted-foreground">BPJS Kesehatan (1%)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.bpjsKes")}</span>
                   <span className="text-right text-destructive">-{formatRupiah(detailItem.bpjs_kesehatan)}</span>
-                  <span className="text-muted-foreground">BPJS TK + JP (3%)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.bpjsTk")}</span>
                   <span className="text-right text-destructive">-{formatRupiah(detailItem.bpjs_ketenagakerjaan)}</span>
                   {detailItem.loan_deduction > 0 && <>
-                    <span className="text-muted-foreground">Pinjaman/Kasbon</span>
+                    <span className="text-muted-foreground">{t("payrollPage.detail.loan")}</span>
                     <span className="text-right text-destructive">-{formatRupiah(detailItem.loan_deduction)}</span>
                   </>}
                   {detailItem.other_deduction > 0 && <>
-                    <span className="text-muted-foreground">Potongan Lain</span>
+                    <span className="text-muted-foreground">{t("payrollPage.detail.otherDeduction")}</span>
                     <span className="text-right text-destructive">-{formatRupiah(detailItem.other_deduction)}</span>
                   </>}
                   {detailItem.deduction_notes && (
-                    <span className="col-span-2 text-xs text-muted-foreground italic">Catatan: {detailItem.deduction_notes}</span>
+                    <span className="col-span-2 text-xs text-muted-foreground italic">{t("payrollPage.detail.noteLabel", { note: detailItem.deduction_notes })}</span>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="font-semibold">Netto</span>
+                  <span className="font-semibold">{t("payrollPage.detail.netto")}</span>
                   <span className="text-right font-semibold">{formatRupiah(detailItem.netto_income)}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3">
-                  <span className="text-muted-foreground">PTKP ({detailItem.ptkp_status})</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.ptkpLabel", { status: detailItem.ptkp_status })}</span>
                   <span className="text-right">{formatRupiah(detailItem.ptkp_value)}</span>
-                  <span className="text-muted-foreground">PKP (Tahunan)</span>
+                  <span className="text-muted-foreground">{t("payrollPage.detail.pkpYearly")}</span>
                   <span className="text-right">{formatRupiah(detailItem.pkp)}</span>
                   <span className="text-muted-foreground">
-                    PPh 21 / bulan
+                    {t("payrollPage.detail.pphMonthly")}
                     {detailItem.pph21_mode === "TER" && <Badge variant="outline" className="ml-1 text-[9px]">TER {detailItem.pph21_ter_rate}%</Badge>}
-                    {detailItem.pph21_mode === "REKONSILIASI" && <Badge variant="secondary" className="ml-1 text-[9px]">Rekonsiliasi</Badge>}
+                    {detailItem.pph21_mode === "REKONSILIASI" && <Badge variant="secondary" className="ml-1 text-[9px]">{t("payrollPage.detail.rekonsiliasi")}</Badge>}
                   </span>
                   <span className="text-right text-destructive font-medium">-{formatRupiah(detailItem.pph21_monthly)}</span>
                 </div>
 
-                {/* Employer BPJS */}
                 <div className="grid grid-cols-2 gap-2 border-b border-border pb-3 bg-muted/30 rounded p-2">
-                  <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">Kontribusi Perusahaan</span>
-                  <span className="text-muted-foreground text-xs">BPJS Kes (4%)</span>
+                  <span className="col-span-2 text-xs font-semibold text-muted-foreground mb-1">{t("payrollPage.detail.companyContribution")}</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.bpjsKes4")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_kes_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JHT (3.7%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jht")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jht_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JP (2%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jp")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jp_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JKK (0.24%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jkk")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jkk_employer)}</span>
-                  <span className="text-muted-foreground text-xs">JKM (0.3%)</span>
+                  <span className="text-muted-foreground text-xs">{t("payrollPage.detail.jkm")}</span>
                   <span className="text-right text-xs">{formatRupiah(detailItem.bpjs_jkm_employer)}</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <span className="text-base font-bold">Take Home Pay</span>
+                  <span className="text-base font-bold">{t("payrollPage.detail.thp")}</span>
                   <span className="text-right text-base font-bold text-primary">{formatRupiah(detailItem.take_home_pay)}</span>
                 </div>
                 <div className="pt-3 border-t border-border">
                   <Button onClick={() => generateSlipPDF(detailItem)} className="w-full gap-2">
-                    <Download className="h-4 w-4" /> Download Slip Gaji PDF
+                    <Download className="h-4 w-4" /> {t("payrollPage.detail.downloadPdf")}
                   </Button>
                 </div>
               </div>
