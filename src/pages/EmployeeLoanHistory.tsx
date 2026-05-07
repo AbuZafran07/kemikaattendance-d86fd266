@@ -40,6 +40,9 @@ interface Installment {
 const EmployeeLoanHistory = () => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { t, i18n } = useTranslation();
+  const dateLocaleStr = i18n.resolvedLanguage?.startsWith("en") ? "en-US" : "id-ID";
+  const monthsLong = (t("common.monthsLong", { returnObjects: true }) as string[]) || [];
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
@@ -77,9 +80,8 @@ const EmployeeLoanHistory = () => {
         .from("payroll_periods")
         .select("id, month, year")
         .in("id", periodIds);
-      const monthNames = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
       (periods || []).forEach((p: any) => {
-        periodMap.set(p.id, `${monthNames[p.month - 1]} ${p.year}`);
+        periodMap.set(p.id, `${monthsLong[p.month - 1]} ${p.year}`);
       });
     }
     setInstallments(insts.map(i => ({
@@ -89,13 +91,13 @@ const EmployeeLoanHistory = () => {
     setLoadingInstallments(false);
   };
 
-  const fmt = (n: number) => new Intl.NumberFormat("id-ID").format(n);
+  const fmt = (n: number) => new Intl.NumberFormat(dateLocaleStr).format(n);
 
   const statusBadge = (status: string) => {
     switch (status) {
-      case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Aktif</Badge>;
-      case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">Lunas</Badge>;
-      case "cancelled": return <Badge variant="destructive">Dibatalkan</Badge>;
+      case "active": return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">{t("empLoan.active")}</Badge>;
+      case "completed": return <Badge className="bg-green-500/10 text-green-600 border-green-200">{t("empLoan.completed")}</Badge>;
+      case "cancelled": return <Badge variant="destructive">{t("empLoan.cancelled")}</Badge>;
       default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
