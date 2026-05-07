@@ -177,13 +177,13 @@ const CompanyCalendar = () => {
 
     const map = new Map<string, TravelDay[]>();
     if (data) {
-      data.forEach((t) => {
+      data.forEach((tr) => {
         const start = parseISO(t.start_date);
         const end = parseISO(t.end_date);
         eachDayOfInterval({ start, end }).forEach((d) => {
           const key = format(d, "yyyy-MM-dd");
           const existing = map.get(key) || [];
-          existing.push({ destination: t.destination, purpose: t.purpose });
+          existing.push({ destination: tr.destination, purpose: tr.purpose });
           map.set(key, existing);
         });
       });
@@ -510,7 +510,7 @@ const CompanyCalendar = () => {
                           <span>{l.label}</span>
                         </div>
                       ))}
-                      {travelDays && travelDays.map((t, i) => (
+                      {travelDays && travelDays.map((tr, i) => (
                         <div key={`t-${i}`} className="flex items-center gap-1 text-xs">
                           <Plane className="h-3 w-3 text-green-500" />
                           <span>{t("companyCalendar.travelPrefix")}: {tr.destination}</span>
@@ -663,13 +663,13 @@ const CompanyCalendar = () => {
                     </div>
                   </div>
                 ))}
-                {travelDays && travelDays.map((t, i) => (
+                {travelDays && travelDays.map((tr, i) => (
                   <div key={`t-${i}`} className="flex items-start gap-3 p-3 rounded-lg bg-green-500/10">
                     <Plane className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                     <div>
                       <p className="font-medium text-sm">{t("companyCalendar.detail.travel")}</p>
-                      <p className="text-sm text-foreground">{t.destination}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{t.purpose}</p>
+                      <p className="text-sm text-foreground">{tr.destination}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{tr.purpose}</p>
                     </div>
                   </div>
                 ))}
