@@ -197,13 +197,16 @@ const EmployeeView = () => {
   const fetchTodayAttendance = async () => {
     if (!profile?.id) return;
     
-    const today = new Date().toISOString().split("T")[0];
+    // Use local date boundaries (not UTC) so "today" matches the user's timezone
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     const { data, error } = await supabase
       .from("attendance")
       .select("*")
       .eq("user_id", profile.id)
-      .gte("check_in_time", `${today}T00:00:00`)
-      .lte("check_in_time", `${today}T23:59:59`)
+      .gte("check_in_time", startOfDay.toISOString())
+      .lte("check_in_time", endOfDay.toISOString())
       .order("check_in_time", { ascending: false })
       .limit(1)
       .maybeSingle();
