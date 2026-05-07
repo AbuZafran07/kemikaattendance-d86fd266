@@ -3,22 +3,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { playNotificationSound } from '@/lib/notificationSound';
 
-const getLastSeenKey = (userId: string) => `notif_last_seen_${userId}`;
+const FALLBACK_DAYS = 7;
 
-const getLastSeen = (userId: string): string => {
-  try {
-    const v = localStorage.getItem(getLastSeenKey(userId));
-    if (v) return v;
-  } catch {}
-  // Default: 7 days ago
+const getFallbackCutoff = () => {
   const d = new Date();
-  d.setDate(d.getDate() - 7);
+  d.setDate(d.getDate() - FALLBACK_DAYS);
   return d.toISOString();
 };
 
 export const useNotificationBadge = () => {
   const [badgeCount, setBadgeCount] = useState(0);
   const prevCountRef = useRef(-1);
+  const lastSeenRef = useRef<string | null>(null);
   const { profile } = useAuth();
 
   const updateAppBadge = useCallback((count: number) => {
@@ -31,13 +27,28 @@ export const useNotificationBadge = () => {
     }
   }, []);
 
+  const loadLastSeen = useCallback(async (): Promise<string> => {
+    if (!profile?.id) return getFallbackCutoff();
+    try {
+      const { data } = await supabase
+        .from('notification_last_seen' as any)
+        .select('last_seen_at')
+        .eq('user_id', profile.id)
+        .maybeSingle();
+      const ts = (data as any)?.last_seen_at as string | undefined;
+      return ts || getFallbackCutoff();
+    } catch {
+      return getFallbackCutoff();
+    }
+  }, [profile?.id]);
+
   const fetchBadgeCount = useCallback(async () => {
     if (!profile?.id) return;
 
     try {
-      const lastSeen = getLastSeen(profile.id);
+      const lastSeen = await loadLastSeen();
+      lastSeenRef.current = lastSeen;
 
-      // Only count approved/rejected items updated AFTER user last visited notifications page
       const [leaveUpdated, overtimeUpdated, travelUpdated] = await Promise.all([
         supabase
           .from('leave_requests')
@@ -73,30 +84,17 @@ export const useNotificationBadge = () => {
     } catch (error) {
       console.error('Error fetching badge count:', error);
     }
-  }, [profile?.id, updateAppBadge]);
+  }, [profile?.id, updateAppBadge, loadLastSeen]);
 
   useEffect(() => {
     fetchBadgeCount();
-
     const interval = setInterval(fetchBadgeCount, 60000);
 
     const channel = supabase
       .channel('badge-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'leave_requests' },
-        () => fetchBadgeCount()
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'overtime_requests' },
-        () => fetchBadgeCount()
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'business_travel_requests' },
-        () => fetchBadgeCount()
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leave_requests' }, () => fetchBadgeCount())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'overtime_requests' }, () => fetchBadgeCount())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'business_travel_requests' }, () => fetchBadgeCount())
       .subscribe();
 
     return () => {
@@ -108,16 +106,18 @@ export const useNotificationBadge = () => {
     };
   }, [fetchBadgeCount]);
 
-  const clearBadge = useCallback(() => {
-    if (profile?.id) {
-      try {
-        localStorage.setItem(getLastSeenKey(profile.id), new Date().toISOString());
-      } catch {}
-    }
+  const clearBadge = useCallback(async () => {
+    if (!profile?.id) return;
     prevCountRef.current = 0;
     setBadgeCount(0);
     if ('clearAppBadge' in navigator) {
       (navigator as any).clearAppBadge();
+    }
+    try {
+      const { data } = await supabase.rpc('mark_notifications_seen' as any);
+      if (data) lastSeenRef.current = data as string;
+    } catch (error) {
+      console.error('Error marking notifications seen:', error);
     }
   }, [profile?.id]);
 
