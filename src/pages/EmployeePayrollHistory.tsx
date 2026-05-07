@@ -224,8 +224,8 @@ const EmployeePayrollHistory = () => {
       <Dialog open={!!detailItem} onOpenChange={(open) => !open && setDetailItem(null)}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detail Slip Gaji</DialogTitle>
-            <DialogDescription>{profile?.full_name} — {detailItem && `${MONTHS[detailItem.month - 1].label} ${detailItem.year}`}</DialogDescription>
+            <DialogTitle>{t("empPayroll.detailTitle")}</DialogTitle>
+            <DialogDescription>{profile?.full_name} — {detailItem && `${monthsLong[detailItem.month - 1]} ${detailItem.year}`}</DialogDescription>
           </DialogHeader>
           {detailItem && (
             <div className="space-y-3 text-sm">
