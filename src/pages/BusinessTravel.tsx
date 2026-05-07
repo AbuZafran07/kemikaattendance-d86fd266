@@ -467,16 +467,16 @@ const BusinessTravel = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>NIK</TableHead>
-                    <TableHead>Departemen</TableHead>
-                    <TableHead>Tujuan</TableHead>
-                    <TableHead>Keperluan</TableHead>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Durasi</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Dokumen</TableHead>
-                    {isAdmin && <TableHead>Aksi</TableHead>}
+                    <TableHead>{t("travelAdmin.colName")}</TableHead>
+                    <TableHead>{t("travelAdmin.colNik")}</TableHead>
+                    <TableHead>{t("travelAdmin.colDept")}</TableHead>
+                    <TableHead>{t("travelAdmin.colDestination")}</TableHead>
+                    <TableHead>{t("travelAdmin.colPurpose")}</TableHead>
+                    <TableHead>{t("travelAdmin.colDate")}</TableHead>
+                    <TableHead>{t("travelAdmin.colDuration")}</TableHead>
+                    <TableHead>{t("travelAdmin.colStatus")}</TableHead>
+                    <TableHead>{t("travelAdmin.colDocument")}</TableHead>
+                    {isAdmin && <TableHead>{t("travelAdmin.colAction")}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
