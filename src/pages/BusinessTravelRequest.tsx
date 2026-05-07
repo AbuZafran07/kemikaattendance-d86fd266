@@ -17,18 +17,18 @@ import { EmployeeBottomNav } from "@/components/EmployeeBottomNav";
 import { notifyAdmins, NotificationTemplates } from "@/lib/notifications";
 import { useTranslation } from "react-i18next";
 
-const businessTravelSchema = z.object({
-  destination: z.string().trim().min(1, "Tujuan harus diisi").max(200, "Tujuan maksimal 200 karakter"),
-  purpose: z.string().trim().min(1, "Keperluan harus diisi").max(500, "Keperluan maksimal 500 karakter"),
-  startDate: z.string().min(1, "Tanggal mulai harus diisi"),
-  endDate: z.string().min(1, "Tanggal selesai harus diisi"),
-  notes: z.string().trim().max(1000, "Catatan maksimal 1000 karakter").optional().or(z.literal("")),
+const makeSchema = (t: (k: string) => string) => z.object({
+  destination: z.string().trim().min(1, t("travelRequest.errDestRequired")).max(200, t("travelRequest.errDestMax")),
+  purpose: z.string().trim().min(1, t("travelRequest.errPurposeRequired")).max(500, t("travelRequest.errPurposeMax")),
+  startDate: z.string().min(1, t("travelRequest.errStartRequired")),
+  endDate: z.string().min(1, t("travelRequest.errEndRequired")),
+  notes: z.string().trim().max(1000, t("travelRequest.errNotesMax")).optional().or(z.literal("")),
 }).refine(data => new Date(data.endDate) >= new Date(data.startDate), {
-  message: "Tanggal selesai harus setelah tanggal mulai",
+  message: t("travelRequest.errEndAfterStart"),
   path: ["endDate"],
 });
 
-type BusinessTravelFormData = z.infer<typeof businessTravelSchema>;
+type BusinessTravelFormData = z.infer<ReturnType<typeof makeSchema>>;
 
 const BusinessTravelRequest = () => {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ const BusinessTravelRequest = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const businessTravelSchema = useMemo(() => makeSchema(t), [t]);
 
   const form = useForm<BusinessTravelFormData>({
     resolver: zodResolver(businessTravelSchema),
