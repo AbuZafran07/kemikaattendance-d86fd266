@@ -254,7 +254,7 @@ const BusinessTravel = () => {
     } catch (error: any) {
       logger.error("Error approving request:", error);
       toast({
-        title: "Gagal Menyetujui",
+        title: t("travelAdmin.toastApproveFail"),
         description: error.message,
         variant: "destructive",
       });
