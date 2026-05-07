@@ -538,7 +538,7 @@ const BusinessTravel = () => {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-8 text-muted-foreground">
-                        Belum ada permintaan perjalanan dinas
+                        {t("travelAdmin.emptyTable")}
                       </TableCell>
                     </TableRow>
                   )}
