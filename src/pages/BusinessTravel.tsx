@@ -408,13 +408,13 @@ const BusinessTravel = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Manajemen Perjalanan Dinas</h1>
-            <p className="text-muted-foreground mt-1">Kelola permintaan perjalanan dinas karyawan</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("travelAdmin.pageTitle")}</h1>
+            <p className="text-muted-foreground mt-1">{t("travelAdmin.pageSubtitle")}</p>
           </div>
           {isAdmin && (
             <Button onClick={() => setCreateDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Buat Dinas
+              {t("travelAdmin.createBtn")}
             </Button>
           )}
         </div>
@@ -422,7 +422,7 @@ const BusinessTravel = () => {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Permintaan</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("travelAdmin.totalRequests")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -434,7 +434,7 @@ const BusinessTravel = () => {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("travelAdmin.pending")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -446,7 +446,7 @@ const BusinessTravel = () => {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Disetujui</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("travelAdmin.approved")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
@@ -459,8 +459,8 @@ const BusinessTravel = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Daftar Permintaan Perjalanan Dinas</CardTitle>
-            <CardDescription>Semua permintaan perjalanan dinas karyawan</CardDescription>
+            <CardTitle>{t("travelAdmin.listTitle")}</CardTitle>
+            <CardDescription>{t("travelAdmin.listDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-auto max-h-[calc(100vh-400px)]">
