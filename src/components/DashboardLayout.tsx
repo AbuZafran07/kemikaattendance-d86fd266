@@ -28,6 +28,7 @@ import {
   MessageCircleMore,
   ArrowUp,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -128,6 +129,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [pendingCount, setPendingCount] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [isHRPanelOpen, setIsHRPanelOpen] = useState(false);
+  const [isHRMobileOpen, setIsHRMobileOpen] = useState(false);
   const [hrMessages, setHrMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [hrInput, setHrInput] = useState("");
   const [hrLoading, setHrLoading] = useState(false);
@@ -371,6 +373,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <span className="text-white font-semibold text-sm">KEMIKA</span>
         </div>
         <div className="flex items-center gap-2">
+          {/* HR Assistant mobile icon */}
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => setIsHRMobileOpen(true)}
+              style={{
+                width: 30, height: 30, borderRadius: 8,
+                background: "rgba(255,255,255,0.20)",
+                border: "1px solid rgba(255,255,255,0.40)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", flexShrink: 0,
+              }}
+            >
+              <MessageCircleMore style={{ width: 16, height: 16, color: "white" }} />
+            </button>
+            <span
+              className="hr-dot-pulse"
+              style={{
+                position: "absolute", top: -3, right: -3,
+                width: 8, height: 8, borderRadius: "50%",
+                background: "#5DCAA5", border: "1.5px solid #0F6E56",
+              }}
+            />
+          </div>
           <LanguageSwitcher variant="ghost" className="text-white hover:bg-white/10" />
           <div className="relative">
             <NotificationDropdown pendingCount={pendingCount} />
@@ -570,6 +595,131 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <ArrowUp style={{ width: 16, height: 16, color: "white" }} />
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* HR Assistant Mobile Full-screen Modal */}
+      {isHRMobileOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 60, background: "#fff", display: "flex", flexDirection: "column", animation: "hrMobileSlideUp 300ms ease" }}>
+          <style>{`@keyframes hrMobileSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
+
+          {/* Mobile Modal Header */}
+          <div style={{ height: 56, background: "#0F6E56", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button onClick={() => setIsHRMobileOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", marginRight: 4 }}>
+                <ArrowLeft style={{ width: 20, height: 20, color: "white" }} />
+              </button>
+              <MessageCircleMore style={{ width: 20, height: 20, color: "white" }} />
+              <div>
+                <p style={{ color: "white", fontWeight: 500, fontSize: 15, lineHeight: 1.2, margin: 0 }}>HR Assistant</p>
+                <p style={{ color: "white", fontSize: 11, opacity: 0.8, margin: 0 }}>Asisten virtual perusahaan Kemika</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setHrMessages([])}
+              title="Hapus riwayat chat"
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75 }}
+            >
+              <Trash2 style={{ width: 16, height: 16, color: "white" }} />
+            </button>
+          </div>
+
+          {/* Quick Chips */}
+          <div style={{ flexShrink: 0, overflowX: "auto", display: "flex", gap: 8, padding: "10px 16px", borderBottom: "1px solid #e5e7eb", scrollbarWidth: "none" }}>
+            {["Prosedur cuti", "Aturan lembur", "SOP absensi", "Pengajuan reimburse", "KPI & penilaian"].map((chip) => (
+              <button
+                key={chip}
+                onClick={() => sendHRMessage(chip)}
+                style={{
+                  flexShrink: 0, whiteSpace: "nowrap",
+                  padding: "5px 12px", borderRadius: 9999,
+                  border: "1px solid #d0e8e0", background: "white",
+                  color: "#0F6E56", fontSize: 12, cursor: "pointer", fontFamily: "inherit",
+                }}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+
+          {/* Messages */}
+          <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: 12 }}>
+            {hrMessages.length === 0 && (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 8 }}>
+                <MessageCircleMore style={{ width: 40, height: 40, color: "#0F6E56", opacity: 0.3 }} />
+                <p style={{ color: "#9ca3af", fontSize: 13, textAlign: "center", lineHeight: 1.6 }}>
+                  Halo! Saya HR Assistant Kemika.<br />Ada yang bisa saya bantu?
+                </p>
+              </div>
+            )}
+            {hrMessages.map((msg, i) => (
+              <div key={i}>
+                {msg.role === "user" ? (
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <div style={{ maxWidth: "78%", padding: "10px 14px", borderRadius: "12px 0 12px 12px", background: "#0F6E56", color: "white", fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>
+                      {msg.content}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                        <MessageCircleMore style={{ width: 13, height: 13, color: "#0F6E56" }} />
+                      </div>
+                      <div style={{ maxWidth: "78%", padding: "10px 14px", borderRadius: "0 12px 12px 12px", background: "#f3f4f6", color: "#111827", fontSize: 13, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>
+                        {msg.content}
+                      </div>
+                    </div>
+                    <div style={{ marginLeft: 32, background: "#E1F5EE", borderLeft: "3px solid #1D9E75", borderRadius: "0 6px 6px 0", padding: "8px 10px" }}>
+                      <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: "#0F6E56" }}>📌 Kembalikan ke Kebijakan Perusahaan</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "#374151" }}>Ketentuan ini mengacu pada kebijakan resmi Kemika.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+            {hrLoading && (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                  <MessageCircleMore style={{ width: 13, height: 13, color: "#0F6E56" }} />
+                </div>
+                <div style={{ padding: "12px 14px", borderRadius: "0 12px 12px 12px", background: "#f3f4f6", display: "flex", gap: 4, alignItems: "center" }}>
+                  {[0, 1, 2].map((i) => (
+                    <span key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#0F6E56", display: "inline-block", animation: `hrDotBounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+                  ))}
+                </div>
+              </div>
+            )}
+            <div ref={hrMessagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div style={{ padding: "12px 16px", borderTop: "1px solid #e5e7eb", display: "flex", gap: 8, alignItems: "flex-end", background: "#fff", flexShrink: 0 }}>
+            <textarea
+              value={hrInput}
+              onChange={(e) => {
+                setHrInput(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+              }}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendHRMessage(); } }}
+              placeholder="Tanya tentang SOP, cuti, KPI..."
+              rows={1}
+              style={{ flex: 1, resize: "none", border: "1px solid #d1d5db", borderRadius: 12, padding: "9px 13px", fontSize: 13, outline: "none", fontFamily: "inherit", lineHeight: 1.5, overflowY: "hidden" }}
+            />
+            <button
+              onClick={() => sendHRMessage()}
+              disabled={!hrInput.trim() || hrLoading}
+              style={{
+                width: 32, height: 32, borderRadius: 8, border: "none", cursor: "pointer",
+                background: !hrInput.trim() || hrLoading ? "#d1d5db" : "#0F6E56",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                transition: "background 150ms",
+              }}
+            >
+              <ArrowUp style={{ width: 16, height: 16, color: "white" }} />
+            </button>
           </div>
         </div>
       )}
