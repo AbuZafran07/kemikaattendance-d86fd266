@@ -11,7 +11,10 @@ import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { ArrowLeft, Search, ClipboardList, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { parseLocalDate } from "@/lib/dateUtils";
+const parseLocalDate = (s: string) => {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+};
 
 interface Row {
   request_id: string;
