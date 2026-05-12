@@ -94,6 +94,7 @@ const buildNavigationGroups = (t: (k: string) => string) => [
     items: [
       { name: t("nav.items.reports"), href: "/dashboard/reports", icon: FileText },
       { name: t("nav.items.approvalAuditLog"), href: "/dashboard/approval-audit-log", icon: ShieldCheck },
+      { name: "Audit Lupa Absen", href: "/dashboard/attendance/lupa-absen-log", icon: ShieldCheck },
       { name: t("nav.items.payrollAuditLog"), href: "/dashboard/payroll-audit-log", icon: ShieldCheck },
       { name: t("nav.items.notifications"), href: "/dashboard/notifications", icon: Bell },
     ],
