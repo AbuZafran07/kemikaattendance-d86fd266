@@ -155,11 +155,26 @@ export const leaveRequestSchema = z.object({
   startDate: z.string().min(1, 'Tanggal mulai harus diisi'),
   endDate: z.string().min(1, 'Tanggal selesai harus diisi'),
   reason: z.string().trim().max(1000, 'Alasan maksimal 1000 karakter').optional().or(z.literal('')),
-  delegatedTo: z.string().uuid('Karyawan pengganti harus dipilih'),
-  delegationNotes: z.string().trim().min(1, 'Detail tugas yang didelegasikan harus diisi').max(1000, 'Detail tugas maksimal 1000 karakter'),
+  delegatedTo: z.string().optional().or(z.literal('')),
+  delegationNotes: z.string().trim().max(1000, 'Detail tugas maksimal 1000 karakter').optional().or(z.literal('')),
+  checkInTime: z.string().optional().or(z.literal('')),
+  checkOutTime: z.string().optional().or(z.literal('')),
 }).refine(data => new Date(data.endDate) >= new Date(data.startDate), {
   message: 'Tanggal selesai harus setelah tanggal mulai',
   path: ['endDate'],
+}).superRefine((data, ctx) => {
+  if (data.leaveType !== 'lupa_absen') {
+    if (!data.delegatedTo || !/^[0-9a-f-]{36}$/i.test(data.delegatedTo)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['delegatedTo'], message: 'Karyawan pengganti harus dipilih' });
+    }
+    if (!data.delegationNotes || data.delegationNotes.trim().length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['delegationNotes'], message: 'Detail tugas yang didelegasikan harus diisi' });
+    }
+  } else {
+    if (data.checkInTime && data.checkOutTime && data.checkInTime >= data.checkOutTime) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['checkOutTime'], message: 'Jam pulang harus setelah jam masuk' });
+    }
+  }
 });
 
 export const overtimeRequestSchema = z.object({

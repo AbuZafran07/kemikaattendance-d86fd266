@@ -46,8 +46,12 @@ const LeaveRequest = () => {
       reason: "",
       delegatedTo: "",
       delegationNotes: "",
+      checkInTime: "",
+      checkOutTime: "",
     },
   });
+
+  const isLupaAbsen = form.watch("leaveType") === "lupa_absen";
 
   const leaveType = form.watch("leaveType");
   const startDate = form.watch("startDate");
@@ -186,15 +190,20 @@ const LeaveRequest = () => {
     }
     setIsSubmitting(true);
     try {
+      const isLupa = data.leaveType === "lupa_absen";
+      let reasonText = data.reason || "";
+      if (isLupa && data.checkInTime && data.checkOutTime) {
+        reasonText = `[JAM:${data.checkInTime}-${data.checkOutTime}] ${reasonText}`.trim();
+      }
       const { error } = await supabase.from("leave_requests").insert([{
         user_id: profile?.id,
         leave_type: data.leaveType,
         start_date: data.startDate,
         end_date: data.endDate,
         total_days: totalDays,
-        reason: data.reason || "",
-        delegated_to: data.delegatedTo,
-        delegation_notes: data.delegationNotes,
+        reason: reasonText,
+        delegated_to: isLupa ? null : (data.delegatedTo || null),
+        delegation_notes: isLupa ? null : (data.delegationNotes || null),
       } as any]);
 
       if (error) throw error;
@@ -349,6 +358,42 @@ const LeaveRequest = () => {
                       )}
                     />
 
+                    {isLupaAbsen && (
+                      <div className="border-t pt-4 space-y-4">
+                        <div>
+                          <p className="text-sm font-semibold">Jam Kerja (Opsional)</p>
+                          <p className="text-xs text-muted-foreground">
+                            Isi jika ingin menyesuaikan jam masuk/pulang yang akan diinput otomatis ke attendance. Kosongkan untuk pakai jam kerja standar.
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <FormField
+                            control={form.control}
+                            name="checkInTime"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Jam Masuk</FormLabel>
+                                <FormControl><Input type="time" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="checkOutTime"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Jam Pulang</FormLabel>
+                                <FormControl><Input type="time" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {!isLupaAbsen && (
                     <div className="border-t pt-4 space-y-4">
                       <div>
                         <p className="text-sm font-semibold">{t("leaveRequest.delegationTitle")}</p>
@@ -401,6 +446,7 @@ const LeaveRequest = () => {
                         )}
                       />
                     </div>
+                    )}
 
                     <Button type="submit" className="w-full" disabled={isSubmitting || validationErrors.length > 0}>
                       {isSubmitting ? t("leaveRequest.submitting") : t("leaveRequest.submit")}
