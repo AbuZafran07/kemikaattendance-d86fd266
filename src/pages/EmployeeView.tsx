@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useHRAssistant } from "@/hooks/useHRAssistant";
+import HRReferenceChips from "@/components/HRReferenceChips";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/contexts/AuthContext";
