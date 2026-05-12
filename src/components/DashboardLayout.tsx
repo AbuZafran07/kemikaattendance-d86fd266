@@ -29,7 +29,9 @@ import {
   ArrowUp,
   Trash2,
   ArrowLeft,
+  Settings2,
 } from "lucide-react";
+import HRDocumentModal, { loadHRDocs } from "@/components/HRDocumentModal";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -63,7 +65,9 @@ Gaya komunikasi:
 - Gunakan Bahasa Indonesia yang baik dan mudah dipahami
 - Jawab secara ringkas dan jelas, maksimal 3-4 paragraf
 - Jika pertanyaan di luar konteks HR, arahkan kembali ke topik HR
-- Jika butuh data spesifik karyawan yang tidak kamu miliki, minta mereka cek langsung di sistem atau hubungi admin HR`;
+- Jika butuh data spesifik karyawan yang tidak kamu miliki, minta mereka cek langsung di sistem atau hubungi admin HR
+
+[UPLOADED_DOCUMENTS_CONTEXT]`;
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -124,12 +128,13 @@ const buildNavigationGroups = (t: (k: string) => string) => [
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { t } = useTranslation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, userRole } = useAuth();
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [isHRPanelOpen, setIsHRPanelOpen] = useState(false);
   const [isHRMobileOpen, setIsHRMobileOpen] = useState(false);
+  const [isHRDocsOpen, setIsHRDocsOpen] = useState(false);
   const [hrMessages, setHrMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [hrInput, setHrInput] = useState("");
   const [hrLoading, setHrLoading] = useState(false);
@@ -198,6 +203,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
     try {
       const history = newMessages.slice(-20);
+      const activeDocs = loadHRDocs().filter((d) => d.active);
+      const docsContext = activeDocs.length > 0
+        ? activeDocs.map((doc) => `=== ${doc.name} ===\n${doc.content.slice(0, 3000)}`).join("\n\n")
+        : "";
+      const finalSystemPrompt = docsContext
+        ? HR_SYSTEM_PROMPT.replace("[UPLOADED_DOCUMENTS_CONTEXT]", `\nBerikut dokumen tambahan perusahaan sebagai referensi:\n\n${docsContext}`)
+        : HR_SYSTEM_PROMPT.replace("[UPLOADED_DOCUMENTS_CONTEXT]", "");
+
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
@@ -208,7 +221,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 1000,
-          system: HR_SYSTEM_PROMPT,
+          system: finalSystemPrompt,
           messages: history.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
@@ -465,6 +478,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {userRole === "admin" && (
+                  <button
+                    onClick={() => setIsHRDocsOpen(true)}
+                    title="Knowledge Base"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75, borderRadius: 6 }}
+                  >
+                    <Settings2 style={{ width: 16, height: 16, color: "white" }} />
+                  </button>
+                )}
                 <button
                   onClick={() => setHrMessages([])}
                   title="Hapus riwayat chat"
@@ -616,13 +638,24 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <p style={{ color: "white", fontSize: 11, opacity: 0.8, margin: 0 }}>Asisten virtual perusahaan Kemika</p>
               </div>
             </div>
-            <button
-              onClick={() => setHrMessages([])}
-              title="Hapus riwayat chat"
-              style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75 }}
-            >
-              <Trash2 style={{ width: 16, height: 16, color: "white" }} />
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {userRole === "admin" && (
+                <button
+                  onClick={() => setIsHRDocsOpen(true)}
+                  title="Knowledge Base"
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75 }}
+                >
+                  <Settings2 style={{ width: 16, height: 16, color: "white" }} />
+                </button>
+              )}
+              <button
+                onClick={() => setHrMessages([])}
+                title="Hapus riwayat chat"
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75 }}
+              >
+                <Trash2 style={{ width: 16, height: 16, color: "white" }} />
+              </button>
+            </div>
           </div>
 
           {/* Quick Chips */}
@@ -723,6 +756,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
         </div>
       )}
+
+      <HRDocumentModal isOpen={isHRDocsOpen} onClose={() => setIsHRDocsOpen(false)} />
     </div>
   );
 };
