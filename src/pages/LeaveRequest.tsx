@@ -358,6 +358,42 @@ const LeaveRequest = () => {
                       )}
                     />
 
+                    {isLupaAbsen && (
+                      <div className="border-t pt-4 space-y-4">
+                        <div>
+                          <p className="text-sm font-semibold">Jam Kerja (Opsional)</p>
+                          <p className="text-xs text-muted-foreground">
+                            Isi jika ingin menyesuaikan jam masuk/pulang yang akan diinput otomatis ke attendance. Kosongkan untuk pakai jam kerja standar.
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <FormField
+                            control={form.control}
+                            name="checkInTime"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Jam Masuk</FormLabel>
+                                <FormControl><Input type="time" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="checkOutTime"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Jam Pulang</FormLabel>
+                                <FormControl><Input type="time" {...field} /></FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {!isLupaAbsen && (
                     <div className="border-t pt-4 space-y-4">
                       <div>
                         <p className="text-sm font-semibold">{t("leaveRequest.delegationTitle")}</p>
@@ -410,6 +446,7 @@ const LeaveRequest = () => {
                         )}
                       />
                     </div>
+                    )}
 
                     <Button type="submit" className="w-full" disabled={isSubmitting || validationErrors.length > 0}>
                       {isSubmitting ? t("leaveRequest.submitting") : t("leaveRequest.submit")}
