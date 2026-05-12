@@ -106,6 +106,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const [pendingCount, setPendingCount] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [isHRPanelOpen, setIsHRPanelOpen] = useState(false);
   const navigationGroups = buildNavigationGroups(t);
 
   // Fetch signed photo URL
@@ -264,7 +265,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               `}</style>
               <div className="relative group">
                 <button
-                  onClick={() => console.log("HR Assistant clicked")}
+                  onClick={() => setIsHRPanelOpen(true)}
                   style={{
                     width: 34, height: 34, borderRadius: 9,
                     background: "#0F6E56",
@@ -333,6 +334,73 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
         </main>
       </div>
+
+      {/* HR Assistant Slide-over Panel */}
+      {isHRPanelOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex" }}>
+          {/* Backdrop */}
+          <div
+            style={{ flex: 1, background: "rgba(0,0,0,0.3)" }}
+            onClick={() => setIsHRPanelOpen(false)}
+          />
+          {/* Panel */}
+          <div
+            style={{
+              width: 420,
+              height: "100vh",
+              background: "#fff",
+              display: "flex",
+              flexDirection: "column",
+              animation: "hrPanelSlideIn 250ms ease",
+            }}
+          >
+            <style>{`
+              @keyframes hrPanelSlideIn {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+              }
+            `}</style>
+
+            {/* Header */}
+            <div
+              style={{
+                height: 56,
+                background: "#0F6E56",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0 16px",
+                flexShrink: 0,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <MessageCircleMore style={{ width: 20, height: 20, color: "white" }} />
+                <div>
+                  <p style={{ color: "white", fontWeight: 500, fontSize: 15, lineHeight: 1.2, margin: 0 }}>
+                    HR Assistant
+                  </p>
+                  <p style={{ color: "white", fontSize: 11, opacity: 0.8, margin: 0 }}>
+                    Asisten virtual perusahaan Kemika
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsHRPanelOpen(false)}
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <p style={{ color: "#9ca3af", fontSize: 14 }}>Chat coming soon...</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
