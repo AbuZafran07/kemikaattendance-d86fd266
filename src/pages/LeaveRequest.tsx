@@ -46,8 +46,12 @@ const LeaveRequest = () => {
       reason: "",
       delegatedTo: "",
       delegationNotes: "",
+      checkInTime: "",
+      checkOutTime: "",
     },
   });
+
+  const isLupaAbsen = form.watch("leaveType") === "lupa_absen";
 
   const leaveType = form.watch("leaveType");
   const startDate = form.watch("startDate");
