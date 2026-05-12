@@ -2,9 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { loadHRDocs } from "@/components/HRDocumentModal";
 
+export interface HRReference {
+  type: "app" | "document";
+  label: string;
+}
+
 export interface HRMessage {
   role: "user" | "assistant";
   content: string;
+  references?: HRReference[];
 }
 
 async function buildAppContext(): Promise<string> {
