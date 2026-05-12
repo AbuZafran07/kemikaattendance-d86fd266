@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
@@ -107,6 +107,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [pendingCount, setPendingCount] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [isHRPanelOpen, setIsHRPanelOpen] = useState(false);
+  const [hrMessages, setHrMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [hrInput, setHrInput] = useState("");
+  const [hrLoading, setHrLoading] = useState(false);
+  const hrMessagesEndRef = useRef<HTMLDivElement>(null);
   const navigationGroups = buildNavigationGroups(t);
 
   // Fetch signed photo URL
@@ -151,6 +155,35 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   const handleLogout = () => {
     signOut();
+  };
+
+  useEffect(() => {
+    hrMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [hrMessages]);
+
+  const sendHRMessage = async () => {
+    const text = hrInput.trim();
+    if (!text || hrLoading) return;
+
+    const newMessages: { role: "user" | "assistant"; content: string }[] = [
+      ...hrMessages,
+      { role: "user", content: text },
+    ];
+    setHrMessages(newMessages);
+    setHrInput("");
+    setHrLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("hr-assistant", {
+        body: { messages: newMessages },
+      });
+      if (error) throw error;
+      setHrMessages([...newMessages, { role: "assistant", content: data.reply }]);
+    } catch {
+      setHrMessages([...newMessages, { role: "assistant", content: "Maaf, terjadi kesalahan. Silakan coba lagi." }]);
+    } finally {
+      setHrLoading(false);
+    }
   };
 
   const UserDropdown = ({ mobile = false }: { mobile?: boolean }) => (
@@ -394,9 +427,77 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </button>
             </div>
 
-            {/* Body */}
-            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <p style={{ color: "#9ca3af", fontSize: 14 }}>Chat coming soon...</p>
+            {/* Messages */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: 12 }}>
+              {hrMessages.length === 0 && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 8 }}>
+                  <MessageCircleMore style={{ width: 40, height: 40, color: "#0F6E56", opacity: 0.4 }} />
+                  <p style={{ color: "#9ca3af", fontSize: 13, textAlign: "center" }}>
+                    Halo! Saya HR Assistant Kemika.<br />Ada yang bisa saya bantu?
+                  </p>
+                </div>
+              )}
+              {hrMessages.map((msg, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
+                  <div style={{
+                    maxWidth: "80%",
+                    padding: "10px 14px",
+                    borderRadius: msg.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                    background: msg.role === "user" ? "#0F6E56" : "#f3f4f6",
+                    color: msg.role === "user" ? "white" : "#111827",
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                    whiteSpace: "pre-wrap",
+                  }}>
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+              {hrLoading && (
+                <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                  <div style={{ padding: "10px 14px", borderRadius: "18px 18px 18px 4px", background: "#f3f4f6", display: "flex", gap: 4, alignItems: "center" }}>
+                    {[0, 1, 2].map((i) => (
+                      <span key={i} style={{
+                        width: 6, height: 6, borderRadius: "50%", background: "#0F6E56",
+                        display: "inline-block",
+                        animation: `hrDotBounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+                      }} />
+                    ))}
+                    <style>{`@keyframes hrDotBounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }`}</style>
+                  </div>
+                </div>
+              )}
+              <div ref={hrMessagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div style={{ padding: "12px 16px", borderTop: "1px solid #e5e7eb", display: "flex", gap: 8, alignItems: "flex-end", background: "#fff" }}>
+              <textarea
+                value={hrInput}
+                onChange={(e) => setHrInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendHRMessage(); } }}
+                placeholder="Ketik pertanyaan Anda..."
+                rows={1}
+                style={{
+                  flex: 1, resize: "none", border: "1px solid #d1d5db", borderRadius: 12,
+                  padding: "10px 14px", fontSize: 13, outline: "none", fontFamily: "inherit",
+                  lineHeight: 1.5, maxHeight: 120, overflowY: "auto",
+                }}
+              />
+              <button
+                onClick={sendHRMessage}
+                disabled={!hrInput.trim() || hrLoading}
+                style={{
+                  width: 38, height: 38, borderRadius: 10, border: "none", cursor: "pointer",
+                  background: !hrInput.trim() || hrLoading ? "#d1d5db" : "#0F6E56",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                  transition: "background 150ms",
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
