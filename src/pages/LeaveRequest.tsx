@@ -190,15 +190,20 @@ const LeaveRequest = () => {
     }
     setIsSubmitting(true);
     try {
+      const isLupa = data.leaveType === "lupa_absen";
+      let reasonText = data.reason || "";
+      if (isLupa && data.checkInTime && data.checkOutTime) {
+        reasonText = `[JAM:${data.checkInTime}-${data.checkOutTime}] ${reasonText}`.trim();
+      }
       const { error } = await supabase.from("leave_requests").insert([{
         user_id: profile?.id,
         leave_type: data.leaveType,
         start_date: data.startDate,
         end_date: data.endDate,
         total_days: totalDays,
-        reason: data.reason || "",
-        delegated_to: data.delegatedTo,
-        delegation_notes: data.delegationNotes,
+        reason: reasonText,
+        delegated_to: isLupa ? null : (data.delegatedTo || null),
+        delegation_notes: isLupa ? null : (data.delegationNotes || null),
       } as any]);
 
       if (error) throw error;
