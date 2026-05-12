@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useHRAssistant } from "@/hooks/useHRAssistant";
+import HRReferenceChips from "@/components/HRReferenceChips";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import logo from "@/assets/logo.png";
 import { useAuth } from "@/contexts/AuthContext";
@@ -1172,10 +1173,7 @@ const EmployeeView = () => {
                         {msg.content}
                       </div>
                     </div>
-                    <div style={{ marginLeft: 32, background: "#E1F5EE", borderLeft: "3px solid #1D9E75", borderRadius: "0 6px 6px 0", padding: "8px 10px" }}>
-                      <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: "#0F6E56" }}>📌 Kembalikan ke Kebijakan Perusahaan</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "#374151" }}>Ketentuan ini mengacu pada kebijakan resmi Kemika.</p>
-                    </div>
+                    <HRReferenceChips references={msg.references} />
                   </div>
                 )}
               </div>

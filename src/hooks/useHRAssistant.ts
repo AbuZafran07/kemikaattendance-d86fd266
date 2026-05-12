@@ -2,9 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { loadHRDocs } from "@/components/HRDocumentModal";
 
+export interface HRReference {
+  type: "app" | "document";
+  label: string;
+}
+
 export interface HRMessage {
   role: "user" | "assistant";
   content: string;
+  references?: HRReference[];
 }
 
 async function buildAppContext(): Promise<string> {
@@ -107,7 +113,12 @@ export function useHRAssistant() {
 
       if (error) throw error;
       const reply = data?.reply ?? "Maaf, saya tidak dapat menjawab saat ini.";
-      setHrMessages([...newMessages, { role: "assistant", content: reply }]);
+
+      const references: HRReference[] = [];
+      if (appContext) references.push({ type: "app", label: "Ketentuan Aplikasi" });
+      activeDocs.forEach((d) => references.push({ type: "document", label: d.name }));
+
+      setHrMessages([...newMessages, { role: "assistant", content: reply, references }]);
     } catch {
       setHrMessages([...newMessages, { role: "assistant", content: "Maaf, terjadi kesalahan. Silakan coba lagi." }]);
     } finally {
