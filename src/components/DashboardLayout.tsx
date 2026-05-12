@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect, useRef } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +31,7 @@ import {
   ArrowLeft,
   Settings2,
 } from "lucide-react";
-import HRDocumentModal, { loadHRDocs } from "@/components/HRDocumentModal";
+import HRDocumentModal from "@/components/HRDocumentModal";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -47,27 +47,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
 import MarqueeBanner from "@/components/MarqueeBanner";
-
-const HR_SYSTEM_PROMPT = `Kamu adalah HR Assistant virtual dari PT. Kemika Karya Pratama, perusahaan yang bergerak di bidang industri kimia di Indonesia. Kamu membantu karyawan dan admin HR dengan pertanyaan seputar:
-
-- Kebijakan kehadiran, absensi, dan keterlambatan
-- Pengajuan dan sisa cuti tahunan, sakit, izin
-- Perjalanan dinas dan reimbursement
-- Lembur dan perhitungan lembur
-- Penggajian, slip gaji, dan komponen gaji (BPJS, PPh 21, tunjangan)
-- Peraturan ketenagakerjaan Indonesia (UU Cipta Kerja, PP 36/2021)
-- KPI dan penilaian kinerja
-- Pinjaman karyawan
-- Prosedur dan kebijakan perusahaan
-
-Gaya komunikasi:
-- Profesional namun ramah dan hangat
-- Gunakan Bahasa Indonesia yang baik dan mudah dipahami
-- Jawab secara ringkas dan jelas, maksimal 3-4 paragraf
-- Jika pertanyaan di luar konteks HR, arahkan kembali ke topik HR
-- Jika butuh data spesifik karyawan yang tidak kamu miliki, minta mereka cek langsung di sistem atau hubungi admin HR
-
-[UPLOADED_DOCUMENTS_CONTEXT]`;
+import { useHRAssistant } from "@/hooks/useHRAssistant";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -135,10 +115,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isHRPanelOpen, setIsHRPanelOpen] = useState(false);
   const [isHRMobileOpen, setIsHRMobileOpen] = useState(false);
   const [isHRDocsOpen, setIsHRDocsOpen] = useState(false);
-  const [hrMessages, setHrMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
-  const [hrInput, setHrInput] = useState("");
-  const [hrLoading, setHrLoading] = useState(false);
-  const hrMessagesEndRef = useRef<HTMLDivElement>(null);
+  const { hrMessages, hrInput, setHrInput, hrLoading, hrMessagesEndRef, sendHRMessage, clearMessages } = useHRAssistant();
   const navigationGroups = buildNavigationGroups(t);
 
   // Fetch signed photo URL
@@ -183,58 +160,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   const handleLogout = () => {
     signOut();
-  };
-
-  useEffect(() => {
-    hrMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [hrMessages]);
-
-  const sendHRMessage = async (text?: string) => {
-    const msg = (text ?? hrInput).trim();
-    if (!msg || hrLoading) return;
-
-    const newMessages: { role: "user" | "assistant"; content: string }[] = [
-      ...hrMessages,
-      { role: "user", content: msg },
-    ];
-    setHrMessages(newMessages);
-    setHrInput("");
-    setHrLoading(true);
-
-    try {
-      const history = newMessages.slice(-20);
-      const activeDocs = loadHRDocs().filter((d) => d.active);
-      const docsContext = activeDocs.length > 0
-        ? activeDocs.map((doc) => `=== ${doc.name} ===\n${doc.content.slice(0, 3000)}`).join("\n\n")
-        : "";
-      const finalSystemPrompt = docsContext
-        ? HR_SYSTEM_PROMPT.replace("[UPLOADED_DOCUMENTS_CONTEXT]", `\nBerikut dokumen tambahan perusahaan sebagai referensi:\n\n${docsContext}`)
-        : HR_SYSTEM_PROMPT.replace("[UPLOADED_DOCUMENTS_CONTEXT]", "");
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: finalSystemPrompt,
-          messages: history.map((m) => ({ role: m.role, content: m.content })),
-        }),
-      });
-
-      if (!response.ok) throw new Error(`${response.status}`);
-      const data = await response.json();
-      const reply = data.content?.[0]?.text ?? "Maaf, saya tidak dapat menjawab saat ini.";
-      setHrMessages([...newMessages, { role: "assistant", content: reply }]);
-    } catch {
-      setHrMessages([...newMessages, { role: "assistant", content: "Maaf, terjadi kesalahan. Periksa koneksi atau API key Anda." }]);
-    } finally {
-      setHrLoading(false);
-    }
   };
 
   const UserDropdown = ({ mobile = false }: { mobile?: boolean }) => (
@@ -488,7 +413,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </button>
                 )}
                 <button
-                  onClick={() => setHrMessages([])}
+                  onClick={clearMessages}
                   title="Hapus riwayat chat"
                   style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75, borderRadius: 6 }}
                 >
@@ -649,7 +574,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </button>
               )}
               <button
-                onClick={() => setHrMessages([])}
+                onClick={clearMessages}
                 title="Hapus riwayat chat"
                 style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75 }}
               >
