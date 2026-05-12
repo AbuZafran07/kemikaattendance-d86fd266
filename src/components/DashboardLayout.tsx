@@ -27,6 +27,7 @@ import {
   Trophy,
   MessageCircleMore,
   ArrowUp,
+  Trash2,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
 import MarqueeBanner from "@/components/MarqueeBanner";
+
+const HR_SYSTEM_PROMPT = `Kamu adalah HR Assistant virtual dari PT. Kemika Karya Pratama, perusahaan yang bergerak di bidang industri kimia di Indonesia. Kamu membantu karyawan dan admin HR dengan pertanyaan seputar:
+
+- Kebijakan kehadiran, absensi, dan keterlambatan
+- Pengajuan dan sisa cuti tahunan, sakit, izin
+- Perjalanan dinas dan reimbursement
+- Lembur dan perhitungan lembur
+- Penggajian, slip gaji, dan komponen gaji (BPJS, PPh 21, tunjangan)
+- Peraturan ketenagakerjaan Indonesia (UU Cipta Kerja, PP 36/2021)
+- KPI dan penilaian kinerja
+- Pinjaman karyawan
+- Prosedur dan kebijakan perusahaan
+
+Gaya komunikasi:
+- Profesional namun ramah dan hangat
+- Gunakan Bahasa Indonesia yang baik dan mudah dipahami
+- Jawab secara ringkas dan jelas, maksimal 3-4 paragraf
+- Jika pertanyaan di luar konteks HR, arahkan kembali ke topik HR
+- Jika butuh data spesifik karyawan yang tidak kamu miliki, minta mereka cek langsung di sistem atau hubungi admin HR`;
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -174,9 +194,32 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     setHrInput("");
     setHrLoading(true);
 
-    await new Promise((r) => setTimeout(r, 600));
-    setHrMessages([...newMessages, { role: "assistant", content: "Halo! Fitur AI sedang disiapkan." }]);
-    setHrLoading(false);
+    try {
+      const history = newMessages.slice(-20);
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: HR_SYSTEM_PROMPT,
+          messages: history.map((m) => ({ role: m.role, content: m.content })),
+        }),
+      });
+
+      if (!response.ok) throw new Error(`${response.status}`);
+      const data = await response.json();
+      const reply = data.content?.[0]?.text ?? "Maaf, saya tidak dapat menjawab saat ini.";
+      setHrMessages([...newMessages, { role: "assistant", content: reply }]);
+    } catch {
+      setHrMessages([...newMessages, { role: "assistant", content: "Maaf, terjadi kesalahan. Periksa koneksi atau API key Anda." }]);
+    } finally {
+      setHrLoading(false);
+    }
   };
 
   const UserDropdown = ({ mobile = false }: { mobile?: boolean }) => (
@@ -396,11 +439,20 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <p style={{ color: "white", fontSize: 11, opacity: 0.8, margin: 0 }}>Asisten virtual perusahaan Kemika</p>
                 </div>
               </div>
-              <button onClick={() => setIsHRPanelOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <button
+                  onClick={() => setHrMessages([])}
+                  title="Hapus riwayat chat"
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75, borderRadius: 6 }}
+                >
+                  <Trash2 style={{ width: 16, height: 16, color: "white" }} />
+                </button>
+                <button onClick={() => setIsHRPanelOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", padding: 6, display: "flex", opacity: 0.75, borderRadius: 6 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Quick Chips */}
